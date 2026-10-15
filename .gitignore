@@ -1,53 +1,102 @@
-# Secrets & API Keys
+# ============================================
+# KODIRA .gitignore
+# ============================================
+
+# ===== Secrets & API Keys =====
 .env
+.env.*
+!.env.example
+local.properties
+key.properties
+*.jks
+*.keystore
+*.p8
+*.p12
 *.key
 *.pem
 *.crt
-!\.env\.example
+*.mobileprovision
 
-# Dependencies
-.gradle
-.idea
+# ===== Dependencies =====
+node_modules/
+.pub-cache/
+.dart_tool/
+.packages
+.flutter-plugins
+.flutter-plugins-dependencies
 
-# Build Output
-/build/
-/app/build/
+# ===== Build Output =====
+build/
+dist/
+out/
 *.apk
 *.apks
 *.aab
-
-# Gradle
-/gradle/
-!gradle/wrapper/gradle-wrapper.jar
-/gradle/wrapper/gradle-wrapper.properties
-
-# IDE & Editor
-*.iml
-.idea/
-.vscode/
-!.vscode/settings.json
-
-# Logs & Cache
-*.log
-*.cache
-.caches/
-
-# Auto‑generated
+*.aar
+*.dex
 *.class
+*.o
+*.so
 *.jar
-*.war
-*.ear
-*.db
+!.gradle/wrapper/gradle-wrapper.jar
+.cxx/
+captures/
 
-# OS Files
+# ===== Gradle =====
+.gradle/
+gradle-app.setting
+!gradle-wrapper.jar
+
+# ===== IDE & Editor =====
+.idea/
+*.iml
+*.iws
+*.ipr
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+.settings/
+.project
+.classpath
+*.swp
+*.swo
+
+# ===== Logs & Cache =====
+*.log
+*.hmap
+*.ipa
+DerivedData/
+coverage/
+/test_reports/
+
+# ===== Auto-generated =====
+GeneratedPluginRegistrant.java
+flutter_*.png
+linked_*.ds
+unlinked.ds
+unlinked_spec.ds
+
+# ===== OS Files =====
 .DS_Store
 Thumbs.db
+desktop.ini
+*.stackdump
 
-# Temp Files
-tmp/
+# ===== Temp Files =====
 *.tmp
-*.temp
+*.bak
+*.orig
+*.rej
 
-# Do not ignore lock files for app
-!pubspec.lock
-!package-lock.json
+# ===== Flutter specific =====
+ios/Pods/
+ios/.symlinks/
+ios/Flutter/Flutter.framework
+ios/Flutter/Flutter.podspec
+macos/Pods/
+android/.gradle/
+android/captures/
+android/local.properties
+android/key.properties
+*.g.dart
+*.freezed.dart
