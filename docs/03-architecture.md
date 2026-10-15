@@ -88,7 +88,7 @@ Data lokal di HP menyimpan cache dan state agar aplikasi tetap responsif.
 
 | Layer | Pilihan | Alasan |
 |-------|---------|--------|
-| Provider | **API berbayar** (OpenAI, Gemini, Claude, atau lainnya) | Kualitas lebih baik, tidak bebani HP |
+| Provider | **OpenAI GPT-4o-mini** (fallback: Gemini Flash) | Kualitas coding terbaik, harga termurah (ADR-019) |
 | Model | **Model ringan** (misal GPT-4o-mini, Gemini Flash, Claude Haiku) | Biaya lebih murah, cukup untuk hint & soal |
 | Fallback | **Rule-based** | Jika API gagal atau limit |
 | Guardrail | Validasi server-side | Sintaks, test case, rubrik, batasan materi |
@@ -102,7 +102,7 @@ Data lokal di HP menyimpan cache dan state agar aplikasi tetap responsif.
 
 | Layer | Pilihan | Alasan |
 |-------|---------|--------|
-| Platform | **Judge0** (self-host atau API) | Populer, mendukung C++ & Java, aman |
+| Platform | **Judge0 hosted API** | Tanpa server, gratis volume awal, sandbox aman (ADR-021) |
 | Alternatif | **Piston** | Open source, mudah di-deploy |
 | Sandbox | Wajib | Cegah eksekusi berbahaya |
 

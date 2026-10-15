@@ -644,6 +644,152 @@ Apakah pakai pre-commit hook?
 
 ---
 
+## ADR-019: AI Provider — OpenAI GPT-4o-mini
+
+**Tanggal:** 2026-10-16  
+**Status:** Accepted
+
+### Konteks
+KODIRA butuh AI untuk hint bertahap, generate soal variasi, dan feedback. 
+Butuh provider yang berkualitas untuk coding, cepat, dan murah.
+
+### Opsi
+1. OpenAI GPT-4o-mini
+2. Google Gemini Flash
+3. Anthropic Claude Haiku
+
+### Keputusan
+OpenAI GPT-4o-mini.
+
+### Alasan
+- Kualitas coding tertinggi di kelas harga ini
+- Harga input termurah ($0.15/1M token)
+- Kecepatan respons tertinggi (≤200ms)
+- Dukungan Bahasa Indonesia baik
+
+### Konsekuensi
+- Estimasi biaya ~$14/bulan untuk 30 user aktif
+- Bergantung pada API OpenAI
+- Perlu fallback ke Gemini Flash jika API down atau budget terlampaui
+
+---
+
+## ADR-020: Local DB — Drift
+
+**Tanggal:** 2026-10-16  
+**Status:** Accepted
+
+### Konteks
+KODIRA butuh local database untuk cache materi, progress, dan mastery 
+user agar aplikasi tetap responsif dan bisa offline-first.
+
+### Opsi
+1. Isar
+2. Drift
+
+### Keputusan
+Drift.
+
+### Alasan
+- Migrasi skema otomatis (penting untuk iterasi cepat)
+- Komunitas besar, dokumentasi lengkap
+- Integrasi Riverpod matang
+- Learning curve lebih rendah untuk tim 2 orang
+
+### Konsekuensi
+- Performa sedikit di bawah Isar untuk query besar
+- Perlu optimasi indeks untuk query yang kompleks
+- Menggunakan SQLite di bawahnya
+
+---
+
+## ADR-021: Code Runner — Judge0 Hosted API
+
+**Tanggal:** 2026-10-16  
+**Status:** Accepted
+
+### Konteks
+KODIRA butuh eksekusi kode C++ dan Java yang disubmit user untuk 
+validasi jawaban. Butuh sandbox aman dan tidak membebani HP user.
+
+### Opsi
+1. Judge0 hosted API
+2. Piston self-host
+3. Judge0 self-host
+
+### Keputusan
+Judge0 hosted API.
+
+### Alasan
+- Tanpa server, hemat waktu tim kecil
+- Gratis untuk volume awal (~18k request/bulan)
+- Sudah sandbox, aman
+- Support C++ dan Java
+
+### Konsekuensi
+- Bergantung pada layanan eksternal.
+- Jika rate limit tercapai, migrasi ke self‑host Piston (~$7/bulan VPS)
+
+---
+
+## ADR-022: Supabase — Hosted Dulu
+
+**Tanggal:** 2026-10-15  
+**Status:** Accepted
+
+### Konteks
+Pilih hosted atau self‑host Supabase untuk backend KODIRA?
+
+### Keputusan
+Hosted dulu untuk development & MVP.
+
+### Alasan
+- Tim 2 orang, tidak perlu urus server
+- Free tier cukup (500MB storage, 100k request/hari)
+- Skalabilitas otomatis
+- Hemat waktu setup
+
+### Konsekuensi
+- Perlu backup rutin mingguan via pg_dump
+- Trigger self‑host: storage >10GB atau request >100k/hari, atau 
+  ada kebijakan data on‑premise dari kampus
+- Rencana migrasi ke self‑host disiapkan jika trigger tercapai
+
+---
+
+## ADR-023: Budget AI — ~$14/bulan
+
+**Tanggal:** 2026-10-16  
+**Status:** Accepted
+
+### Konteks
+KODIRA akan pakai OpenAI GPT-4o-mini untuk AI. Butuh estimasi budget 
+per bulan untuk 1 kelas (30 mahasiswa).
+
+### Perhitungan
+- 30 user × 20 request/hari × 30 hari = 18,000 request/bulan
+- Token per request: input ~800, output ~300 → total ~1,100 token
+- Total ~19.8M token/bulan
+- Input: 19.8M × $0.15 = $2.97
+- Output: 19.8M × $0.60 = $11.88
+- Total: ~$14/bulan
+
+### Keputusan
+Budget normal ~$14/bulan. Range: $0 (minimum) hingga $28 (2x normal).
+
+### Alasan
+- Masuk akal untuk project akademik
+- Bisa dikontrol dengan rate limit
+- Fallback ke Gemini Flash jika >2x budget
+
+### Konsekuensi
+- Perlu monitor penggunaan harian
+- Set rate limit 20 hint/hari per user
+- Cache respons AI yang sama
+- Fallback otomatis ke Gemini Flash jika >2x budget
+
+---
+
 ## Template ADR Baru
 
 Saat ada keputusan baru, tambahkan dengan format berikut:
