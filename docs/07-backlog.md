@@ -78,7 +78,7 @@ Gunakan bersama `docs/06-workflow.md` untuk kerja dengan opencode.
 | ------------------------- | ------ | ------ | ----- | ------ |
 | Phase 0 — Foundation      | 10     | 10     | 0     | 0      |
 | Phase 1 — Design System   | 8      | 8      | 0     | 0      |
-| Phase 2 — UI Design       | 6      | 1      | 1     | 4      |
+| Phase 2 — UI Design       | 6      | 4      | 0     | 2      |
 | Phase 3 — Architecture    | 7      | 0      | 0     | 7      |
 | Phase 4 — MVP Development | 14     | 0      | 0     | 14     |
 | Phase 5 — AI Integration  | 8      | 0      | 0     | 8      |
