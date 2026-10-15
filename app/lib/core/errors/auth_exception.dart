@@ -1,22 +1,25 @@
-class AuthException implements Exception {
+/// Custom exception untuk error autentikasi KODIRA.
+///
+/// Dinamai "KodiraAuthException" untuk menghindari konflik dengan
+/// `AuthException` dari package `supabase_flutter`.
+class KodiraAuthException implements Exception {
   final String code;
   final String message;
 
-  AuthException(this.code, this.message);
+  KodiraAuthException(this.code, this.message);
 
   @override
   String toString() => message;
 
-  // Factory constructors for common errors
-  factory AuthException.invalidCredentials() =>
-      AuthException('invalid_credentials', 'NIM atau password salah');
+  factory KodiraAuthException.invalidCredentials() =>
+      KodiraAuthException('invalid_credentials', 'NIM atau password salah');
 
-  factory AuthException.networkError() =>
-      AuthException('network_error', 'Koneksi bermasalah, coba lagi');
+  factory KodiraAuthException.networkError() =>
+      KodiraAuthException('network_error', 'Koneksi bermasalah, coba lagi');
 
-  factory AuthException.userNotFound() =>
-      AuthException('user_not_found', 'Akun tidak ditemukan');
+  factory KodiraAuthException.userNotFound() =>
+      KodiraAuthException('user_not_found', 'Akun tidak ditemukan');
 
-  factory AuthException.unknown([String? detail]) =>
-      AuthException('unknown', detail ?? 'Terjadi kesalahan');
+  factory KodiraAuthException.unknown([String? detail]) =>
+      KodiraAuthException('unknown', detail ?? 'Terjadi kesalahan');
 }

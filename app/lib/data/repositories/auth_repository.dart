@@ -1,49 +1,83 @@
-import 'package:supabase_flutter/supabase_flutter.dart';
-import '../../data/models/user_model.dart';
+import 'package:supabase_flutter/supabase_flutter.dart' as supa;
+import '../models/user_model.dart';
 import '../../core/errors/auth_exception.dart';
 
 class AuthRepository {
-  final SupabaseClient _client;
+  final supa.SupabaseClient _client;
 
   AuthRepository(this._client);
 
-  /// Mengambil user yang sedang login (jika ada)
+  /// Mengambil user yang sedang login (jika ada).
   Future<UserModel?> getCurrentUser() async {
     final session = _client.auth.currentSession;
     if (session == null) return null;
-    final user = session.user;
-    // Supabase mengembalikan user data dalam map `user`.
-    return UserModel.fromSupabase(user.toJson());
+
+    // Ambil data lengkap dari tabel `users` di database.
+    try {
+      final response = await _client
+          .from('users')
+          .select()
+          .eq('id', session.user.id)
+          .maybeSingle();
+
+      if (response == null) return null;
+      return UserModel.fromSupabase(response);
+    } on supa.PostgrestException catch (e) {
+      throw KodiraAuthException.unknown(e.message);
+    }
   }
 
   /// Login dengan NIM + password.
-  /// NIM di‑convert ke format email internal sebelum dipakai ke Supabase.
-  Future<UserModel> signInWithNim({required String nim, required String password}) async {
-    final email = 'nim_${nim}@kodira.local';
+  /// NIM dikonversi ke format email internal sebelum dipakai ke Supabase.
+  Future<UserModel> signInWithNim({
+    required String nim,
+    required String password,
+  }) async {
+    final email = 'nim_$nim@kodira.local';
     try {
-      final response = await _client.auth.signInWithPassword(email: email, password: password);
-      if (response.error != null) {
-        // Error spesifik Supabase biasanya berisi code "invalid_credentials".
-        if (response.error!.message.contains('Invalid login credentials')) {
-          throw AuthException.invalidCredentials();
-        }
-        throw AuthException.unknown(response.error!.message);
-      }
+      final response = await _client.auth.signInWithPassword(
+        email: email,
+        password: password,
+      );
+
       final user = response.user;
-      if (user == null) throw AuthException.userNotFound();
-      return UserModel.fromSupabase(user.toJson());
-    } on AuthException {
-      rethrow;
-    } catch (_) {
-      throw AuthException.networkError();
+      if (user == null) throw KodiraAuthException.userNotFound();
+
+      // Update last_login di tabel users.
+      await _client
+          .from('users')
+          .update({'last_login': DateTime.now().toIso8601String()})
+          .eq('id', user.id);
+
+      // Ambil data lengkap dari tabel users.
+      final userData = await _client
+          .from('users')
+          .select()
+          .eq('id', user.id)
+          .single();
+
+      return UserModel.fromSupabase(userData);
+    } on supa.AuthException catch (e) {
+      // Handle error dari Supabase Auth.
+      final message = e.message.toLowerCase();
+      if (message.contains('invalid login credentials') ||
+          message.contains('invalid_credentials')) {
+        throw KodiraAuthException.invalidCredentials();
+      }
+      throw KodiraAuthException.unknown(e.message);
+    } on supa.PostgrestException catch (e) {
+      throw KodiraAuthException.unknown(e.message);
+    } catch (e) {
+      throw KodiraAuthException.networkError();
     }
   }
 
   /// Logout user.
   Future<void> signOut() async {
-    final response = await _client.auth.signOut();
-    if (response.error != null) {
-      throw AuthException.unknown(response.error!.message);
+    try {
+      await _client.auth.signOut();
+    } on supa.AuthException catch (e) {
+      throw KodiraAuthException.unknown(e.message);
     }
   }
 

@@ -1,5 +1,4 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:json_annotation/json_annotation.dart';
 
 part 'user_model.freezed.dart';
 part 'user_model.g.dart';
@@ -16,10 +15,13 @@ class UserModel with _$UserModel {
     DateTime? lastLogin,
   }) = _UserModel;
 
-  factory UserModel.fromJson(Map<String, dynamic> json) => _$UserModelFromJson(json);
+  factory UserModel.fromJson(Map<String, dynamic> json) =>
+      _$UserModelFromJson(json);
+}
 
-  /// Mapping dari response Supabase (menggunakan nama field standar Supabase)
-  factory UserModel.fromSupabase(Map<String, dynamic> map) {
+extension UserModelSupabase on UserModel {
+  /// Mapping dari response Supabase (snake_case) ke UserModel.
+  static UserModel fromSupabase(Map<String, dynamic> map) {
     return UserModel(
       id: map['id'] as String,
       nim: map['nim'] as String,
@@ -27,7 +29,9 @@ class UserModel with _$UserModel {
       email: map['email'] as String?,
       avatarUrl: map['avatar_url'] as String?,
       createdAt: DateTime.parse(map['created_at'] as String),
-      lastLogin: map['last_login'] != null ? DateTime.parse(map['last_login'] as String) : null,
+      lastLogin: map['last_login'] != null
+          ? DateTime.parse(map['last_login'] as String)
+          : null,
     );
   }
-}
+}s
