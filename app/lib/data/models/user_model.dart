@@ -5,6 +5,8 @@ part 'user_model.g.dart';
 
 @freezed
 class UserModel with _$UserModel {
+  const UserModel._();
+
   const factory UserModel({
     required String id,
     required String nim,
@@ -17,11 +19,8 @@ class UserModel with _$UserModel {
 
   factory UserModel.fromJson(Map<String, dynamic> json) =>
       _$UserModelFromJson(json);
-}
 
-extension UserModelSupabase on UserModel {
-  /// Mapping dari response Supabase (snake_case) ke UserModel.
-  static UserModel fromSupabase(Map<String, dynamic> map) {
+  factory UserModel.fromSupabase(Map<String, dynamic> map) {
     return UserModel(
       id: map['id'] as String,
       nim: map['nim'] as String,
@@ -34,4 +33,4 @@ extension UserModelSupabase on UserModel {
           : null,
     );
   }
-}s
+}
