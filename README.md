@@ -47,8 +47,8 @@ Semua dokumentasi ada di folder `docs/`. Baca sesuai kebutuhan:
 
 ### Prasyarat
 
-- **Flutter SDK** 3.24+ — [Install](https://docs.flutter.dev/get-started/install)
-- **Dart** 3.4+ (bundled dengan Flutter)
+- **Flutter SDK** 3.44.6 — [Install](https://docs.flutter.dev/get-started/install)
+- **Dart** 3.12.2 (bundled with Flutter)
 - **Git** — [Install](https://git-scm.com/)
 - **VS Code** + Flutter extension (opsional, direkomendasikan)
 - **Akun Supabase** (untuk backend)
@@ -81,13 +81,10 @@ flutter run
 bash scripts/install-hooks.sh
 ```
 
-### Menjalankan Test
+### CI (GitHub Actions)
 
-```bash
-cd app
-flutter test                     # semua test
-flutter test --coverage          # dengan coverage
-```
+CI otomatis dijalankan pada setiap push atau pull‑request ke branch `main` melalui workflow `.github/workflows/ci.yml`. Workflow melakukan instalasi dependensi, format check, static analysis, dan menjalankan test (jika ada). Lihat badge status pada README atau tab **Actions** di GitHub.
+
 
 ---
 
@@ -95,19 +92,19 @@ flutter test --coverage          # dengan coverage
 
 ```
 kodira/
-├── app/                         # Kode Flutter
+├── app/                         # Kode Flutter (folder utama)
 │   ├── lib/
-│   │   ├── app/                 # Konfigurasi app
-│   │   ├── core/                # Fondasi (constants, errors, utils)
-│   │   ├── data/                # Data layer
-│   │   ├── domain/              # Business logic
-│   │   ├── features/            # Fitur (feature-first)
-│   │   └── shared/              # Widget & provider global
-│   ├── test/                    # Test
+│   │   ├── app/                 # Konfigurasi app, router, theme
+│   │   ├── core/                # Constants, errors, utils, network
+│   │   ├── data/                # Models, repositories, sources
+│   │   ├── domain/              # Entities, use‑cases
+│   │   ├── features/            # Semua fitur (auth, home, …)
+│   │   └── shared/              # Widgets & providers global
+│   ├── test/                     # Unit & widget tests
 │   └── pubspec.yaml
 ├── docs/                        # Dokumentasi
-├── reference/                   # Referensi desain & guideline
-├── scripts/                     # Scripts (pre-commit, dll)
+├── reference/                    # Referensi desain
+├── scripts/                     # pre‑commit & install‑hooks
 ├── AGENTS.md
 ├── DESIGN.md
 ├── CONTRIBUTING.md

@@ -30,21 +30,21 @@ class KodiraColors {
   static const Color neutral300 = Color(0xFF9CA3AF);
   static const Color neutral200 = Color(0xFFE5E7EB);
   static const Color neutral100 = Color(0xFFF7F8FC);
-  static const Color neutral0   = Color(0xFFFFFFFF);
+  static const Color neutral0 = Color(0xFFFFFFFF);
 
   // Semantic colors
-  static const Color info      = Color(0xFF3B82F6);
-  static const Color warning   = Color(0xFFF59E0B);
-  static const Color error     = Color(0xFFEF4444);
+  static const Color info = Color(0xFF3B82F6);
+  static const Color warning = Color(0xFFF59E0B);
+  static const Color error = Color(0xFFEF4444);
   static const Color successAlt = Color(0xFF10B981);
 
   // Code syntax colors
-  static const Color codeBg       = Color(0xFF1A1D2B);
-  static const Color codeKeyword  = Color(0xFFC792EA);
+  static const Color codeBg = Color(0xFF1A1D2B);
+  static const Color codeKeyword = Color(0xFFC792EA);
   static const Color codeVariable = Color(0xFF82AAFF);
-  static const Color codeString   = Color(0xFFC3E88D);
-  static const Color codeNumber   = Color(0xFFF78C6C);
-  static const Color codeComment  = Color(0xFF6B7280);
+  static const Color codeString = Color(0xFFC3E88D);
+  static const Color codeNumber = Color(0xFFF78C6C);
+  static const Color codeComment = Color(0xFF6B7280);
 }
 
 class KodiraSpacing {
