@@ -23,6 +23,21 @@ linter:
   rules:
     # avoid_print: false  # Uncomment to disable the `avoid_print` rule
     # prefer_single_quotes: true  # Uncomment to enable the `prefer_single_quotes` rule
+    prefer_const_constructors: true
+    prefer_const_literals_to_create_immutables: true
+    prefer_final_locals: true
+    prefer_single_quotes: true
+    require_trailing_commas: true
+    avoid_print: true
+    avoid_unnecessary_containers: true
+    sized_box_for_whitespace: true
+    use_key_in_widget_constructors: true
+    use_build_context_synchronously: true
+    always_declare_return_types: true
+    sort_child_properties_last: true
 
-# Additional information about this file can be found at
+analyzer:
+  errors:
+    avoid_print: error
+    use_build_context_synchronously: error
 # https://dart.dev/guides/language/analysis-options
