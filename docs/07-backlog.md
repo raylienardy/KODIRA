@@ -74,17 +74,17 @@ Gunakan bersama `docs/06-workflow.md` untuk kerja dengan opencode.
 
 ## 3. Ringkasan Progress
 
-| Phase                     | Total  | Done   | WIP   | Todo   |
-| ------------------------- | ------ | ------ | ----- | ------ |
-| Phase 0 — Foundation      | 10     | 10     | 0     | 0      |
-| Phase 1 — Design System   | 8      | 8      | 0     | 0      |
-| Phase 2 — UI Design       | 6      | 5      | 0     | 1      |
-| Phase 3 — Architecture    | 7      | 5      | 0     | 2      |
-| Phase 4 — MVP Development | 14     | 0      | 0     | 14     |
-| Phase 5 — AI Integration  | 8      | 0      | 0     | 8      |
-| Phase 6 — Testing         | 6      | 0      | 0     | 6      |
-| Phase 7 — Documentation   | 6      | 0      | 0     | 6      |
-| **Total**                 | **65** | **10** | **0** | **55** |
+| Phase                     | Total  | Done   | WIP   | Todo     |
+| ------------------------- | ------ | ------ | ----- | -------- |
+| Phase 0 — Foundation      | 10     | 10     | 0     | 0        |
+| Phase 1 — Design System   | 8      | 8      | 0     | 0        |
+| Phase 2 — UI Design       | 6      | 5      | 0     | 1        |
+| Phase 3 — Architecture    | 7      | 6      | 0     | 1 (skip) |
+| Phase 4 — MVP Development | 14     | 0      | 0     | 14       |
+| Phase 5 — AI Integration  | 8      | 0      | 0     | 8        |
+| Phase 6 — Testing         | 6      | 0      | 0     | 6        |
+| Phase 7 — Documentation   | 6      | 0      | 0     | 6        |
+| **Total**                 | **65** | **10** | **0** | **55**   |
 
 ---
 
