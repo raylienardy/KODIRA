@@ -100,3 +100,6 @@ android/local.properties
 android/key.properties
 *.g.dart
 *.freezed.dart
+
+
+.pass
