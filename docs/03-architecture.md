@@ -57,7 +57,7 @@ Data lokal di HP menyimpan cache dan state agar aplikasi tetap responsif.
 | Framework | **Flutter** | Cross-platform, UI konsisten, hot reload, komunitas besar |
 | Bahasa | **Dart** | Wajib untuk Flutter |
 | State Management | **Riverpod** | Modern, type-safe, mudah di-test |
-| Local DB | **Isar** atau **Drift** | Cepat, ringan, offline-first |
+| Local DB | **Drift** | Migrasi otomatis, komunitas besar |
 | HTTP Client | **Dio** | Fitur lengkap, interceptor, mudah |
 | Code Editor | **flutter_code_editor** atau custom | Syntax highlighting C++/Java |
 | Navigasi | **go_router** | Declarative, deep link support |
@@ -696,14 +696,14 @@ KAMPUS_API_URL=
 
 ## 14. Keputusan yang Masih Diperlukan
 
-- [ ] Model AI final (GPT-4o-mini, Gemini Flash, Claude Haiku, atau lainnya)
-- [ ] Budget AI per bulan
-- [ ] Judge0: API hosted atau self-host?
-- [ ] Verifikasi NIM: API kampus atau manual?
-- [ ] State management final: Riverpod, Bloc, atau Provider?
-- [ ] Local DB: Isar atau Drift?
-- [ ] Apakah pakai CI/CD sejak awal atau nanti?
-- [ ] Crash reporting: Sentry dari awal atau nanti?
+- [x] Model AI final: OpenAI GPT-4o-mini (ADR-019)
+- [x] Budget AI per bulan: ~$14/bulan (ADR-023)
+- [x] Judge0: hosted API (ADR-021)
+- [x] State management: Riverpod (ADR-010)
+- [x] Local DB: Drift (ADR-020)
+- [ ] Verifikasi NIM: API kampus atau manual? → TBD
+- [ ] Crash reporting: Sentry dari awal atau nanti? → TBD
+- [ ] CI/CD untuk deploy backend: TBD
 
 ---
 

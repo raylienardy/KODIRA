@@ -51,6 +51,11 @@ Setiap keputusan penting dicatat di sini dengan format ADR. Tujuannya:
 | 016 | Branch strategy: langsung `main` + PR review | Accepted |
 | 017 | CI sejak Phase 0, CD nanti                   | Accepted |
 | 018 | Pre-commit hook di Phase 1                   | Accepted |
+| 019 | AI Provider — OpenAI GPT‑4o‑mini            | Accepted |
+| 020 | Local DB — Drift                             | Accepted |
+| 021 | Code Runner — Judge0 Hosted API              | Accepted |
+| 022 | Supabase — Hosted dulu                       | Accepted |
+| 023 | Budget AI — ~$14/bulan                       | Accepted |
 
 ---
 
