@@ -77,7 +77,7 @@ Gunakan bersama `docs/06-workflow.md` untuk kerja dengan opencode.
 | Phase                     | Total  | Done   | WIP   | Todo   |
 | ------------------------- | ------ | ------ | ----- | ------ |
 | Phase 0 — Foundation      | 10     | 10     | 0     | 0      |
-| Phase 1 — Design System   | 8      | 0      | 0     | 8      |
+| Phase 1 — Design System   | 8      | 1      | 0     | 7      |
 | Phase 2 — UI Design       | 6      | 0      | 0     | 6      |
 | Phase 3 — Architecture    | 7      | 0      | 0     | 7      |
 | Phase 4 — MVP Development | 14     | 0      | 0     | 14     |
@@ -113,13 +113,13 @@ Setup project Flutter, theme, dan fondasi kode.
 
 ### P1-001: Setup Project Flutter
 
-| Field      | Nilai |
-| ---------- | ----- |
-| Status     | Todo  |
-| Priority   | P0    |
-| Token      | S     |
-| Agent      | build |
-| Dependency | —     |
+| Field      | Nilai   |
+| ---------- | ------- |
+| Status     | ✅ Done |
+| Priority   | P0      |
+| Token      | S       |
+| Agent      | build   |
+| Dependency | —       |
 
 **Scope:**
 
