@@ -1,0 +1,44 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: 3.44.6
+          cache: true
+
+      - name: Get dependencies
+        run: flutter pub get
+        working-directory: app
+
+      - name: Check code format
+        run: dart format --output=none --set-exit-if-changed .
+        working-directory: app
+
+      # Analyze the code
+      # Run tests if any
+      - name: Analyze
+        run: flutter analyze
+        working-directory: app
+
+      - name: Test
+        if: hashFiles('app/test/**') != ''
+        run: flutter test
+        working-directory: app
