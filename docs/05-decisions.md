@@ -51,7 +51,7 @@ Setiap keputusan penting dicatat di sini dengan format ADR. Tujuannya:
 | 016 | Branch strategy: langsung `main` + PR review | Accepted |
 | 017 | CI sejak Phase 0, CD nanti                   | Accepted |
 | 018 | Pre-commit hook di Phase 1                   | Accepted |
-| 019 | AI Provider — OpenAI GPT‑4o‑mini            | Accepted |
+| 019 | AI Provider — Multi-Provider Fallback      | Accepted |
 | 020 | Local DB — Drift                             | Accepted |
 | 021 | Code Runner — Judge0 Hosted API              | Accepted |
 | 022 | Supabase — Hosted dulu                       | Accepted |
@@ -644,33 +644,41 @@ Apakah pakai pre-commit hook?
 
 ---
 
-## ADR-019: AI Provider — OpenAI GPT-4o-mini
+## ADR-019: AI Provider — Multi-Provider Fallback
 
 **Tanggal:** 2026-10-16  
-**Status:** Accepted
+**Status:** Accepted  
+**Revisi:** 2026-10-16 (dari single-provider ke multi-provider)
 
 ### Konteks
 KODIRA butuh AI untuk hint bertahap, generate soal variasi, dan feedback. 
-Butuh provider yang berkualitas untuk coding, cepat, dan murah.
+User ingin bisa switch provider sesuai kebutuhan (testing vs production) 
+ta tanpa ubah kode.
 
 ### Opsi
-1. OpenAI GPT-4o-mini
-2. Google Gemini Flash
-3. Anthropic Claude Haiku
+1. Single provider (OpenAI saja)
+2. Multi-provider dengan fallback chain
 
 ### Keputusan
-OpenAI GPT-4o-mini.
+Multi-provider dengan urutan prioritas:
+1. **Groq** (Llama 3.3 70B) — untuk testing & development, gratis
+2. **OpenAI GPT-4o-mini** — untuk production, ~$14/bulan
+3. **Gemini Flash** — emergency fallback
+
+Provider dipilih via env variable `AI_PROVIDER`. 
 
 ### Alasan
-- Kualitas coding tertinggi di kelas harga ini
-- Harga input termurah ($0.15/1M token)
-- Kecepatan respons tertinggi (≤200ms)
-- Dukungan Bahasa Indonesia baik
+- Groq gratis, sangat cepat (LPU), kualitas Llama 3.3 70B cukup untuk testing tanpa menguras token berbayar
+- Production tetap pakai OpenAI karena kualitas coding lebih tinggi
+- Gemini sebagai fallback terakhir bila OpenAI down atau budget habis
+- Abstraksi di Edge Function — ganti provider tanpa ubah mobile app
 
 ### Konsekuensi
-- Estimasi biaya ~$14/bulan untuk 30 user aktif
-- Bergantung pada API OpenAI
-- Perlu fallback ke Gemini Flash jika API down atau budget terlampaui
+- Perlu abstraksi provider di Supabase Edge Function
+- 3 API key berbeda disimpan di Supabase secrets
+- Format request/response dinormalisasi di Edge Function
+- Testing development gratis (Groq)
+- Production biaya ~$14/bulan (OpenAI)
 
 ---
 
@@ -829,4 +837,4 @@ Apa dampak positif dan negatif dari keputusan ini?
 
 | Tanggal    | Perubahan                |
 | ---------- | ------------------------ |
-| 2026-10-16 | Draft awal dengan 18 ADR |
+| 2026-10-16 | ADR-019 direvisi: dari single-provider ke multi-provider |
