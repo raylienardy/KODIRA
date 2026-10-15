@@ -1,0 +1,53 @@
+# Secrets & API Keys
+.env
+*.key
+*.pem
+*.crt
+!\.env\.example
+
+# Dependencies
+.gradle
+.idea
+
+# Build Output
+/build/
+/app/build/
+*.apk
+*.apks
+*.aab
+
+# Gradle
+/gradle/
+!gradle/wrapper/gradle-wrapper.jar
+/gradle/wrapper/gradle-wrapper.properties
+
+# IDE & Editor
+*.iml
+.idea/
+.vscode/
+!.vscode/settings.json
+
+# Logs & Cache
+*.log
+*.cache
+.caches/
+
+# Auto‑generated
+*.class
+*.jar
+*.war
+*.ear
+*.db
+
+# OS Files
+.DS_Store
+Thumbs.db
+
+# Temp Files
+tmp/
+*.tmp
+*.temp
+
+# Do not ignore lock files for app
+!pubspec.lock
+!package-lock.json
