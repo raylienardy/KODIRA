@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:kodira/features/lesson/screens/material_screen.dart';
 
 import '../../../app/theme.dart';
 import '../../auth/providers/auth_provider.dart';
@@ -290,7 +291,14 @@ class _LevelCard extends StatelessWidget {
     }
 
     return GestureDetector(
-      onTap: () => debugPrint('Tap level ${level.id}'),
+      onTap: () {
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (_) =>
+                MaterialScreen(levelId: level.id, levelTitle: level.title),
+          ),
+        );
+      },
       child: Opacity(
         opacity: isLocked ? 0.55 : 1.0,
         child: Container(
