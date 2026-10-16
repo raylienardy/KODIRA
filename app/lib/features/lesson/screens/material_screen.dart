@@ -85,8 +85,13 @@ class _MaterialScreenState extends ConsumerState<MaterialScreen> {
           ],
         ),
       ),
-      floatingActionButton: const _HintFab(),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+      floatingActionButton:
+          materialsAsync.hasValue &&
+              materialsAsync.value!.isNotEmpty &&
+              _currentSlideIndex < materialsAsync.value!.length - 1
+          ? const _HintFab()
+          : null,
+      floatingActionButtonLocation: FloatingActionButtonLocation.startFloat,
     );
   }
 }
