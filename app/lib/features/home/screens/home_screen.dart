@@ -138,9 +138,9 @@ class _HeaderWidget extends ConsumerWidget {
               Container(
                 width: 38,
                 height: 38,
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   shape: BoxShape.circle,
-                  gradient: const LinearGradient(
+                  gradient: LinearGradient(
                     colors: [KodiraColors.primary700, KodiraColors.success500],
                   ),
                 ),
@@ -157,6 +157,7 @@ class _HeaderWidget extends ConsumerWidget {
           Wrap(
             spacing: 8,
             children: [
+              // ignore: prefer_const_constructors
               _StatChip(icon: '⚡', value: totalXp.toString(), label: 'XP'),
               const _StatChip(icon: '🔥', value: '0', label: 'Streak'),
               _StatChip(
@@ -305,10 +306,10 @@ class _LevelCard extends StatelessWidget {
                     ),
                   ]
                 : [
-                    BoxShadow(
+                    const BoxShadow(
                       color: Colors.black12,
                       blurRadius: 4,
-                      offset: const Offset(0, 1),
+                      offset: Offset(0, 1),
                     ),
                   ],
             border: isActive

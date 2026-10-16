@@ -1,5 +1,4 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:json_annotation/json_annotation.dart';
 
 part 'user_progress_model.freezed.dart';
 part 'user_progress_model.g.dart';
@@ -10,9 +9,9 @@ class UserProgressModel with _$UserProgressModel {
 
   const factory UserProgressModel({
     required String id,
-    @JsonKey(name: 'user_id') required String userId,
-    @JsonKey(name: 'level_id') required int levelId,
-    required String status, // locked/active/completed/remedial
+    required String userId,
+    required int levelId,
+    required String status,
     required double masteryScore,
     required int xpEarned,
     required int attempts,
@@ -43,7 +42,6 @@ class UserProgressModel with _$UserProgressModel {
     );
   }
 
-  // Getters
   bool get isCompleted => status == 'completed' || completedAt != null;
   bool get isLocked => status == 'locked';
   bool get isActive => status == 'active';

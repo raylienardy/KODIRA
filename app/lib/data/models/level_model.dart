@@ -1,5 +1,4 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:json_annotation/json_annotation.dart';
 
 part 'level_model.freezed.dart';
 part 'level_model.g.dart';
@@ -10,7 +9,7 @@ class LevelModel with _$LevelModel {
 
   const factory LevelModel({
     required int id,
-    @JsonKey(name: 'level_number') required int levelNumber,
+    required int levelNumber,
     required String title,
     String? description,
     String? topic,
