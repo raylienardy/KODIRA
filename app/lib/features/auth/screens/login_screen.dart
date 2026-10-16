@@ -70,7 +70,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 20.0),
             child: ConstrainedBox(
               constraints: BoxConstraints(
-                minHeight: MediaQuery.of(context).size.height - 40,
+                minHeight: MediaQuery.of(context).size.height,
               ),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
