@@ -133,6 +133,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   TextField(
                     controller: _nimController,
                     keyboardType: TextInputType.number,
+          autocorrect: false,
+          enableSuggestions: false,
                     style: const TextStyle(fontSize: 13, color: Colors.white),
                     decoration: InputDecoration(
                       hintText: 'Masukkan NIM Anda',
@@ -171,6 +173,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   TextField(
                     controller: _passwordController,
                     obscureText: _obscurePassword,
+          textCapitalization: TextCapitalization.none,
+          autocorrect: false,
+          enableSuggestions: false,
                     style: const TextStyle(fontSize: 13, color: Colors.white),
                     decoration: InputDecoration(
                       hintText: 'Masukkan password',
