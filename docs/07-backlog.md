@@ -599,7 +599,7 @@ Fitur inti tanpa AI dulu. Fondasi paling penting.
 
 | Field      | Nilai          |
 | ---------- | -------------- |
-| Status     | Todo           |
+| Status     | Done           |
 | Priority   | P0             |
 | Token      | L              |
 | Agent      | build          |
@@ -623,7 +623,7 @@ Fitur inti tanpa AI dulu. Fondasi paling penting.
 
 | Field      | Nilai  |
 | ---------- | ------ |
-| Status     | Todo   |
+| Status     | Done   |
 | Priority   | P0     |
 | Token      | M      |
 | Agent      | build  |
@@ -645,7 +645,7 @@ Fitur inti tanpa AI dulu. Fondasi paling penting.
 
 | Field      | Nilai          |
 | ---------- | -------------- |
-| Status     | Todo           |
+| Status     | Done           |
 | Priority   | P0             |
 | Token      | L              |
 | Agent      | build          |

@@ -1,7 +1,6 @@
 import 'package:supabase_flutter/supabase_flutter.dart' as supa;
 import '../models/user_model.dart';
 import '../../core/errors/auth_exception.dart';
-import 'package:flutter/foundation.dart';
 
 class AuthRepository {
   final supa.SupabaseClient _client;
@@ -43,7 +42,6 @@ class AuthRepository {
         password: password,
       );
 
-      debugPrint('LOGIN SUCCESS: ${response.user?.id}');
 
       final user = response.user;
       if (user == null) throw KodiraAuthException.userNotFound();
@@ -63,8 +61,6 @@ class AuthRepository {
 
       return UserModel.fromSupabase(userData);
     } on supa.AuthException catch (e) {
-      debugPrint('AUTH ERROR: ${e.message}');
-      debugPrint('AUTH STATUS: ${e.statusCode}');
       // Handle error dari Supabase Auth.
       final message = e.message.toLowerCase();
       if (message.contains('invalid login credentials') ||
@@ -84,8 +80,6 @@ class AuthRepository {
     try {
       await _client.auth.signOut();
     } on supa.AuthException catch (e) {
-      debugPrint('AUTH ERROR: ${e.message}');
-      debugPrint('AUTH STATUS: ${e.statusCode}');
       throw KodiraAuthException.unknown(e.message);
     }
   }

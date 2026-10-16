@@ -41,18 +41,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     ref.listen<AuthState>(authStateProvider, (previous, next) {
-      if (!mounted) return;
-
-      if (next.errorMessage != null) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(next.errorMessage!)));
-      } else if (next.user != null) {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (_) => const _PlaceholderHome()),
-        );
-      }
-    });
+  if (!mounted) return;
+  if (next.errorMessage != null) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(next.errorMessage!)),
+    );
+  }
+});
 
     final authState = ref.watch(authStateProvider);
 
@@ -298,51 +293,4 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   }
 }
 
-class _PlaceholderHome extends ConsumerWidget {
-  const _PlaceholderHome();
 
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final user = ref.watch(authStateProvider).user;
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Home'),
-        backgroundColor: KodiraColors.primary700,
-      ),
-      body: Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Text(
-              'Login Berhasil',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.w700,
-                color: Colors.white,
-              ),
-            ),
-            if (user != null) ...[
-              const SizedBox(height: 8),
-              Text(
-                'Halo, ${user.name}',
-                style: const TextStyle(fontSize: 15, color: Colors.white),
-              ),
-            ],
-            const SizedBox(height: 24),
-            ElevatedButton(
-              onPressed: () async {
-                await ref.read(authStateProvider.notifier).logout();
-                if (!context.mounted) return;
-                Navigator.of(context).pushReplacement(
-                  MaterialPageRoute(builder: (_) => const LoginScreen()),
-                );
-              },
-              child: const Text('Logout'),
-            ),
-          ],
-        ),
-      ),
-      backgroundColor: KodiraColors.primary700,
-    );
-  }
-}
