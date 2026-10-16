@@ -28,11 +28,14 @@ class HomeScreen extends ConsumerWidget {
               child: allLevels.when(
                 data: (levels) => userProgress.when(
                   data: (progressList) => _buildMap(levels, progressList, ref),
-                  loading: () => const Center(child: CircularProgressIndicator()),
-                  error: (e, _) => _errorState(e, () => ref.refresh(allLevelsProvider)),
+                  loading: () =>
+                      const Center(child: CircularProgressIndicator()),
+                  error: (e, _) =>
+                      _errorState(e, () => ref.refresh(allLevelsProvider)),
                 ),
                 loading: () => const Center(child: CircularProgressIndicator()),
-                error: (e, _) => _errorState(e, () => ref.refresh(allLevelsProvider)),
+                error: (e, _) =>
+                    _errorState(e, () => ref.refresh(allLevelsProvider)),
               ),
             ),
           ],
@@ -54,7 +57,11 @@ class HomeScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildMap(List<LevelModel> levels, List<UserProgressModel> progresses, WidgetRef ref) {
+  Widget _buildMap(
+    List<LevelModel> levels,
+    List<UserProgressModel> progresses,
+    WidgetRef ref,
+  ) {
     if (levels.isEmpty) {
       return const Center(child: Text('Belum ada level'));
     }
@@ -84,7 +91,9 @@ class _HeaderWidget extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     // compute current level and xp aggregation
-    final progressList = ref.watch(userProgressProvider).maybeWhen(data: (v) => v, orElse: () => []);
+    final List<UserProgressModel> progressList = ref
+        .watch(userProgressProvider)
+        .maybeWhen(data: (v) => v, orElse: () => <UserProgressModel>[]);
     var currentLevel = 1;
     var totalXp = 0;
     var completedCount = 0;
@@ -110,11 +119,19 @@ class _HeaderWidget extends ConsumerWidget {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Hai, ${user?.name ?? "Mahasiswa"}',
-                      style: KodiraTextStyles.h2.copyWith(color: KodiraColors.neutral900)),
+                  Text(
+                    'Hai, ${user?.name ?? "Mahasiswa"}',
+                    style: KodiraTextStyles.h2.copyWith(
+                      color: KodiraColors.neutral900,
+                    ),
+                  ),
                   const SizedBox(height: 4),
-                  Text('Level $currentLevel — $topic',
-                      style: KodiraTextStyles.bodySm.copyWith(color: KodiraColors.neutral500)),
+                  Text(
+                    'Level $currentLevel — $topic',
+                    style: KodiraTextStyles.bodySm.copyWith(
+                      color: KodiraColors.neutral500,
+                    ),
+                  ),
                 ],
               ),
               // Avatar placeholder
@@ -142,7 +159,11 @@ class _HeaderWidget extends ConsumerWidget {
             children: [
               _StatChip(icon: '⚡', value: totalXp.toString(), label: 'XP'),
               const _StatChip(icon: '🔥', value: '0', label: 'Streak'),
-              _StatChip(icon: '🏆', value: completedCount.toString(), label: 'Level'),
+              _StatChip(
+                icon: '🏆',
+                value: completedCount.toString(),
+                label: 'Level',
+              ),
             ],
           ),
           const SizedBox(height: 14),
@@ -157,8 +178,18 @@ class _HeaderWidget extends ConsumerWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('Level $currentLevel', style: KodiraTextStyles.bodySm.copyWith(color: KodiraColors.neutral900)),
-                Text('$totalXp / $targetXp XP', style: KodiraTextStyles.bodySm.copyWith(color: KodiraColors.neutral900)),
+                Text(
+                  'Level $currentLevel',
+                  style: KodiraTextStyles.bodySm.copyWith(
+                    color: KodiraColors.neutral900,
+                  ),
+                ),
+                Text(
+                  '$totalXp / $targetXp XP',
+                  style: KodiraTextStyles.bodySm.copyWith(
+                    color: KodiraColors.neutral900,
+                  ),
+                ),
               ],
             ),
           ),
@@ -167,7 +198,9 @@ class _HeaderWidget extends ConsumerWidget {
             value: targetXp == 0 ? 0 : totalXp / targetXp,
             minHeight: 6,
             backgroundColor: KodiraColors.neutral200,
-            valueColor: const AlwaysStoppedAnimation<Color>(KodiraColors.reward500),
+            valueColor: const AlwaysStoppedAnimation<Color>(
+              KodiraColors.reward500,
+            ),
           ),
         ],
       ),
@@ -179,7 +212,11 @@ class _StatChip extends StatelessWidget {
   final String icon;
   final String value;
   final String label;
-  const _StatChip({required this.icon, required this.value, required this.label});
+  const _StatChip({
+    required this.icon,
+    required this.value,
+    required this.label,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -194,9 +231,19 @@ class _StatChip extends StatelessWidget {
         children: [
           Text(icon, style: const TextStyle(fontSize: 12)),
           const SizedBox(width: 4),
-          Text(value, style: KodiraTextStyles.bodySm.copyWith(color: KodiraColors.neutral900)),
+          Text(
+            value,
+            style: KodiraTextStyles.bodySm.copyWith(
+              color: KodiraColors.neutral900,
+            ),
+          ),
           const SizedBox(width: 4),
-          Text(label, style: KodiraTextStyles.bodySm.copyWith(color: KodiraColors.neutral500)),
+          Text(
+            label,
+            style: KodiraTextStyles.bodySm.copyWith(
+              color: KodiraColors.neutral500,
+            ),
+          ),
         ],
       ),
     );
@@ -249,20 +296,24 @@ class _LevelCard extends StatelessWidget {
           decoration: BoxDecoration(
             color: KodiraColors.neutral0,
             borderRadius: BorderRadius.circular(KodiraRadius.lg),
-            boxShadow: isActive ? [
-              BoxShadow(
-                color: KodiraColors.primary700.withValues(alpha: 0.3),
-                blurRadius: 8,
-                offset: const Offset(0, 2),
-              ),
-            ] : [
-              BoxShadow(
-                color: Colors.black12,
-                blurRadius: 4,
-                offset: const Offset(0, 1),
-              ),
-            ],
-            border: isActive ? Border.all(color: KodiraColors.primary700, width: 2) : null,
+            boxShadow: isActive
+                ? [
+                    BoxShadow(
+                      color: KodiraColors.primary700.withValues(alpha: 0.3),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ]
+                : [
+                    BoxShadow(
+                      color: Colors.black12,
+                      blurRadius: 4,
+                      offset: const Offset(0, 1),
+                    ),
+                  ],
+            border: isActive
+                ? Border.all(color: KodiraColors.primary700, width: 2)
+                : null,
           ),
           padding: const EdgeInsets.all(12),
           child: Row(
@@ -287,12 +338,21 @@ class _LevelCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(level.title,
-                        style: KodiraTextStyles.h3.copyWith(
-                            color: isLocked ? KodiraColors.neutral500 : KodiraColors.neutral900)),
+                    Text(
+                      level.title,
+                      style: KodiraTextStyles.h3.copyWith(
+                        color: isLocked
+                            ? KodiraColors.neutral500
+                            : KodiraColors.neutral900,
+                      ),
+                    ),
                     const SizedBox(height: 4),
-                    Text(subtitle,
-                        style: KodiraTextStyles.bodySm.copyWith(color: KodiraColors.neutral500)),
+                    Text(
+                      subtitle,
+                      style: KodiraTextStyles.bodySm.copyWith(
+                        color: KodiraColors.neutral500,
+                      ),
+                    ),
                   ],
                 ),
               ),
