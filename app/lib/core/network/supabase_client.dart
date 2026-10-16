@@ -8,5 +8,5 @@ Future<void> initSupabase() async {
   if (url == null || anonKey == null) {
     throw Exception('SUPABASE_URL or SUPABASE_ANON_KEY not set in .env');
   }
-  await Supabase.initialize(url: url, anonKey: anonKey);
+  await Supabase.initialize(url: url, publishableKey: anonKey);
 }
