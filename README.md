@@ -71,8 +71,13 @@ cp .env.example .env
 # Isi .env dengan kredensial (minta ke tim)
 
 # 5. Jalankan
-flutter run
+flutter run --dart-define-from-file=.env
 ```
+
+> **Catatan dev:** `.env` wajib ada di `app/` untuk development — isi
+> mengikuti `app/.env.example`. Secrets tidak pernah dibundle ke APK;
+> untuk build release, inject via `--dart-define` (lihat ADR-024 di
+> [`docs/05-decisions.md`](docs/05-decisions.md)).
 
 ### Setup Pre-commit Hook
 

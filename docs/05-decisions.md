@@ -56,6 +56,7 @@ Setiap keputusan penting dicatat di sini dengan format ADR. Tujuannya:
 | 021 | Code Runner — Judge0 Hosted API              | Accepted |
 | 022 | Supabase — Hosted dulu                       | Accepted |
 | 023 | Budget AI — ~$14/bulan                       | Accepted |
+| 024 | Secrets never bundled in APK                 | Accepted |
 
 ---
 
@@ -795,6 +796,50 @@ Budget normal ~$14/bulan. Range: $0 (minimum) hingga $28 (2x normal).
 - Set rate limit 20 hint/hari per user
 - Cache respons AI yang sama
 - Fallback otomatis ke Gemini Flash jika >2x budget
+
+---
+
+## ADR-024: Secrets never bundled in APK
+
+**Tanggal:** 2026-10-19  
+**Status:** Accepted
+
+### Konteks
+
+Audit keamanan menemukan `.env` di-bundle sebagai asset APK
+(`pubspec.yaml` → `flutter.assets`). Siapa pun pemegang APK bisa
+mengekstraknya dalam hitungan detik (`apktool`, `unzip` + `strings`) dan
+membaca seluruh isinya — termasuk key AI.
+
+### Keputusan
+
+1. Client **hanya** berisi Supabase URL + anon key. Keduanya *public by
+   design*; data dilindungi lewat RLS, bukan lewat kerahasiaan key.
+2. Key AI (Groq/OpenAI/Gemini) dan Code Runner **dilarang** masuk client —
+   baik lewat `.env` maupun `--dart-define`. Wajib lewat Supabase Edge
+   Function / backend proxy.
+3. Dev lokal: `flutter run --dart-define-from-file=.env`.
+4. Release/CI: nilai di-inject via `--dart-define` dari CI secrets.
+
+### Alasan
+
+- Asset APK adalah file teks di dalam zip — tidak ada perlindungan sama
+  sekali; audit membuktikannya.
+- Supabase anon key memang didesain untuk dipublikasikan (proteksi via RLS).
+- `--dart-define` adalah mekanisme resmi Flutter untuk konfigurasi
+  build-time tanpa membundel file rahasia ke package.
+
+### Konsekuensi
+
+- `flutter run` polos akan error `SUPABASE_URL not configured` — pakai
+  `--dart-define-from-file=.env`.
+- Nilai `--dart-define` masih bisa diekstrak dari `libapp.so` (constant
+  pool). Untuk key sensitif, satu-satunya jalur aman adalah Edge Function /
+  backend proxy.
+- `.env.example` tetap dipakai sebagai template pengisian `.env` lokal.
+- Implementasi: `app/lib/core/network/supabase_client.dart` (urutan:
+  `String.fromEnvironment` → fallback dotenv) + `pubspec.yaml` tanpa asset
+  `.env`.
 
 ---
 

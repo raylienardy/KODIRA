@@ -12,7 +12,7 @@ konvensi kode detail.
 ### Setup Awal
 
 - [ ] Sudah baca `README.md`
-- [ ] Sudah setup project lokal (`flutter run` berhasil)
+- [ ] Sudah setup project lokal (`flutter run --dart-define-from-file=.env` berhasil)
 - [ ] Sudah setup pre-commit hook (`bash scripts/install-hooks.sh`)
 - [ ] Sudah baca `docs/04-guidelines.md`
 - [ ] Sudah baca `docs/07-backlog.md`
