@@ -15,3 +15,4 @@
 *.aab   binary
 *.keystore binary
 *.jks   binary
+graphify-out/graph.json merge=graphify
