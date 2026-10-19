@@ -25,6 +25,10 @@ android {
         versionName = flutter.versionName
     }
 
+    // Secrets are NOT bundled in the APK. Inject configuration at build time:
+    //   release: flutter build apk --release --dart-define=SUPABASE_URL=... --dart-define=SUPABASE_ANON_KEY=...
+    //   dev:     flutter run --dart-define-from-file=.env
+    // Resolution order lives in lib/core/network/supabase_client.dart.
     buildTypes {
         release {
             // TODO: Add your own signing config for the release build.
