@@ -54,7 +54,10 @@ class LevelRepository {
 
       final list = response as List<dynamic>;
       return list
-          .map((item) => UserProgressModel.fromSupabase(item as Map<String, dynamic>))
+          .map(
+            (item) =>
+                UserProgressModel.fromSupabase(item as Map<String, dynamic>),
+          )
           .toList();
     } on supa.PostgrestException catch (e) {
       throw Exception('Gagal memuat progress belajar: ${e.message}');
@@ -64,7 +67,10 @@ class LevelRepository {
   }
 
   /// Ambil progress spesifik user untuk level tertentu.
-  Future<UserProgressModel?> getProgressForLevel(String userId, int levelId) async {
+  Future<UserProgressModel?> getProgressForLevel(
+    String userId,
+    int levelId,
+  ) async {
     try {
       final response = await _client
           .from('user_progress')

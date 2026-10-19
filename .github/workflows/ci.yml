@@ -28,6 +28,18 @@ jobs:
         run: flutter pub get
         working-directory: app
 
+      - name: Cache build_runner artifacts
+        uses: actions/cache@v4
+        with:
+          path: app/.dart_tool/build
+          key: build-runner-${{ runner.os }}-${{ hashFiles('app/pubspec.lock') }}
+          restore-keys: |
+            build-runner-${{ runner.os }}-
+
+      - name: Generate code (build_runner)
+        run: dart run build_runner build --delete-conflicting-outputs
+        working-directory: app
+
       - name: Check code format
         run: dart format --output=none --set-exit-if-changed .
         working-directory: app

@@ -17,7 +17,8 @@ class ExerciseModel with _$ExerciseModel {
     required DateTime createdAt,
   }) = _ExerciseModel;
 
-  factory ExerciseModel.fromJson(Map<String, dynamic> json) => _$ExerciseModelFromJson(json);
+  factory ExerciseModel.fromJson(Map<String, dynamic> json) =>
+      _$ExerciseModelFromJson(json);
 
   factory ExerciseModel.fromSupabase(Map<String, dynamic> map) {
     return ExerciseModel(

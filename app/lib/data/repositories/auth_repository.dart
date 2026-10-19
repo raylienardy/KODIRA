@@ -35,13 +35,11 @@ class AuthRepository {
   }) async {
     final email = 'nim_$nim@kodira.local';
 
-    
     try {
       final response = await _client.auth.signInWithPassword(
         email: email,
         password: password,
       );
-
 
       final user = response.user;
       if (user == null) throw KodiraAuthException.userNotFound();

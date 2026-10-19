@@ -41,13 +41,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     ref.listen<AuthState>(authStateProvider, (previous, next) {
-  if (!mounted) return;
-  if (next.errorMessage != null) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(next.errorMessage!)),
-    );
-  }
-});
+      if (!mounted) return;
+      if (next.errorMessage != null) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(next.errorMessage!)));
+      }
+    });
 
     final authState = ref.watch(authStateProvider);
 
@@ -128,8 +128,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   TextField(
                     controller: _nimController,
                     keyboardType: TextInputType.number,
-          autocorrect: false,
-          enableSuggestions: false,
+                    autocorrect: false,
+                    enableSuggestions: false,
                     style: const TextStyle(fontSize: 13, color: Colors.white),
                     decoration: InputDecoration(
                       hintText: 'Masukkan NIM Anda',
@@ -168,9 +168,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   TextField(
                     controller: _passwordController,
                     obscureText: _obscurePassword,
-          textCapitalization: TextCapitalization.none,
-          autocorrect: false,
-          enableSuggestions: false,
+                    textCapitalization: TextCapitalization.none,
+                    autocorrect: false,
+                    enableSuggestions: false,
                     style: const TextStyle(fontSize: 13, color: Colors.white),
                     decoration: InputDecoration(
                       hintText: 'Masukkan password',
@@ -292,5 +292,3 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     );
   }
 }
-
-

@@ -17,7 +17,9 @@ class MaterialRepository {
 
       final list = response as List<dynamic>;
       return list
-          .map((item) => MaterialModel.fromSupabase(item as Map<String, dynamic>))
+          .map(
+            (item) => MaterialModel.fromSupabase(item as Map<String, dynamic>),
+          )
           .toList();
     } on supa.PostgrestException catch (e) {
       throw Exception('Gagal memuat materi level: ${e.message}');

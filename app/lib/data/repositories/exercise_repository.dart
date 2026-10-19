@@ -16,7 +16,9 @@ class ExerciseRepository {
 
       final list = response as List<dynamic>;
       return list
-          .map((item) => ExerciseModel.fromSupabase(item as Map<String, dynamic>))
+          .map(
+            (item) => ExerciseModel.fromSupabase(item as Map<String, dynamic>),
+          )
           .toList();
     } on supa.PostgrestException catch (e) {
       throw Exception('Gagal memuat exercise level: ${e.message}');
@@ -26,7 +28,10 @@ class ExerciseRepository {
   }
 
   /// Ambil semua exercise untuk level dan tipe tertentu.
-  Future<List<ExerciseModel>> getExercisesByLevelAndType(int levelId, String type) async {
+  Future<List<ExerciseModel>> getExercisesByLevelAndType(
+    int levelId,
+    String type,
+  ) async {
     try {
       final response = await _client
           .from('exercises')
@@ -36,7 +41,9 @@ class ExerciseRepository {
 
       final list = response as List<dynamic>;
       return list
-          .map((item) => ExerciseModel.fromSupabase(item as Map<String, dynamic>))
+          .map(
+            (item) => ExerciseModel.fromSupabase(item as Map<String, dynamic>),
+          )
           .toList();
     } on supa.PostgrestException catch (e) {
       throw Exception('Gagal memuat exercise level & tipe: ${e.message}');

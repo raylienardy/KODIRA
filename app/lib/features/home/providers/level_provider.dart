@@ -14,7 +14,9 @@ final allLevelsProvider = FutureProvider<List<LevelModel>>((ref) async {
   return repo.getAllLevels();
 });
 
-final userProgressProvider = FutureProvider<List<UserProgressModel>>((ref) async {
+final userProgressProvider = FutureProvider<List<UserProgressModel>>((
+  ref,
+) async {
   final authState = ref.watch(authStateProvider);
   final user = authState.user;
   if (user == null) {
@@ -24,8 +26,10 @@ final userProgressProvider = FutureProvider<List<UserProgressModel>>((ref) async
   return repo.getUserProgress(user.id);
 });
 
-final levelProgressProvider =
-    FutureProvider.family<UserProgressModel?, int>((ref, levelId) async {
+final levelProgressProvider = FutureProvider.family<UserProgressModel?, int>((
+  ref,
+  levelId,
+) async {
   final authState = ref.watch(authStateProvider);
   final user = authState.user;
   if (user == null) {

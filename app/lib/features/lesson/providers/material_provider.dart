@@ -10,6 +10,6 @@ final materialRepositoryProvider = Provider<MaterialRepository>((ref) {
 
 final materialsByLevelProvider =
     FutureProvider.family<List<MaterialModel>, int>((ref, levelId) async {
-  final repo = ref.watch(materialRepositoryProvider);
-  return repo.getMaterialsByLevel(levelId);
-});
+      final repo = ref.watch(materialRepositoryProvider);
+      return repo.getMaterialsByLevel(levelId);
+    });
