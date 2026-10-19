@@ -28,6 +28,10 @@ jobs:
         run: flutter pub get
         working-directory: app
 
+      - name: Provide .env for CI
+        run: cp .env.example .env
+        working-directory: app
+
       - name: Cache build_runner artifacts
         uses: actions/cache@v4
         with:
