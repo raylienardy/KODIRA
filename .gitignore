@@ -106,9 +106,7 @@ android/key.properties
 
 .github
 .opencode
-AGENTS.md
 CATATAN-LOGIN.md
-DESIGN.md
 
 # ===== Backup & local-only =====
 .git.backup-*/
@@ -119,3 +117,7 @@ app/supabase/.temp/
 supabase/.temp/
 
 reference/
+graphify-out/
+graphify-out/*.html
+graphify-out/cost.json
+graphify-out/.graphify_semantic_marker
