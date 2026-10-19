@@ -109,3 +109,13 @@ android/key.properties
 AGENTS.md
 CATATAN-LOGIN.md
 DESIGN.md
+
+# ===== Backup & local-only =====
+.git.backup-*/
+*.ref.broken.backup
+
+# ===== Supabase local state =====
+app/supabase/.temp/
+supabase/.temp/
+
+reference/
