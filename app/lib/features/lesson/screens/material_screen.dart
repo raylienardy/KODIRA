@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/theme.dart';
+import '../../exercise/providers/exercise_provider.dart';
+import '../../exercise/screens/drag_drop_screen.dart';
 import '../providers/material_provider.dart';
 import '../../../data/models/material_model.dart';
 
@@ -21,6 +23,43 @@ class MaterialScreen extends ConsumerStatefulWidget {
 
 class _MaterialScreenState extends ConsumerState<MaterialScreen> {
   int _currentSlideIndex = 0;
+  bool _isOpeningExercise = false;
+
+  Future<void> _openExercise() async {
+    if (_isOpeningExercise) return;
+
+    setState(() => _isOpeningExercise = true);
+    try {
+      final exercises = await ref.read(
+        dragDropExercisesProvider(widget.levelId).future,
+      );
+      if (!mounted) return;
+
+      if (exercises.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Latihan belum tersedia untuk level ini'),
+          ),
+        );
+        return;
+      }
+
+      await Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (_) => DragDropScreen(levelId: widget.levelId),
+        ),
+      );
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Gagal memuat latihan. Coba lagi.')),
+      );
+    } finally {
+      if (mounted) {
+        setState(() => _isOpeningExercise = false);
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -72,15 +111,10 @@ class _MaterialScreenState extends ConsumerState<MaterialScreen> {
               _NavigationBar(
                 currentIndex: _currentSlideIndex,
                 total: materialsAsync.value!.length,
+                isLoading: _isOpeningExercise,
                 onPrev: () => setState(() => _currentSlideIndex--),
                 onNext: () => setState(() => _currentSlideIndex++),
-                onFinish: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (_) => const _LatihanPlaceholder(),
-                    ),
-                  );
-                },
+                onFinish: _openExercise,
               ),
           ],
         ),
@@ -264,6 +298,7 @@ class _CodeBlock extends StatelessWidget {
 class _NavigationBar extends StatelessWidget {
   final int currentIndex;
   final int total;
+  final bool isLoading;
   final VoidCallback onPrev;
   final VoidCallback onNext;
   final VoidCallback onFinish;
@@ -271,6 +306,7 @@ class _NavigationBar extends StatelessWidget {
   const _NavigationBar({
     required this.currentIndex,
     required this.total,
+    required this.isLoading,
     required this.onPrev,
     required this.onNext,
     required this.onFinish,
@@ -280,6 +316,8 @@ class _NavigationBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isFinish = isLast;
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       decoration: const BoxDecoration(
@@ -302,17 +340,30 @@ class _NavigationBar extends StatelessWidget {
           SizedBox(
             height: 48,
             child: ElevatedButton(
-              onPressed: isLast ? onFinish : onNext,
+              onPressed: isFinish && isLoading
+                  ? null
+                  : (isFinish ? onFinish : onNext),
               style: ElevatedButton.styleFrom(
                 backgroundColor: KodiraColors.primary700,
                 foregroundColor: Colors.white,
+                disabledBackgroundColor: KodiraColors.primary700,
+                disabledForegroundColor: Colors.white,
                 elevation: 0,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(KodiraRadius.md),
                 ),
                 padding: const EdgeInsets.symmetric(horizontal: 24),
               ),
-              child: Text(isLast ? 'Lanjut ke Latihan' : 'Lanjut'),
+              child: isFinish && isLoading
+                  ? const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                      ),
+                    )
+                  : Text(isFinish ? 'Lanjut ke Latihan' : 'Lanjut'),
             ),
           ),
         ],
@@ -350,17 +401,3 @@ class _HintFab extends StatelessWidget {
 }
 
 // -------------------------------------------------------------------
-class _LatihanPlaceholder extends StatelessWidget {
-  const _LatihanPlaceholder();
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Latihan'),
-        backgroundColor: KodiraColors.primary700,
-      ),
-      body: const Center(child: Text('Latihan — coming soon')),
-    );
-  }
-}
