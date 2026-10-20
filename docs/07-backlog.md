@@ -80,11 +80,11 @@ Gunakan bersama `docs/06-workflow.md` untuk kerja dengan opencode.
 | Phase 1 — Design System   | 8      | 5      | 0     | 0        | 3      | 0    |
 | Phase 2 — UI Design       | 6      | 1      | 0     | 0        | 4      | 1    |
 | Phase 3 — Architecture    | 7      | 3      | 0     | 1        | 2      | 1    |
-| Phase 4 — MVP Development | 14     | 2      | 0     | 10       | 2      | 0    |
+| Phase 4 — MVP Development | 14     | 4      | 0     | 9        | 1      | 0    |
 | Phase 5 — AI Integration  | 8      | 0      | 0     | 8        | 0      | 0    |
 | Phase 6 — Testing         | 6      | 0      | 0     | 6        | 0      | 0    |
 | Phase 7 — Documentation   | 6      | 0      | 0     | 6        | 0      | 0    |
-| **Total**                 | **65** | **21** | **0** | **31**   | **11** | **2** |
+| **Total**                 | **65** | **23** | **0** | **30**   | **10** | **2** |
 
 ---
 
@@ -694,7 +694,7 @@ Fitur inti tanpa AI dulu. Fondasi paling penting.
 
 | Field      | Nilai  |
 | ---------- | ------ |
-| Status     | Review |
+| Status     | Done   |
 | Priority   | P0     |
 | Token      | M      |
 | Agent      | build  |
@@ -703,8 +703,6 @@ Fitur inti tanpa AI dulu. Fondasi paling penting.
 **Scope:**
 
 - `app/lib/features/lesson/`
-
-**Gap:** Sisa gap (syntax highlighting, wire tombol Lanjut ke Latihan) akan ditutup bersama P4-005.
 
 **DoD:**
 
@@ -719,7 +717,7 @@ Fitur inti tanpa AI dulu. Fondasi paling penting.
 
 | Field      | Nilai  |
 | ---------- | ------ |
-| Status     | Todo   |
+| Status     | Done   |
 | Priority   | P0     |
 | Token      | L      |
 | Agent      | build  |

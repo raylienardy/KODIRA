@@ -135,20 +135,61 @@ class _HeaderWidget extends ConsumerWidget {
                   ),
                 ],
               ),
-              // Avatar placeholder
-              Container(
-                width: 38,
-                height: 38,
-                decoration: const BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: LinearGradient(
-                    colors: [KodiraColors.primary700, KodiraColors.success500],
+              // Avatar + menu akun
+              PopupMenuButton<String>(
+                tooltip: 'Menu akun',
+                position: PopupMenuPosition.under,
+                onSelected: (value) async {
+                  if (value == 'logout') {
+                    await _confirmLogout(context, ref);
+                  }
+                },
+                itemBuilder: (context) => [
+                  PopupMenuItem<String>(
+                    value: 'logout',
+                    child: Row(
+                      children: [
+                        const Icon(
+                          Icons.logout,
+                          size: 20,
+                          color: KodiraColors.alert700,
+                        ),
+                        const SizedBox(width: 12),
+                        Text(
+                          'Logout',
+                          style: KodiraTextStyles.body.copyWith(
+                            color: KodiraColors.neutral900,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-                alignment: Alignment.center,
-                child: Text(
-                  (user?.name ?? 'M').substring(0, 1).toUpperCase(),
-                  style: KodiraTextStyles.bodyLg.copyWith(color: Colors.white),
+                ],
+                child: SizedBox(
+                  width: 48,
+                  height: 48,
+                  child: Center(
+                    child: Container(
+                      width: 38,
+                      height: 38,
+                      decoration: const BoxDecoration(
+                        shape: BoxShape.circle,
+                        gradient: LinearGradient(
+                          colors: [
+                            KodiraColors.primary700,
+                            KodiraColors.success500,
+                          ],
+                        ),
+                      ),
+                      alignment: Alignment.center,
+                      child: Text(
+                        (user?.name ?? 'M').substring(0, 1).toUpperCase(),
+                        style: KodiraTextStyles.bodyLg.copyWith(
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
               ),
             ],
@@ -207,6 +248,38 @@ class _HeaderWidget extends ConsumerWidget {
         ],
       ),
     );
+  }
+
+  Future<void> _confirmLogout(BuildContext context, WidgetRef ref) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Logout'),
+        content: const Text('Yakin ingin keluar dari akun?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: const Text('Batal'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            style: TextButton.styleFrom(foregroundColor: KodiraColors.alert700),
+            child: const Text('Logout'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true) return;
+
+    try {
+      await ref.read(authStateProvider.notifier).logout();
+    } catch (_) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Gagal logout. Coba lagi.')));
+    }
   }
 }
 

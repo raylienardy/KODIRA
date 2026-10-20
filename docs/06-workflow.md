@@ -600,8 +600,18 @@ git commit -m "feat(auth): tambah halaman login"
 
 ---
 
-## 13. Update Log
+## 13. Catatan Automation ADB
 
-| Tanggal    | Perubahan         |
-| ---------- | ----------------- |
-| 2026-10-16 | Draft awal dibuat |
+- Hindari tap di area navigation bar sistem Android (biasanya `y > 2100` pada device resolusi 1080x2400).
+- Area ini mengirim `KEYCODE_BACK` → app pop ke layar sebelumnya.
+- Koordinat aman untuk tombol bawah app: `y ≤ 2100`.
+- Kalau automation "layar kembali sendiri" tanpa sebab → cek apakah tap masuk navigation bar.
+
+---
+
+## 14. Update Log
+
+| Tanggal    | Perubahan                      |
+| ---------- | ------------------------------ |
+| 2026-10-16 | Draft awal dibuat              |
+| 2026-10-20 | Tambah catatan automation ADB  |
