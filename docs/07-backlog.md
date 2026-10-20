@@ -74,17 +74,17 @@ Gunakan bersama `docs/06-workflow.md` untuk kerja dengan opencode.
 
 ## 3. Ringkasan Progress
 
-| Phase                     | Total  | Done   | WIP   | Todo     |
-| ------------------------- | ------ | ------ | ----- | -------- |
-| Phase 0 — Foundation      | 10     | 10     | 0     | 0        |
-| Phase 1 — Design System   | 8      | 8      | 0     | 0        |
-| Phase 2 — UI Design       | 6      | 5      | 0     | 1        |
-| Phase 3 — Architecture    | 7      | 6      | 0     | 1 (skip) |
-| Phase 4 — MVP Development | 14     | 5      | 0     | 9        |
-| Phase 5 — AI Integration  | 8      | 0      | 0     | 8        |
-| Phase 6 — Testing         | 6      | 0      | 0     | 6        |
-| Phase 7 — Documentation   | 6      | 0      | 0     | 6        |
-| **Total**                 | **65** | **10** | **0** | **55**   |
+| Phase                     | Total  | Done   | WIP   | Todo     | Review | Skip |
+| ------------------------- | ------ | ------ | ----- | -------- | ------ | ---- |
+| Phase 0 — Foundation      | 10     | 10     | 0     | 0        | 0      | 0    |
+| Phase 1 — Design System   | 8      | 5      | 0     | 0        | 3      | 0    |
+| Phase 2 — UI Design       | 6      | 1      | 0     | 0        | 4      | 1    |
+| Phase 3 — Architecture    | 7      | 3      | 0     | 1        | 2      | 1    |
+| Phase 4 — MVP Development | 14     | 2      | 0     | 10       | 2      | 0    |
+| Phase 5 — AI Integration  | 8      | 0      | 0     | 8        | 0      | 0    |
+| Phase 6 — Testing         | 6      | 0      | 0     | 6        | 0      | 0    |
+| Phase 7 — Documentation   | 6      | 0      | 0     | 6        | 0      | 0    |
+| **Total**                 | **65** | **21** | **0** | **31**   | **11** | **2** |
 
 ---
 
@@ -115,7 +115,7 @@ Setup project Flutter, theme, dan fondasi kode.
 
 | Field      | Nilai   |
 | ---------- | ------- |
-| Status     | ✅ Done |
+| Status     | Review  |
 | Priority   | P0      |
 | Token      | S       |
 | Agent      | build   |
@@ -124,6 +124,8 @@ Setup project Flutter, theme, dan fondasi kode.
 **Scope:**
 
 - Buat project Flutter di `app/` (bukan root, biar docs terpisah)
+
+**Gap:** `flutter run` polos memerlukan `--dart-define-from-file=.env`; DoD P1-001 perlu verifikasi ulang.
 
 **DoD:**
 
@@ -137,7 +139,7 @@ Setup project Flutter, theme, dan fondasi kode.
 
 | Field      | Nilai  |
 | ---------- | ------ |
-| Status     | Todo   |
+| Status     | ✅ Done |
 | Priority   | P0     |
 | Token      | S      |
 | Agent      | build  |
@@ -160,7 +162,7 @@ Setup project Flutter, theme, dan fondasi kode.
 
 | Field      | Nilai  |
 | ---------- | ------ |
-| Status     | Todo   |
+| Status     | ✅ Done |
 | Priority   | P0     |
 | Token      | M      |
 | Agent      | build  |
@@ -186,7 +188,7 @@ Setup project Flutter, theme, dan fondasi kode.
 
 | Field      | Nilai  |
 | ---------- | ------ |
-| Status     | Todo   |
+| Status     | ✅ Done |
 | Priority   | P1     |
 | Token      | S      |
 | Agent      | build  |
@@ -208,7 +210,7 @@ Setup project Flutter, theme, dan fondasi kode.
 
 | Field      | Nilai  |
 | ---------- | ------ |
-| Status     | Todo   |
+| Status     | Review |
 | Priority   | P1     |
 | Token      | S      |
 | Agent      | build  |
@@ -219,6 +221,8 @@ Setup project Flutter, theme, dan fondasi kode.
 - Download Inter & JetBrains Mono
 - Letakkan di `app/assets/fonts/`
 - Update `app/pubspec.yaml`
+
+**Gap:** Release APK 55.4 MB (19 Okt 2026) > 50 MB; perlu split-per-ABI untuk < 50 MB.
 
 **DoD:**
 
@@ -232,7 +236,7 @@ Setup project Flutter, theme, dan fondasi kode.
 
 | Field      | Nilai  |
 | ---------- | ------ |
-| Status     | Todo   |
+| Status     | ✅ Done |
 | Priority   | P1     |
 | Token      | M      |
 | Agent      | build  |
@@ -254,7 +258,7 @@ Setup project Flutter, theme, dan fondasi kode.
 
 | Field      | Nilai  |
 | ---------- | ------ |
-| Status     | Todo   |
+| Status     | Review |
 | Priority   | P2     |
 | Token      | S      |
 | Agent      | build  |
@@ -263,6 +267,8 @@ Setup project Flutter, theme, dan fondasi kode.
 **Scope:**
 
 - File: `scripts/pre-commit.sh` + setup di `.git/hooks/`
+
+**Gap:** Hook belum ter-install (`.git/hooks/pre-commit` tidak ada); script tersedia di `scripts/`.
 
 **DoD:**
 
@@ -277,7 +283,7 @@ Setup project Flutter, theme, dan fondasi kode.
 
 | Field      | Nilai             |
 | ---------- | ----------------- |
-| Status     | Todo              |
+| Status     | ✅ Done            |
 | Priority   | P2                |
 | Token      | S                 |
 | Agent      | build             |
@@ -303,7 +309,7 @@ Regenerate UI di Stitch dengan DESIGN.md, perbaiki interaksi.
 
 | Field      | Nilai                |
 | ---------- | -------------------- |
-| Status     | Todo                 |
+| Status     | Review               |
 | Priority   | P0                   |
 | Token      | M                    |
 | Agent      | — (manual di Stitch) |
@@ -313,6 +319,8 @@ Regenerate UI di Stitch dengan DESIGN.md, perbaiki interaksi.
 
 - Upload `DESIGN.md` ke Stitch
 - Regenerate 8 layar
+
+**Catatan:** Artefak ada (8 screenshot + link Figma); kualitas visual Stitch belum diaudit.
 
 **DoD:**
 
@@ -326,7 +334,7 @@ Regenerate UI di Stitch dengan DESIGN.md, perbaiki interaksi.
 
 | Field      | Nilai      |
 | ---------- | ---------- |
-| Status     | Todo       |
+| Status     | Review     |
 | Priority   | P1         |
 | Token      | S          |
 | Agent      | — (manual) |
@@ -335,6 +343,8 @@ Regenerate UI di Stitch dengan DESIGN.md, perbaiki interaksi.
 **Scope:**
 
 - Export hasil Stitch ke Figma
+
+**Catatan:** Link Figma ada; layer/format belum diverifikasi.
 
 **DoD:**
 
@@ -348,7 +358,7 @@ Regenerate UI di Stitch dengan DESIGN.md, perbaiki interaksi.
 
 | Field      | Nilai               |
 | ---------- | ------------------- |
-| Status     | Todo                |
+| Status     | Review              |
 | Priority   | P0                  |
 | Token      | M                   |
 | Agent      | — (manual di Figma) |
@@ -358,6 +368,8 @@ Regenerate UI di Stitch dengan DESIGN.md, perbaiki interaksi.
 
 - Hubungkan 8 frame jadi prototype
 - Transisi antar layar
+
+**Catatan:** Link prototype ada; interaksi belum diverifikasi.
 
 **DoD:**
 
@@ -372,7 +384,7 @@ Regenerate UI di Stitch dengan DESIGN.md, perbaiki interaksi.
 
 | Field      | Nilai  |
 | ---------- | ------ |
-| Status     | Todo   |
+| Status     | Done   |
 | Priority   | P1     |
 | Token      | S      |
 | Agent      | build  |
@@ -394,7 +406,7 @@ Regenerate UI di Stitch dengan DESIGN.md, perbaiki interaksi.
 
 | Field      | Nilai      |
 | ---------- | ---------- |
-| Status     | Todo       |
+| Status     | Skip       |
 | Priority   | P3         |
 | Token      | S          |
 | Agent      | — (manual) |
@@ -403,6 +415,8 @@ Regenerate UI di Stitch dengan DESIGN.md, perbaiki interaksi.
 **Scope:**
 
 - Kalau butuh wireframe hitam-putih untuk diskusi
+
+**Skip:** Opsional; tidak ada file wireframe low-fidelity.
 
 **DoD:**
 
@@ -414,7 +428,7 @@ Regenerate UI di Stitch dengan DESIGN.md, perbaiki interaksi.
 
 | Field      | Nilai      |
 | ---------- | ---------- |
-| Status     | Todo       |
+| Status     | Review     |
 | Priority   | P1         |
 | Token      | S          |
 | Agent      | — (manual) |
@@ -423,6 +437,8 @@ Regenerate UI di Stitch dengan DESIGN.md, perbaiki interaksi.
 **Scope:**
 
 - Screenshot 8 layar untuk proposal
+
+**Gap:** Resolusi screenshot ~1x (359–406 × 851–923), DoD meminta 2x; perlu screenshot ulang.
 
 **DoD:**
 
@@ -440,7 +456,7 @@ Finalisasi tech stack, database, API contract.
 
 | Field      | Nilai |
 | ---------- | ----- |
-| Status     | Todo  |
+| Status     | Done  |
 | Priority   | P0    |
 | Token      | S     |
 | Agent      | plan  |
@@ -461,7 +477,7 @@ Finalisasi tech stack, database, API contract.
 
 | Field      | Nilai  |
 | ---------- | ------ |
-| Status     | Todo   |
+| Status     | Done   |
 | Priority   | P0     |
 | Token      | M      |
 | Agent      | plan   |
@@ -484,7 +500,7 @@ Finalisasi tech stack, database, API contract.
 
 | Field      | Nilai  |
 | ---------- | ------ |
-| Status     | Todo   |
+| Status     | Review |
 | Priority   | P0     |
 | Token      | M      |
 | Agent      | plan   |
@@ -493,6 +509,8 @@ Finalisasi tech stack, database, API contract.
 **Scope:**
 
 - Finalisasi endpoint di `docs/03-architecture.md`
+
+**Gap:** Request body per endpoint belum eksplisit; response envelope + rate limit sudah ada.
 
 **DoD:**
 
@@ -506,7 +524,7 @@ Finalisasi tech stack, database, API contract.
 
 | Field      | Nilai      |
 | ---------- | ---------- |
-| Status     | Todo       |
+| Status     | Done       |
 | Priority   | P0         |
 | Token      | S          |
 | Agent      | — (manual) |
@@ -529,7 +547,7 @@ Finalisasi tech stack, database, API contract.
 
 | Field      | Nilai  |
 | ---------- | ------ |
-| Status     | Todo   |
+| Status     | Review |
 | Priority   | P0     |
 | Token      | M      |
 | Agent      | build  |
@@ -538,6 +556,8 @@ Finalisasi tech stack, database, API contract.
 **Scope:**
 
 - File SQL migration di `app/supabase/migrations/`
+
+**Gap:** Seed data belum ada di repo (0 `INSERT`); migrasi + RLS + 25 policy sudah ada.
 
 **DoD:**
 
@@ -562,6 +582,8 @@ Finalisasi tech stack, database, API contract.
 - Daftar & dapat API key
 - Simpan di Supabase secrets
 
+**Perlu verifikasi manual:** key aktif di Supabase secrets belum dibuktikan.
+
 **DoD:**
 
 - [ ] API key aktif
@@ -574,7 +596,7 @@ Finalisasi tech stack, database, API contract.
 
 | Field      | Nilai      |
 | ---------- | ---------- |
-| Status     | Todo       |
+| Status     | Skip       |
 | Priority   | P1         |
 | Token      | S          |
 | Agent      | — (manual) |
@@ -583,6 +605,8 @@ Finalisasi tech stack, database, API contract.
 **Scope:**
 
 - Daftar Judge0 API / self-host
+
+**Skip:** Ditunda, akan dikerjakan bersama P5-007.
 
 **DoD:**
 
@@ -599,7 +623,7 @@ Fitur inti tanpa AI dulu. Fondasi paling penting.
 
 | Field      | Nilai          |
 | ---------- | -------------- |
-| Status     | Done           |
+| Status     | Review         |
 | Priority   | P0             |
 | Token      | L              |
 | Agent      | build          |
@@ -609,6 +633,8 @@ Fitur inti tanpa AI dulu. Fondasi paling penting.
 
 - `app/lib/features/auth/`
 - `app/lib/data/repositories/auth_repository.dart`
+
+**Gap:** Test unit auth akan dikerjakan bersama P6-001.
 
 **DoD:**
 
@@ -668,7 +694,7 @@ Fitur inti tanpa AI dulu. Fondasi paling penting.
 
 | Field      | Nilai  |
 | ---------- | ------ |
-| Status     | Todo   |
+| Status     | Review |
 | Priority   | P0     |
 | Token      | M      |
 | Agent      | build  |
@@ -677,6 +703,8 @@ Fitur inti tanpa AI dulu. Fondasi paling penting.
 **Scope:**
 
 - `app/lib/features/lesson/`
+
+**Gap:** Sisa gap (syntax highlighting, wire tombol Lanjut ke Latihan) akan ditutup bersama P4-005.
 
 **DoD:**
 
