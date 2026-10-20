@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -58,6 +60,12 @@ class AuthNotifier extends StateNotifier<AuthState> {
     state = const AuthState();
   }
 
+  /// Mengisi user hasil session restore saat app dibuka.
+  /// Tidak mengubah alur login/logout yang sudah ada.
+  void restoreSession(UserModel user) {
+    state = AuthState(user: user);
+  }
+
   void clearError() {
     state = state.copyWith(errorMessage: null);
   }
@@ -68,3 +76,81 @@ final authStateProvider = StateNotifierProvider<AuthNotifier, AuthState>((ref) {
   final repo = ref.watch(authRepositoryProvider);
   return AuthNotifier(repo);
 });
+
+// Session status saat app dibuka
+enum SessionStatus { loading, authenticated, unauthenticated }
+
+/// Menentukan status session saat launch: memvalidasi session tersimpan
+/// lewat [AuthRepository.getCurrentUser], mengisi [AuthState] dengan user,
+/// lalu memantau perubahan login/logout lewat stream Supabase.
+class SessionNotifier extends StateNotifier<SessionStatus> {
+  SessionNotifier(AuthRepository repo, SupabaseClient client, Ref ref)
+    : _repo = repo,
+      _client = client,
+      _ref = ref,
+      super(
+        client.auth.currentSession == null
+            ? SessionStatus.unauthenticated
+            : SessionStatus.loading,
+      ) {
+    if (state == SessionStatus.loading) {
+      _restoreSession();
+    } else {
+      _listenAuthChanges();
+    }
+  }
+
+  final AuthRepository _repo;
+  final SupabaseClient _client;
+  final Ref _ref;
+  StreamSubscription<bool>? _authSubscription;
+
+  /// Validasi session tersimpan, isi AuthState dengan user, lalu mulai
+  /// memantau perubahan auth berikutnya.
+  Future<void> _restoreSession() async {
+    try {
+      final user = await _repo.getCurrentUser().timeout(
+        const Duration(seconds: 5),
+      );
+      if (!mounted) return;
+
+      if (user != null) {
+        _ref.read(authStateProvider.notifier).restoreSession(user);
+        state = SessionStatus.authenticated;
+      } else {
+        state = SessionStatus.unauthenticated;
+      }
+    } catch (_) {
+      // Validasi gagal (mis. jaringan) — jangan paksa login ulang selama
+      // session lokal masih ada.
+      if (!mounted) return;
+      state = _client.auth.currentSession != null
+          ? SessionStatus.authenticated
+          : SessionStatus.unauthenticated;
+    } finally {
+      if (mounted) _listenAuthChanges();
+    }
+  }
+
+  void _listenAuthChanges() {
+    _authSubscription = _repo.authStateChanges().listen((hasSession) {
+      state = hasSession
+          ? SessionStatus.authenticated
+          : SessionStatus.unauthenticated;
+    });
+  }
+
+  @override
+  void dispose() {
+    _authSubscription?.cancel();
+    super.dispose();
+  }
+}
+
+/// Status session global; dipakai redirect router untuk gerbang splash/login.
+final sessionStatusProvider =
+    StateNotifierProvider<SessionNotifier, SessionStatus>((ref) {
+      final repo = ref.watch(authRepositoryProvider);
+      final client = ref.watch(supabaseClientProvider);
+      return SessionNotifier(repo, client, ref);
+    });
