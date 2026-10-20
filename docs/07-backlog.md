@@ -79,12 +79,12 @@ Gunakan bersama `docs/06-workflow.md` untuk kerja dengan opencode.
 | Phase 0 — Foundation      | 10     | 10     | 0     | 0        | 0      | 0    |
 | Phase 1 — Design System   | 8      | 5      | 0     | 0        | 3      | 0    |
 | Phase 2 — UI Design       | 6      | 1      | 0     | 0        | 4      | 1    |
-| Phase 3 — Architecture    | 7      | 3      | 0     | 1        | 2      | 1    |
+| Phase 3 — Architecture    | 7      | 4      | 0     | 1        | 1      | 1    |
 | Phase 4 — MVP Development | 14     | 4      | 0     | 9        | 1      | 0    |
 | Phase 5 — AI Integration  | 8      | 0      | 0     | 8        | 0      | 0    |
 | Phase 6 — Testing         | 6      | 0      | 0     | 6        | 0      | 0    |
 | Phase 7 — Documentation   | 6      | 0      | 0     | 6        | 0      | 0    |
-| **Total**                 | **65** | **23** | **0** | **30**   | **10** | **2** |
+| **Total**                 | **65** | **24** | **0** | **30**   | **9**  | **2** |
 
 ---
 
@@ -547,7 +547,7 @@ Finalisasi tech stack, database, API contract.
 
 | Field      | Nilai  |
 | ---------- | ------ |
-| Status     | Review |
+| Status     | Done   |
 | Priority   | P0     |
 | Token      | M      |
 | Agent      | build  |
@@ -556,8 +556,9 @@ Finalisasi tech stack, database, API contract.
 **Scope:**
 
 - File SQL migration di `app/supabase/migrations/`
+- File seed data di `app/supabase/`: `seed.sql`, `seed-cpp-01.sql`, `seed-cpp-02.sql`, `seed-cpp-03.sql`, `seed-java-01.sql`, `seed-quiz-01.sql`
 
-**Gap:** Seed data belum ada di repo (0 `INSERT`); migrasi + RLS + 25 policy sudah ada.
+**Catatan:** Migrasi, RLS, dan 25 policy sudah ada. Seed data untuk testing sudah lengkap: 250 materi, 250 exercise drag_drop untuk 50 level, ditambah 45 soal quiz untuk Level 1-15. Semua file seed bersifat idempotent dan bisa dijalankan berulang.
 
 **DoD:**
 
