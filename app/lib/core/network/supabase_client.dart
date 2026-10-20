@@ -13,6 +13,8 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 const _supabaseUrlFromDefine = String.fromEnvironment('SUPABASE_URL');
 const _supabaseAnonKeyFromDefine = String.fromEnvironment('SUPABASE_ANON_KEY');
 
+bool _dotenvLoaded = false;
+
 /// Loads a bundled `.env` file when one is present.
 ///
 /// Release builds do not bundle `.env`, so this is a no-op there and the app
@@ -21,15 +23,23 @@ const _supabaseAnonKeyFromDefine = String.fromEnvironment('SUPABASE_ANON_KEY');
 Future<void> _loadDotenvIfBundled() async {
   try {
     await dotenv.load();
+    _dotenvLoaded = true;
   } catch (_) {
     // No bundled `.env`: expected unless a local dev setup opts back in.
   }
 }
 
 /// Resolves a configuration value: `--dart-define` first, then `.env`.
+///
+/// `dotenv` throws `NotInitializedError` when no `.env` was loaded. In that
+/// case return an empty string so `initSupabase` can raise one clear
+/// `StateError` listing the missing keys.
 String _resolve(String fromDefine, String dotenvKey) {
   if (fromDefine.isNotEmpty) {
     return fromDefine;
+  }
+  if (!_dotenvLoaded) {
+    return '';
   }
   return dotenv.maybeGet(dotenvKey) ?? '';
 }
