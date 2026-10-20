@@ -1306,4 +1306,888 @@ WHERE l.level_number = 21 AND l.language = 'cpp'
       AND e.type = 'drag_drop'
   );
 
--- @@CHUNK02_PART2@@
+-- ============================================
+-- SECTION 13: MATERIALS LEVEL 22 — Array 2D
+-- ============================================
+
+INSERT INTO public.materials (level_id, slide_order, title, content, code_snippet)
+SELECT l.id, 1, 'Pengenalan Array 2D',
+       'Array dua dimensi dipakai untuk menyimpan data dalam bentuk tabel baris dan kolom.',
+       'int matriks[2][3] = {
+  {1, 2, 3},
+  {4, 5, 6}
+};'
+FROM public.levels l
+WHERE l.level_number = 22 AND l.language = 'cpp'
+  AND NOT EXISTS (
+    SELECT 1 FROM public.materials m
+    WHERE m.level_id = l.id AND m.slide_order = 1
+  );
+
+INSERT INTO public.materials (level_id, slide_order, title, content, code_snippet)
+SELECT l.id, 2, 'Deklarasi Dua Dimensi',
+       'Ukuran ditulis untuk baris lalu kolom. Elemen diakses dengan dua indeks, yaitu indeks baris dan indeks kolom.',
+       'int matriks[2][3];
+matriks[0][0] = 1;'
+FROM public.levels l
+WHERE l.level_number = 22 AND l.language = 'cpp'
+  AND NOT EXISTS (
+    SELECT 1 FROM public.materials m
+    WHERE m.level_id = l.id AND m.slide_order = 2
+  );
+
+INSERT INTO public.materials (level_id, slide_order, title, content, code_snippet)
+SELECT l.id, 3, 'Nested Loop Matriks',
+       'Gunakan dua perulangan untuk mengisi atau membaca seluruh elemen matriks.',
+       'for (int i = 0; i < 2; i++) {
+  for (int j = 0; j < 3; j++) {
+    cout << matriks[i][j] << " ";
+  }
+}'
+FROM public.levels l
+WHERE l.level_number = 22 AND l.language = 'cpp'
+  AND NOT EXISTS (
+    SELECT 1 FROM public.materials m
+    WHERE m.level_id = l.id AND m.slide_order = 3
+  );
+
+INSERT INTO public.materials (level_id, slide_order, title, content, code_snippet)
+SELECT l.id, 4, 'Contoh: Matriks Nilai',
+       'Matriks nilai tiga mahasiswa dengan tiga nilai per mahasiswa disimpan dalam array dua dimensi.',
+       'int nilai[3][3] = {
+  {70, 80, 90},
+  {75, 85, 95},
+  {60, 70, 80}
+};'
+FROM public.levels l
+WHERE l.level_number = 22 AND l.language = 'cpp'
+  AND NOT EXISTS (
+    SELECT 1 FROM public.materials m
+    WHERE m.level_id = l.id AND m.slide_order = 4
+  );
+
+INSERT INTO public.materials (level_id, slide_order, title, content, code_snippet)
+SELECT l.id, 5, 'Latihan Selanjutnya',
+       'Kamu sudah memahami array dua dimensi dan pengaccessannya lewat dua indeks. Selanjutnya, kamu akan menyusun matriks dan mengerjakan kuis.',
+       NULL
+FROM public.levels l
+WHERE l.level_number = 22 AND l.language = 'cpp'
+  AND NOT EXISTS (
+    SELECT 1 FROM public.materials m
+    WHERE m.level_id = l.id AND m.slide_order = 5
+  );
+
+-- ============================================
+-- SECTION 14: EXERCISES LEVEL 22 — Array 2D (drag_drop)
+-- ============================================
+
+INSERT INTO public.exercises (level_id, type, prompt, payload, difficulty)
+SELECT l.id, 'drag_drop', 'Susun deklarasi 2D',
+       $json${
+         "tokens": [
+           {"id": "t1", "text": "int"},
+           {"id": "t2", "text": "matriks"},
+           {"id": "t3", "text": "["},
+           {"id": "t4", "text": "2"},
+           {"id": "t5", "text": "]"},
+           {"id": "t6", "text": "["},
+           {"id": "t7", "text": "3"},
+           {"id": "t8", "text": "]"},
+           {"id": "t9", "text": ";"}
+         ],
+         "answer": ["t1", "t2", "t3", "t4", "t5", "t6", "t7", "t8", "t9"],
+         "language": "cpp"
+       }$json$::jsonb,
+       4
+FROM public.levels l
+WHERE l.level_number = 22 AND l.language = 'cpp'
+  AND NOT EXISTS (
+    SELECT 1 FROM public.exercises e
+    WHERE e.level_id = l.id
+      AND e.prompt = 'Susun deklarasi 2D'
+      AND e.type = 'drag_drop'
+  );
+
+INSERT INTO public.exercises (level_id, type, prompt, payload, difficulty)
+SELECT l.id, 'drag_drop', 'Susun inisialisasi 2D',
+       $json${
+         "tokens": [
+           {"id": "t1", "text": "int"},
+           {"id": "t2", "text": "matriks[2][2]"},
+           {"id": "t3", "text": "="},
+           {"id": "t4", "text": "{"},
+           {"id": "t5", "text": "{1, 2},"},
+           {"id": "t6", "text": "{3, 4}"},
+           {"id": "t7", "text": "}"},
+           {"id": "t8", "text": ";"}
+         ],
+         "answer": ["t1", "t2", "t3", "t4", "t5", "t6", "t7", "t8"],
+         "language": "cpp"
+       }$json$::jsonb,
+       4
+FROM public.levels l
+WHERE l.level_number = 22 AND l.language = 'cpp'
+  AND NOT EXISTS (
+    SELECT 1 FROM public.exercises e
+    WHERE e.level_id = l.id
+      AND e.prompt = 'Susun inisialisasi 2D'
+      AND e.type = 'drag_drop'
+  );
+
+INSERT INTO public.exercises (level_id, type, prompt, payload, difficulty)
+SELECT l.id, 'drag_drop', 'Susun akses matriks',
+       $json${
+         "tokens": [
+           {"id": "t1", "text": "int"},
+           {"id": "t2", "text": "matriks[2][2];"},
+           {"id": "t3", "text": "int"},
+           {"id": "t4", "text": "main()"},
+           {"id": "t5", "text": "{"},
+           {"id": "t6", "text": "matriks[0][0] = 5;"},
+           {"id": "t7", "text": "matriks[1][1] = 9;"},
+           {"id": "t8", "text": "cout << matriks[1][1];"},
+           {"id": "t9", "text": "}"}
+         ],
+         "answer": ["t1", "t2", "t3", "t4", "t5", "t6", "t7", "t8", "t9"],
+         "language": "cpp"
+       }$json$::jsonb,
+       4
+FROM public.levels l
+WHERE l.level_number = 22 AND l.language = 'cpp'
+  AND NOT EXISTS (
+    SELECT 1 FROM public.exercises e
+    WHERE e.level_id = l.id
+      AND e.prompt = 'Susun akses matriks'
+      AND e.type = 'drag_drop'
+  );
+
+INSERT INTO public.exercises (level_id, type, prompt, payload, difficulty)
+SELECT l.id, 'drag_drop', 'Susun matriks dengan loop',
+       $json${
+         "tokens": [
+           {"id": "t1", "text": "int"},
+           {"id": "t2", "text": "matriks[2][2];"},
+           {"id": "t3", "text": "int"},
+           {"id": "t4", "text": "main()"},
+           {"id": "t5", "text": "{"},
+           {"id": "t6", "text": "for (int i = 0; i < 2; i++) {"},
+           {"id": "t7", "text": "for (int j = 0; j < 2; j++) {"},
+           {"id": "t8", "text": "cout << matriks[i][j];"},
+           {"id": "t9", "text": "}"},
+           {"id": "t10", "text": "}"},
+           {"id": "t11", "text": "}"}
+         ],
+         "answer": ["t1", "t2", "t3", "t4", "t5", "t6", "t7", "t8", "t9", "t10", "t11"],
+         "language": "cpp"
+       }$json$::jsonb,
+       4
+FROM public.levels l
+WHERE l.level_number = 22 AND l.language = 'cpp'
+  AND NOT EXISTS (
+    SELECT 1 FROM public.exercises e
+    WHERE e.level_id = l.id
+      AND e.prompt = 'Susun matriks dengan loop'
+      AND e.type = 'drag_drop'
+  );
+
+INSERT INTO public.exercises (level_id, type, prompt, payload, difficulty)
+SELECT l.id, 'drag_drop', 'Susun transpose matriks',
+       $json${
+         "tokens": [
+           {"id": "t1", "text": "int"},
+           {"id": "t2", "text": "matriks[2][2] = {{1, 2}, {3, 4}};"},
+           {"id": "t3", "text": "int"},
+           {"id": "t4", "text": "main()"},
+           {"id": "t5", "text": "{"},
+           {"id": "t6", "text": "int hasil[2][2];"},
+           {"id": "t7", "text": "for (int i = 0; i < 2; i++) {"},
+           {"id": "t8", "text": "for (int j = 0; j < 2; j++) {"},
+           {"id": "t9", "text": "hasil[j][i] = matriks[i][j];"},
+           {"id": "t10", "text": "}"},
+           {"id": "t11", "text": "}"},
+           {"id": "t12", "text": "cout << hasil[0][1];"},
+           {"id": "t13", "text": "}"}
+         ],
+         "answer": ["t1", "t2", "t3", "t4", "t5", "t6", "t7", "t8", "t9", "t10", "t11", "t12", "t13"],
+         "language": "cpp"
+       }$json$::jsonb,
+       4
+FROM public.levels l
+WHERE l.level_number = 22 AND l.language = 'cpp'
+  AND NOT EXISTS (
+    SELECT 1 FROM public.exercises e
+    WHERE e.level_id = l.id
+      AND e.prompt = 'Susun transpose matriks'
+      AND e.type = 'drag_drop'
+  );
+
+-- ============================================
+-- SECTION 15: MATERIALS LEVEL 23 — String Dasar
+-- ============================================
+
+INSERT INTO public.materials (level_id, slide_order, title, content, code_snippet)
+SELECT l.id, 1, 'Pengenalan String',
+       'String adalah kumpulan karakter yang disimpan dalam array bertipe char dan diakhiri karakter null bernilai 0.',
+       'char nama[20] = "Budi";'
+FROM public.levels l
+WHERE l.level_number = 23 AND l.language = 'cpp'
+  AND NOT EXISTS (
+    SELECT 1 FROM public.materials m
+    WHERE m.level_id = l.id AND m.slide_order = 1
+  );
+
+INSERT INTO public.materials (level_id, slide_order, title, content, code_snippet)
+SELECT l.id, 2, 'Deklarasi Char Array',
+       'Ukuran array string harus cukup untuk menampung seluruh teks ditambah satu karakter null di akhir.',
+       'char nama[20];'
+FROM public.levels l
+WHERE l.level_number = 23 AND l.language = 'cpp'
+  AND NOT EXISTS (
+    SELECT 1 FROM public.materials m
+    WHERE m.level_id = l.id AND m.slide_order = 2
+  );
+
+INSERT INTO public.materials (level_id, slide_order, title, content, code_snippet)
+SELECT l.id, 3, 'Input dan Output String',
+       'Gunakan cin dengan operator >> untuk membaca string tanpa spasi, dan cout untuk menampilkannya.',
+       'cin >> nama;
+cout << "Halo " << nama;'
+FROM public.levels l
+WHERE l.level_number = 23 AND l.language = 'cpp'
+  AND NOT EXISTS (
+    SELECT 1 FROM public.materials m
+    WHERE m.level_id = l.id AND m.slide_order = 3
+  );
+
+INSERT INTO public.materials (level_id, slide_order, title, content, code_snippet)
+SELECT l.id, 4, 'Contoh: Menyapa Nama',
+       'Program berikut membaca nama dari pengguna lalu menyapa dengan nama tersebut.',
+       'char nama[20];
+cin >> nama;
+cout << "Halo, " << nama << "!" << endl;'
+FROM public.levels l
+WHERE l.level_number = 23 AND l.language = 'cpp'
+  AND NOT EXISTS (
+    SELECT 1 FROM public.materials m
+    WHERE m.level_id = l.id AND m.slide_order = 4
+  );
+
+INSERT INTO public.materials (level_id, slide_order, title, content, code_snippet)
+SELECT l.id, 5, 'Latihan Selanjutnya',
+       'Kamu sudah memahami dasar penyimpanan dan pencetakan string. Selanjutnya, kamu akan menyusun deklarasi string dan mengerjakan kuis.',
+       NULL
+FROM public.levels l
+WHERE l.level_number = 23 AND l.language = 'cpp'
+  AND NOT EXISTS (
+    SELECT 1 FROM public.materials m
+    WHERE m.level_id = l.id AND m.slide_order = 5
+  );
+
+-- ============================================
+-- SECTION 16: EXERCISES LEVEL 23 — String Dasar (drag_drop)
+-- ============================================
+
+INSERT INTO public.exercises (level_id, type, prompt, payload, difficulty)
+SELECT l.id, 'drag_drop', 'Susun deklarasi string',
+       $json${
+         "tokens": [
+           {"id": "t1", "text": "char"},
+           {"id": "t2", "text": "nama"},
+           {"id": "t3", "text": "["},
+           {"id": "t4", "text": "20"},
+           {"id": "t5", "text": "]"},
+           {"id": "t6", "text": ";"}
+         ],
+         "answer": ["t1", "t2", "t3", "t4", "t5", "t6"],
+         "language": "cpp"
+       }$json$::jsonb,
+       3
+FROM public.levels l
+WHERE l.level_number = 23 AND l.language = 'cpp'
+  AND NOT EXISTS (
+    SELECT 1 FROM public.exercises e
+    WHERE e.level_id = l.id
+      AND e.prompt = 'Susun deklarasi string'
+      AND e.type = 'drag_drop'
+  );
+
+INSERT INTO public.exercises (level_id, type, prompt, payload, difficulty)
+SELECT l.id, 'drag_drop', 'Susun input nama',
+       $json${
+         "tokens": [
+           {"id": "t1", "text": "char"},
+           {"id": "t2", "text": "nama[20];"},
+           {"id": "t3", "text": "int"},
+           {"id": "t4", "text": "main()"},
+           {"id": "t5", "text": "{"},
+           {"id": "t6", "text": "cin >> nama;"},
+           {"id": "t7", "text": "cout << nama;"},
+           {"id": "t8", "text": "cout << endl;"},
+           {"id": "t9", "text": "}"}
+         ],
+         "answer": ["t1", "t2", "t3", "t4", "t5", "t6", "t7", "t8", "t9"],
+         "language": "cpp"
+       }$json$::jsonb,
+       3
+FROM public.levels l
+WHERE l.level_number = 23 AND l.language = 'cpp'
+  AND NOT EXISTS (
+    SELECT 1 FROM public.exercises e
+    WHERE e.level_id = l.id
+      AND e.prompt = 'Susun input nama'
+      AND e.type = 'drag_drop'
+  );
+
+INSERT INTO public.exercises (level_id, type, prompt, payload, difficulty)
+SELECT l.id, 'drag_drop', 'Susun cetak nama',
+       $json${
+         "tokens": [
+           {"id": "t1", "text": "char"},
+           {"id": "t2", "text": "nama[20] = \"Budi\";"},
+           {"id": "t3", "text": "int"},
+           {"id": "t4", "text": "main()"},
+           {"id": "t5", "text": "{"},
+           {"id": "t6", "text": "cout << \"Halo \" << nama;"},
+           {"id": "t7", "text": "cout << endl;"},
+           {"id": "t8", "text": "}"}
+         ],
+         "answer": ["t1", "t2", "t3", "t4", "t5", "t6", "t7", "t8"],
+         "language": "cpp"
+       }$json$::jsonb,
+       3
+FROM public.levels l
+WHERE l.level_number = 23 AND l.language = 'cpp'
+  AND NOT EXISTS (
+    SELECT 1 FROM public.exercises e
+    WHERE e.level_id = l.id
+      AND e.prompt = 'Susun cetak nama'
+      AND e.type = 'drag_drop'
+  );
+
+INSERT INTO public.exercises (level_id, type, prompt, payload, difficulty)
+SELECT l.id, 'drag_drop', 'Susun string dengan loop',
+       $json${
+         "tokens": [
+           {"id": "t1", "text": "char"},
+           {"id": "t2", "text": "nama[20] = \"Budi\";"},
+           {"id": "t3", "text": "int"},
+           {"id": "t4", "text": "main()"},
+           {"id": "t5", "text": "{"},
+           {"id": "t6", "text": "int panjang = 0;"},
+           {"id": "t7", "text": "while (nama[panjang] != 0) {"},
+           {"id": "t8", "text": "panjang++;"},
+           {"id": "t9", "text": "}"},
+           {"id": "t10", "text": "cout << panjang;"},
+           {"id": "t11", "text": "}"}
+         ],
+         "answer": ["t1", "t2", "t3", "t4", "t5", "t6", "t7", "t8", "t9", "t10", "t11"],
+         "language": "cpp"
+       }$json$::jsonb,
+       3
+FROM public.levels l
+WHERE l.level_number = 23 AND l.language = 'cpp'
+  AND NOT EXISTS (
+    SELECT 1 FROM public.exercises e
+    WHERE e.level_id = l.id
+      AND e.prompt = 'Susun string dengan loop'
+      AND e.type = 'drag_drop'
+  );
+
+INSERT INTO public.exercises (level_id, type, prompt, payload, difficulty)
+SELECT l.id, 'drag_drop', 'Susun dua nama',
+       $json${
+         "tokens": [
+           {"id": "t1", "text": "char"},
+           {"id": "t2", "text": "nama[20];"},
+           {"id": "t3", "text": "char"},
+           {"id": "t4", "text": "nim[15];"},
+           {"id": "t5", "text": "int"},
+           {"id": "t6", "text": "main()"},
+           {"id": "t7", "text": "{"},
+           {"id": "t8", "text": "cin >> nama;"},
+           {"id": "t9", "text": "cin >> nim;"},
+           {"id": "t10", "text": "cout << nama << \" \" << nim;"},
+           {"id": "t11", "text": "}"}
+         ],
+         "answer": ["t1", "t2", "t3", "t4", "t5", "t6", "t7", "t8", "t9", "t10", "t11"],
+         "language": "cpp"
+       }$json$::jsonb,
+       3
+FROM public.levels l
+WHERE l.level_number = 23 AND l.language = 'cpp'
+  AND NOT EXISTS (
+    SELECT 1 FROM public.exercises e
+    WHERE e.level_id = l.id
+      AND e.prompt = 'Susun dua nama'
+      AND e.type = 'drag_drop'
+  );
+
+-- ============================================
+-- SECTION 17: MATERIALS LEVEL 24 — Operasi String
+-- ============================================
+
+INSERT INTO public.materials (level_id, slide_order, title, content, code_snippet)
+SELECT l.id, 1, 'Library cstring',
+       'Operasi string C++ tersedia pada header cstring. Header ini wajib diinclude sebelum fungsi-fiturnya dipakai.',
+       '#include <cstring>'
+FROM public.levels l
+WHERE l.level_number = 24 AND l.language = 'cpp'
+  AND NOT EXISTS (
+    SELECT 1 FROM public.materials m
+    WHERE m.level_id = l.id AND m.slide_order = 1
+  );
+
+INSERT INTO public.materials (level_id, slide_order, title, content, code_snippet)
+SELECT l.id, 2, 'strlen dan strcpy',
+       'strlen menghitung panjang string, sedangkan strcpy menyalin isi satu string ke string lain.',
+       'char asal[20] = "Budi";
+char tujuan[20];
+strcpy(tujuan, asal);
+int panjang = strlen(asal);'
+FROM public.levels l
+WHERE l.level_number = 24 AND l.language = 'cpp'
+  AND NOT EXISTS (
+    SELECT 1 FROM public.materials m
+    WHERE m.level_id = l.id AND m.slide_order = 2
+  );
+
+INSERT INTO public.materials (level_id, slide_order, title, content, code_snippet)
+SELECT l.id, 3, 'strcmp dan strcat',
+       'strcmp membandingkan dua string dan mengembalikan nol jika keduanya sama, sedangkan strcat menggabungkan dua string.',
+       'if (strcmp(username, "admin") == 0) {
+  cout << "Selamat datang";
+}
+strcat(nama, " Santoso");'
+FROM public.levels l
+WHERE l.level_number = 24 AND l.language = 'cpp'
+  AND NOT EXISTS (
+    SELECT 1 FROM public.materials m
+    WHERE m.level_id = l.id AND m.slide_order = 3
+  );
+
+INSERT INTO public.materials (level_id, slide_order, title, content, code_snippet)
+SELECT l.id, 4, 'Contoh: Cek Username',
+       'Gunakan strcmp untuk memeriksa kesamaan username sebelum program mengizinkan akses.',
+       'char username[20];
+cin >> username;
+if (strcmp(username, "admin") == 0) {
+  cout << "Akses diberikan";
+}'
+FROM public.levels l
+WHERE l.level_number = 24 AND l.language = 'cpp'
+  AND NOT EXISTS (
+    SELECT 1 FROM public.materials m
+    WHERE m.level_id = l.id AND m.slide_order = 4
+  );
+
+INSERT INTO public.materials (level_id, slide_order, title, content, code_snippet)
+SELECT l.id, 5, 'Latihan Selanjutnya',
+       'Kamu sudah memahami fungsi strlen, strcpy, strcmp, dan strcat. Selanjutnya, kamu akan menyusun operasi string dan mengerjakan kuis.',
+       NULL
+FROM public.levels l
+WHERE l.level_number = 24 AND l.language = 'cpp'
+  AND NOT EXISTS (
+    SELECT 1 FROM public.materials m
+    WHERE m.level_id = l.id AND m.slide_order = 5
+  );
+
+-- ============================================
+-- SECTION 18: EXERCISES LEVEL 24 — Operasi String (drag_drop)
+-- ============================================
+
+INSERT INTO public.exercises (level_id, type, prompt, payload, difficulty)
+SELECT l.id, 'drag_drop', 'Susun strlen',
+       $json${
+         "tokens": [
+           {"id": "t1", "text": "#include <cstring>"},
+           {"id": "t2", "text": "int"},
+           {"id": "t3", "text": "main()"},
+           {"id": "t4", "text": "{"},
+           {"id": "t5", "text": "char nama[20] = \"Budi\";"},
+           {"id": "t6", "text": "int panjang = strlen(nama);"},
+           {"id": "t7", "text": "cout << panjang;"},
+           {"id": "t8", "text": "return 0;"},
+           {"id": "t9", "text": "}"}
+         ],
+         "answer": ["t1", "t2", "t3", "t4", "t5", "t6", "t7", "t8", "t9"],
+         "language": "cpp"
+       }$json$::jsonb,
+       4
+FROM public.levels l
+WHERE l.level_number = 24 AND l.language = 'cpp'
+  AND NOT EXISTS (
+    SELECT 1 FROM public.exercises e
+    WHERE e.level_id = l.id
+      AND e.prompt = 'Susun strlen'
+      AND e.type = 'drag_drop'
+  );
+
+INSERT INTO public.exercises (level_id, type, prompt, payload, difficulty)
+SELECT l.id, 'drag_drop', 'Susun strcpy',
+       $json${
+         "tokens": [
+           {"id": "t1", "text": "#include <cstring>"},
+           {"id": "t2", "text": "int"},
+           {"id": "t3", "text": "main()"},
+           {"id": "t4", "text": "{"},
+           {"id": "t5", "text": "char asal[20] = \"Budi\";"},
+           {"id": "t6", "text": "char tujuan[20];"},
+           {"id": "t7", "text": "strcpy(tujuan, asal);"},
+           {"id": "t8", "text": "cout << tujuan;"},
+           {"id": "t9", "text": "}"}
+         ],
+         "answer": ["t1", "t2", "t3", "t4", "t5", "t6", "t7", "t8", "t9"],
+         "language": "cpp"
+       }$json$::jsonb,
+       4
+FROM public.levels l
+WHERE l.level_number = 24 AND l.language = 'cpp'
+  AND NOT EXISTS (
+    SELECT 1 FROM public.exercises e
+    WHERE e.level_id = l.id
+      AND e.prompt = 'Susun strcpy'
+      AND e.type = 'drag_drop'
+  );
+
+INSERT INTO public.exercises (level_id, type, prompt, payload, difficulty)
+SELECT l.id, 'drag_drop', 'Susun strcmp',
+       $json${
+         "tokens": [
+           {"id": "t1", "text": "#include <cstring>"},
+           {"id": "t2", "text": "int"},
+           {"id": "t3", "text": "main()"},
+           {"id": "t4", "text": "{"},
+           {"id": "t5", "text": "char username[20];"},
+           {"id": "t6", "text": "cin >> username;"},
+           {"id": "t7", "text": "if (strcmp(username, \"admin\") == 0) {"},
+           {"id": "t8", "text": "cout << \"Akses diberikan\";"},
+           {"id": "t9", "text": "}"},
+           {"id": "t10", "text": "}"}
+         ],
+         "answer": ["t1", "t2", "t3", "t4", "t5", "t6", "t7", "t8", "t9", "t10"],
+         "language": "cpp"
+       }$json$::jsonb,
+       4
+FROM public.levels l
+WHERE l.level_number = 24 AND l.language = 'cpp'
+  AND NOT EXISTS (
+    SELECT 1 FROM public.exercises e
+    WHERE e.level_id = l.id
+      AND e.prompt = 'Susun strcmp'
+      AND e.type = 'drag_drop'
+  );
+
+INSERT INTO public.exercises (level_id, type, prompt, payload, difficulty)
+SELECT l.id, 'drag_drop', 'Susun strcat',
+       $json${
+         "tokens": [
+           {"id": "t1", "text": "#include <cstring>"},
+           {"id": "t2", "text": "int"},
+           {"id": "t3", "text": "main()"},
+           {"id": "t4", "text": "{"},
+           {"id": "t5", "text": "char nama[20] = \"Budi\";"},
+           {"id": "t6", "text": "char gabungan[40];"},
+           {"id": "t7", "text": "strcpy(gabungan, nama);"},
+           {"id": "t8", "text": "strcat(gabungan, \" Santoso\");"},
+           {"id": "t9", "text": "cout << gabungan;"},
+           {"id": "t10", "text": "}"}
+         ],
+         "answer": ["t1", "t2", "t3", "t4", "t5", "t6", "t7", "t8", "t9", "t10"],
+         "language": "cpp"
+       }$json$::jsonb,
+       4
+FROM public.levels l
+WHERE l.level_number = 24 AND l.language = 'cpp'
+  AND NOT EXISTS (
+    SELECT 1 FROM public.exercises e
+    WHERE e.level_id = l.id
+      AND e.prompt = 'Susun strcat'
+      AND e.type = 'drag_drop'
+  );
+
+INSERT INTO public.exercises (level_id, type, prompt, payload, difficulty)
+SELECT l.id, 'drag_drop', 'Susun validasi username',
+       $json${
+         "tokens": [
+           {"id": "t1", "text": "int"},
+           {"id": "t2", "text": "main()"},
+           {"id": "t3", "text": "{"},
+           {"id": "t4", "text": "char username[20];"},
+           {"id": "t5", "text": "cin >> username;"},
+           {"id": "t6", "text": "if (strcmp(username, \"admin\") == 0) {"},
+           {"id": "t7", "text": "cout << \"Selamat datang\";"},
+           {"id": "t8", "text": "} else {"},
+           {"id": "t9", "text": "cout << \"Username salah\";"},
+           {"id": "t10", "text": "}"},
+           {"id": "t11", "text": "}"}
+         ],
+         "answer": ["t1", "t2", "t3", "t4", "t5", "t6", "t7", "t8", "t9", "t10", "t11"],
+         "language": "cpp"
+       }$json$::jsonb,
+       4
+FROM public.levels l
+WHERE l.level_number = 24 AND l.language = 'cpp'
+  AND NOT EXISTS (
+    SELECT 1 FROM public.exercises e
+    WHERE e.level_id = l.id
+      AND e.prompt = 'Susun validasi username'
+      AND e.type = 'drag_drop'
+  );
+
+-- ============================================
+-- SECTION 19: MATERIALS LEVEL 25 — Array & Fungsi
+-- ============================================
+
+INSERT INTO public.materials (level_id, slide_order, title, content, code_snippet)
+SELECT l.id, 1, 'Array sebagai Parameter',
+       'Array dapat dikirim ke fungsi sebagai parameter. Ukuran array tidak ikut dikirim, jadi banyaknya data sering diberikan terpisah.',
+       'void cetak(int data[], int n) {
+  for (int i = 0; i < n; i++) {
+    cout << data[i];
+  }
+}'
+FROM public.levels l
+WHERE l.level_number = 25 AND l.language = 'cpp'
+  AND NOT EXISTS (
+    SELECT 1 FROM public.materials m
+    WHERE m.level_id = l.id AND m.slide_order = 1
+  );
+
+INSERT INTO public.materials (level_id, slide_order, title, content, code_snippet)
+SELECT l.id, 2, 'Pass by Reference',
+       'Isi array bisa diubah oleh fungsi karena yang dikirim adalah alamat elemennya, bukan salinannya.',
+       'void naikkan(int data[], int n) {
+  for (int i = 0; i < n; i++) {
+    data[i] += 10;
+  }
+}'
+FROM public.levels l
+WHERE l.level_number = 25 AND l.language = 'cpp'
+  AND NOT EXISTS (
+    SELECT 1 FROM public.materials m
+    WHERE m.level_id = l.id AND m.slide_order = 2
+  );
+
+INSERT INTO public.materials (level_id, slide_order, title, content, code_snippet)
+SELECT l.id, 3, 'Fungsi dengan Array',
+       'Biasanya fungsi>array menerima dua parameter, yaitu array-nya dan jumlah elemen yang perlu diproses.',
+       'int maksimum(int data[], int n) {
+  int terbesar = data[0];
+  for (int i = 1; i < n; i++) {
+    if (data[i] > terbesar) {
+      terbesar = data[i];
+    }
+  }
+  return terbesar;
+}'
+FROM public.levels l
+WHERE l.level_number = 25 AND l.language = 'cpp'
+  AND NOT EXISTS (
+    SELECT 1 FROM public.materials m
+    WHERE m.level_id = l.id AND m.slide_order = 3
+  );
+
+INSERT INTO public.materials (level_id, slide_order, title, content, code_snippet)
+SELECT l.id, 4, 'Contoh: Cari Maksimum',
+       'Fungsi berikut mencari nilai terbesar pada array lalu mengembalikannya ke pemanggil.',
+       'int data[5] = {70, 85, 60, 95, 80};
+cout << maksimum(data, 5);'
+FROM public.levels l
+WHERE l.level_number = 25 AND l.language = 'cpp'
+  AND NOT EXISTS (
+    SELECT 1 FROM public.materials m
+    WHERE m.level_id = l.id AND m.slide_order = 4
+  );
+
+INSERT INTO public.materials (level_id, slide_order, title, content, code_snippet)
+SELECT l.id, 5, 'Latihan Selanjutnya',
+       'Kamu sudah memahami cara mengirim array ke fungsi dan mengubah isinya dari dalam fungsi. Selanjutnya, kamu akan menyusun fungsi dengan array dan mengerjakan kuis.',
+       NULL
+FROM public.levels l
+WHERE l.level_number = 25 AND l.language = 'cpp'
+  AND NOT EXISTS (
+    SELECT 1 FROM public.materials m
+    WHERE m.level_id = l.id AND m.slide_order = 5
+  );
+
+-- ============================================
+-- SECTION 20: EXERCISES LEVEL 25 — Array & Fungsi (drag_drop)
+-- ============================================
+
+INSERT INTO public.exercises (level_id, type, prompt, payload, difficulty)
+SELECT l.id, 'drag_drop', 'Susun fungsi berarray',
+       $json${
+         "tokens": [
+           {"id": "t1", "text": "void"},
+           {"id": "t2", "text": "cetak(int data[], int n)"},
+           {"id": "t3", "text": "{"},
+           {"id": "t4", "text": "for (int i = 0; i < n; i++) {"},
+           {"id": "t5", "text": "cout << data[i];"},
+           {"id": "t6", "text": "}"},
+           {"id": "t7", "text": "}"}
+         ],
+         "answer": ["t1", "t2", "t3", "t4", "t5", "t6", "t7"],
+         "language": "cpp"
+       }$json$::jsonb,
+       4
+FROM public.levels l
+WHERE l.level_number = 25 AND l.language = 'cpp'
+  AND NOT EXISTS (
+    SELECT 1 FROM public.exercises e
+    WHERE e.level_id = l.id
+      AND e.prompt = 'Susun fungsi berarray'
+      AND e.type = 'drag_drop'
+  );
+
+INSERT INTO public.exercises (level_id, type, prompt, payload, difficulty)
+SELECT l.id, 'drag_drop', 'Susun pass array ke fungsi',
+       $json${
+         "tokens": [
+           {"id": "t1", "text": "int"},
+           {"id": "t2", "text": "data[3] = {10, 20, 30};"},
+           {"id": "t3", "text": "int"},
+           {"id": "t4", "text": "main()"},
+           {"id": "t5", "text": "{"},
+           {"id": "t6", "text": "naikkan(data, 3);"},
+           {"id": "t7", "text": "cout << data[0];"},
+           {"id": "t8", "text": "return 0;"},
+           {"id": "t9", "text": "}"}
+         ],
+         "answer": ["t1", "t2", "t3", "t4", "t5", "t6", "t7", "t8", "t9"],
+         "language": "cpp"
+       }$json$::jsonb,
+       4
+FROM public.levels l
+WHERE l.level_number = 25 AND l.language = 'cpp'
+  AND NOT EXISTS (
+    SELECT 1 FROM public.exercises e
+    WHERE e.level_id = l.id
+      AND e.prompt = 'Susun pass array ke fungsi'
+      AND e.type = 'drag_drop'
+  );
+
+INSERT INTO public.exercises (level_id, type, prompt, payload, difficulty)
+SELECT l.id, 'drag_drop', 'Susun fungsi maksimum',
+       $json${
+         "tokens": [
+           {"id": "t1", "text": "int"},
+           {"id": "t2", "text": "maksimum(int data[], int n)"},
+           {"id": "t3", "text": "{"},
+           {"id": "t4", "text": "int terbesar = data[0];"},
+           {"id": "t5", "text": "for (int i = 1; i < n; i++) {"},
+           {"id": "t6", "text": "if (data[i] > terbesar) terbesar = data[i];"},
+           {"id": "t7", "text": "}"},
+           {"id": "t8", "text": "return terbesar;"},
+           {"id": "t9", "text": "}"}
+         ],
+         "answer": ["t1", "t2", "t3", "t4", "t5", "t6", "t7", "t8", "t9"],
+         "language": "cpp"
+       }$json$::jsonb,
+       4
+FROM public.levels l
+WHERE l.level_number = 25 AND l.language = 'cpp'
+  AND NOT EXISTS (
+    SELECT 1 FROM public.exercises e
+    WHERE e.level_id = l.id
+      AND e.prompt = 'Susun fungsi maksimum'
+      AND e.type = 'drag_drop'
+  );
+
+INSERT INTO public.exercises (level_id, type, prompt, payload, difficulty)
+SELECT l.id, 'drag_drop', 'Susun fungsi rata-rata',
+       $json${
+         "tokens": [
+           {"id": "t1", "text": "double"},
+           {"id": "t2", "text": "rataRata(int data[], int n)"},
+           {"id": "t3", "text": "{"},
+           {"id": "t4", "text": "int total = 0;"},
+           {"id": "t5", "text": "for (int i = 0; i < n; i++) {"},
+           {"id": "t6", "text": "total += data[i];"},
+           {"id": "t7", "text": "}"},
+           {"id": "t8", "text": "return total / n;"},
+           {"id": "t9", "text": "}"}
+         ],
+         "answer": ["t1", "t2", "t3", "t4", "t5", "t6", "t7", "t8", "t9"],
+         "language": "cpp"
+       }$json$::jsonb,
+       4
+FROM public.levels l
+WHERE l.level_number = 25 AND l.language = 'cpp'
+  AND NOT EXISTS (
+    SELECT 1 FROM public.exercises e
+    WHERE e.level_id = l.id
+      AND e.prompt = 'Susun fungsi rata-rata'
+      AND e.type = 'drag_drop'
+  );
+
+INSERT INTO public.exercises (level_id, type, prompt, payload, difficulty)
+SELECT l.id, 'drag_drop', 'Susun fungsi ubah array',
+       $json${
+         "tokens": [
+           {"id": "t1", "text": "void"},
+           {"id": "t2", "text": "kaliDua(int data[], int n)"},
+           {"id": "t3", "text": "{"},
+           {"id": "t4", "text": "for (int i = 0; i < n; i++) {"},
+           {"id": "t5", "text": "data[i] *= 2;"},
+           {"id": "t6", "text": "}"},
+           {"id": "t7", "text": "}"},
+           {"id": "t8", "text": "int"},
+           {"id": "t9", "text": "main()"},
+           {"id": "t10", "text": "{"},
+           {"id": "t11", "text": "int data[2] = {1, 2};"},
+           {"id": "t12", "text": "kaliDua(data, 2);"},
+           {"id": "t13", "text": "cout << data[0];"},
+           {"id": "t14", "text": "}"}
+         ],
+         "answer": ["t1", "t2", "t3", "t4", "t5", "t6", "t7", "t8", "t9", "t10", "t11", "t12", "t13", "t14"],
+         "language": "cpp"
+       }$json$::jsonb,
+       4
+FROM public.levels l
+WHERE l.level_number = 25 AND l.language = 'cpp'
+  AND NOT EXISTS (
+    SELECT 1 FROM public.exercises e
+    WHERE e.level_id = l.id
+      AND e.prompt = 'Susun fungsi ubah array'
+      AND e.type = 'drag_drop'
+  );
+
+-- ============================================
+-- SECTION 21: VERIFICATION (relatif per level)
+-- ============================================
+-- Level 16-25: 5 material + 5 exercise dari file ini
+-- Verifikasi memakai jumlah per level, bukan total absolut, agar file ini
+-- aman dijalankan berdampingan dengan seed.sql dan chunk lain.
+
+DO $$
+DECLARE
+  v_level_number INT;
+  v_mat INT;
+  v_ex INT;
+BEGIN
+  FOR v_level_number IN
+    SELECT unnest(ARRAY[16, 17, 18, 19, 20, 21, 22, 23, 24, 25])
+  LOOP
+    SELECT count(*) INTO v_mat
+    FROM public.materials m
+    JOIN public.levels l ON l.id = m.level_id
+    WHERE l.level_number = v_level_number AND l.language = 'cpp';
+
+    IF v_mat <> 5 THEN
+      RAISE EXCEPTION 'Chunk 2 verify: level % expected 5 materials, got %', v_level_number, v_mat;
+    END IF;
+
+    SELECT count(*) INTO v_ex
+    FROM public.exercises e
+    JOIN public.levels l ON l.id = e.level_id
+    WHERE l.level_number = v_level_number AND l.language = 'cpp'
+      AND e.type = 'drag_drop';
+
+    IF v_ex <> 5 THEN
+      RAISE EXCEPTION 'Chunk 2 verify: level % expected 5 exercises, got %', v_level_number, v_ex;
+    END IF;
+  END LOOP;
+END
+$$;
+
+COMMIT;
