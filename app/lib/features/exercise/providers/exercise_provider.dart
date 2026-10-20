@@ -14,6 +14,14 @@ final exercisesByLevelProvider =
       return repo.getExercisesByLevel(levelId);
     });
 
+final quizExercisesProvider = FutureProvider.family<List<ExerciseModel>, int>((
+  ref,
+  levelId,
+) async {
+  final repo = ref.watch(exerciseRepositoryProvider);
+  return repo.getExercisesByLevelAndType(levelId, 'quiz');
+});
+
 final dragDropExercisesProvider =
     FutureProvider.family<List<ExerciseModel>, int>((ref, levelId) async {
       final repo = ref.watch(exerciseRepositoryProvider);

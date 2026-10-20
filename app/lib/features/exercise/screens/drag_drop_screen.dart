@@ -5,11 +5,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/theme.dart';
 import '../../../data/models/exercise_model.dart';
+import '../../quiz/screens/quiz_screen.dart';
 import '../providers/exercise_provider.dart';
 import '../widgets/drag_token.dart';
 import '../widgets/drop_zone.dart';
 
-enum _FeedbackResult { next, retry, reset, finish }
+enum _FeedbackResult { next, retry, reset, finish, quiz }
 
 class DragDropScreen extends ConsumerStatefulWidget {
   final int levelId;
@@ -165,6 +166,10 @@ class _DragDropScreenState extends ConsumerState<DragDropScreen> {
       if (_currentIndex == _exercises.length - 1) {
         final result = await _showCompletionSheet();
         if (!mounted) return;
+        if (result == _FeedbackResult.quiz) {
+          await _openQuiz();
+          return;
+        }
         if (result == _FeedbackResult.finish) {
           Navigator.of(context).maybePop();
         }
@@ -253,6 +258,10 @@ class _DragDropScreenState extends ConsumerState<DragDropScreen> {
   }
 
   Future<_FeedbackResult?> _showCompletionSheet() {
+    final hasQuiz = ref
+        .read(quizExercisesProvider(widget.levelId))
+        .maybeWhen(data: (value) => value.isNotEmpty, orElse: () => false);
+
     return showModalBottomSheet<_FeedbackResult>(
       context: context,
       isScrollControlled: true,
@@ -266,11 +275,19 @@ class _DragDropScreenState extends ConsumerState<DragDropScreen> {
           iconColor: KodiraColors.success500,
           iconBackground: KodiraColors.success100,
           title: 'Latihan selesai!',
-          message:
-              'Kamu menyelesaikan ${_exercises.length} latihan drag & drop. '
-              'Kembali ke materi untuk melanjutkan.',
-          primaryLabel: 'Kembali ke Materi',
-          onPrimary: () => Navigator.of(context).pop(_FeedbackResult.finish),
+          message: hasQuiz
+              ? 'Kamu menyelesaikan ${_exercises.length} latihan drag & drop. '
+                    'Lanjut ke kuis untuk menguji pemahamanmu.'
+              : 'Kamu menyelesaikan ${_exercises.length} latihan drag & drop. '
+                    'Kembali ke materi untuk melanjutkan.',
+          secondaryLabel: hasQuiz ? 'Kembali ke Materi' : null,
+          onSecondary: hasQuiz
+              ? () => Navigator.of(context).pop(_FeedbackResult.finish)
+              : null,
+          primaryLabel: hasQuiz ? 'Mulai Kuis' : 'Kembali ke Materi',
+          onPrimary: () => Navigator.of(
+            context,
+          ).pop(hasQuiz ? _FeedbackResult.quiz : _FeedbackResult.finish),
         );
       },
     );
@@ -282,6 +299,23 @@ class _DragDropScreenState extends ConsumerState<DragDropScreen> {
         _exercises.isNotEmpty &&
         _data != null &&
         _payloadError == null;
+  }
+
+  /// Number of quiz exercises available for this level.
+  int get _quizCount => ref
+      .watch(quizExercisesProvider(widget.levelId))
+      .maybeWhen(data: (value) => value.length, orElse: () => 0);
+
+  bool get _hasQuiz => _quizCount > 0;
+
+  Future<void> _openQuiz() async {
+    final result = await Navigator.of(context).push<QuizResult>(
+      MaterialPageRoute(builder: (_) => QuizScreen(levelId: widget.levelId)),
+    );
+    if (!mounted) return;
+    if (result == QuizResult.backToMaterial) {
+      Navigator.of(context).pop();
+    }
   }
 
   @override
@@ -322,8 +356,11 @@ class _DragDropScreenState extends ConsumerState<DragDropScreen> {
           ? _BottomBar(
               canCheck: _dropZoneIds.isNotEmpty,
               canReset: _dropZoneIds.isNotEmpty,
+              hasQuiz: _hasQuiz,
               onCheck: _checkAnswer,
               onReset: _resetExercise,
+              onQuiz: _openQuiz,
+              onBackToMaterial: () => Navigator.of(context).maybePop(),
             )
           : null,
     );
@@ -681,14 +718,20 @@ class _TokenPool extends StatelessWidget {
 class _BottomBar extends StatelessWidget {
   final bool canCheck;
   final bool canReset;
+  final bool hasQuiz;
   final VoidCallback onCheck;
   final VoidCallback onReset;
+  final VoidCallback onQuiz;
+  final VoidCallback onBackToMaterial;
 
   const _BottomBar({
     required this.canCheck,
     required this.canReset,
+    required this.hasQuiz,
     required this.onCheck,
     required this.onReset,
+    required this.onQuiz,
+    required this.onBackToMaterial,
   });
 
   @override
@@ -705,31 +748,60 @@ class _BottomBar extends StatelessWidget {
           child: Row(
             children: [
               Expanded(
+                flex: hasQuiz ? 1 : 2,
                 child: SizedBox(
                   height: 52,
                   child: OutlinedButton(
-                    onPressed: canReset ? onReset : null,
+                    onPressed: hasQuiz
+                        ? (canReset ? onReset : null)
+                        : onBackToMaterial,
                     style: OutlinedButton.styleFrom(
                       foregroundColor: KodiraColors.neutral700,
                       side: BorderSide(
-                        color: canReset
-                            ? KodiraColors.neutral300
-                            : KodiraColors.neutral200,
+                        color: hasQuiz
+                            ? (canReset
+                                  ? KodiraColors.neutral300
+                                  : KodiraColors.neutral200)
+                            : KodiraColors.neutral300,
                       ),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(KodiraRadius.md),
                       ),
-                      textStyle: const TextStyle(
+                      textStyle: TextStyle(
                         fontFamily: 'Inter',
-                        fontSize: 14,
+                        fontSize: hasQuiz ? 14 : 13,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
-                    child: const Text('Reset'),
+                    child: Text(hasQuiz ? 'Reset' : 'Kembali ke Materi'),
                   ),
                 ),
               ),
               const SizedBox(width: 12),
+              if (hasQuiz) ...[
+                Expanded(
+                  child: SizedBox(
+                    height: 52,
+                    child: OutlinedButton(
+                      onPressed: onQuiz,
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: KodiraColors.primary900,
+                        side: const BorderSide(color: KodiraColors.primary700),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(KodiraRadius.md),
+                        ),
+                        textStyle: const TextStyle(
+                          fontFamily: 'Inter',
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      child: const Text('Kuis'),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+              ],
               Expanded(
                 flex: 2,
                 child: SizedBox(
