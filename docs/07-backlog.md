@@ -74,17 +74,17 @@ Gunakan bersama `docs/06-workflow.md` untuk kerja dengan opencode.
 
 ## 3. Ringkasan Progress
 
-| Phase                     | Total  | Done   | WIP   | Todo     | Review | Skip |
-| ------------------------- | ------ | ------ | ----- | -------- | ------ | ---- |
-| Phase 0 — Foundation      | 10     | 10     | 0     | 0        | 0      | 0    |
-| Phase 1 — Design System   | 8      | 5      | 0     | 0        | 3      | 0    |
-| Phase 2 — UI Design       | 6      | 1      | 0     | 0        | 4      | 1    |
-| Phase 3 — Architecture    | 7      | 4      | 0     | 1        | 1      | 1    |
-| Phase 4 — MVP Development | 14     | 4      | 0     | 9        | 1      | 0    |
-| Phase 5 — AI Integration  | 8      | 0      | 0     | 8        | 0      | 0    |
-| Phase 6 — Testing         | 6      | 0      | 0     | 6        | 0      | 0    |
-| Phase 7 — Documentation   | 6      | 0      | 0     | 6        | 0      | 0    |
-| **Total**                 | **65** | **24** | **0** | **30**   | **9**  | **2** |
+| Phase                     | Total  | Done   | WIP   | Todo   | Review | Skip  |
+| ------------------------- | ------ | ------ | ----- | ------ | ------ | ----- |
+| Phase 0 — Foundation      | 10     | 10     | 0     | 0      | 0      | 0     |
+| Phase 1 — Design System   | 8      | 5      | 0     | 0      | 3      | 0     |
+| Phase 2 — UI Design       | 6      | 1      | 0     | 0      | 4      | 1     |
+| Phase 3 — Architecture    | 7      | 4      | 0     | 1      | 1      | 1     |
+| Phase 4 — MVP Development | 14     | 4      | 0     | 7      | 3      | 0     |
+| Phase 5 — AI Integration  | 8      | 0      | 0     | 8      | 0      | 0     |
+| Phase 6 — Testing         | 6      | 0      | 0     | 6      | 0      | 0     |
+| Phase 7 — Documentation   | 6      | 0      | 0     | 6      | 0      | 0     |
+| **Total**                 | **65** | **24** | **0** | **28** | **11** | **2** |
 
 ---
 
@@ -113,13 +113,13 @@ Setup project Flutter, theme, dan fondasi kode.
 
 ### P1-001: Setup Project Flutter
 
-| Field      | Nilai   |
-| ---------- | ------- |
-| Status     | Review  |
-| Priority   | P0      |
-| Token      | S       |
-| Agent      | build   |
-| Dependency | —       |
+| Field      | Nilai  |
+| ---------- | ------ |
+| Status     | Review |
+| Priority   | P0     |
+| Token      | S      |
+| Agent      | build  |
+| Dependency | —      |
 
 **Scope:**
 
@@ -137,13 +137,13 @@ Setup project Flutter, theme, dan fondasi kode.
 
 ### P1-002: Setup Folder Structure
 
-| Field      | Nilai  |
-| ---------- | ------ |
+| Field      | Nilai   |
+| ---------- | ------- |
 | Status     | ✅ Done |
-| Priority   | P0     |
-| Token      | S      |
-| Agent      | build  |
-| Dependency | P1-001 |
+| Priority   | P0      |
+| Token      | S       |
+| Agent      | build   |
+| Dependency | P1-001  |
 
 **Scope:**
 
@@ -160,13 +160,13 @@ Setup project Flutter, theme, dan fondasi kode.
 
 ### P1-003: Buat Theme.dart
 
-| Field      | Nilai  |
-| ---------- | ------ |
+| Field      | Nilai   |
+| ---------- | ------- |
 | Status     | ✅ Done |
-| Priority   | P0     |
-| Token      | M      |
-| Agent      | build  |
-| Dependency | P1-002 |
+| Priority   | P0      |
+| Token      | M       |
+| Agent      | build   |
+| Dependency | P1-002  |
 
 **Scope:**
 
@@ -186,13 +186,13 @@ Setup project Flutter, theme, dan fondasi kode.
 
 ### P1-004: Setup Linter Rules
 
-| Field      | Nilai  |
-| ---------- | ------ |
+| Field      | Nilai   |
+| ---------- | ------- |
 | Status     | ✅ Done |
-| Priority   | P1     |
-| Token      | S      |
-| Agent      | build  |
-| Dependency | P1-001 |
+| Priority   | P1      |
+| Token      | S       |
+| Agent      | build   |
+| Dependency | P1-001  |
 
 **Scope:**
 
@@ -234,13 +234,13 @@ Setup project Flutter, theme, dan fondasi kode.
 
 ### P1-006: Setup CI
 
-| Field      | Nilai  |
-| ---------- | ------ |
+| Field      | Nilai   |
+| ---------- | ------- |
 | Status     | ✅ Done |
-| Priority   | P1     |
-| Token      | M      |
-| Agent      | build  |
-| Dependency | P1-001 |
+| Priority   | P1      |
+| Token      | M       |
+| Agent      | build   |
+| Dependency | P1-001  |
 
 **Scope:**
 
@@ -283,7 +283,7 @@ Setup project Flutter, theme, dan fondasi kode.
 
 | Field      | Nilai             |
 | ---------- | ----------------- |
-| Status     | ✅ Done            |
+| Status     | ✅ Done           |
 | Priority   | P2                |
 | Token      | S                 |
 | Agent      | build             |
@@ -763,7 +763,7 @@ Fitur inti tanpa AI dulu. Fondasi paling penting.
 
 | Field      | Nilai  |
 | ---------- | ------ |
-| Status     | Todo   |
+| Status     | Review |
 | Priority   | P0     |
 | Token      | M      |
 | Agent      | build  |
@@ -772,6 +772,8 @@ Fitur inti tanpa AI dulu. Fondasi paling penting.
 **Scope:**
 
 - `app/lib/features/quiz/`
+
+**Catatan:** Terverifikasi end-to-end di perangkat (2026-10-22, commit `89b5811`). MVP yang berjalan: 3 soal per level (L1–L15), timer 60 detik per soal dengan progress bar, pilihan ganda 4 opsi, submit jawaban, feedback benar/salah + explanation, auto-submit saat waktu habis, dialog hasil (skor 1/3 + status), dan tombol "Kembali ke Materi". Belum: simpan skor ke DB, adaptive engine (Phase 5), kuis untuk L16–L50.
 
 **DoD:**
 
@@ -786,7 +788,7 @@ Fitur inti tanpa AI dulu. Fondasi paling penting.
 
 | Field      | Nilai  |
 | ---------- | ------ |
-| Status     | Todo   |
+| Status     | Review |
 | Priority   | P0     |
 | Token      | M      |
 | Agent      | build  |
@@ -795,6 +797,8 @@ Fitur inti tanpa AI dulu. Fondasi paling penting.
 **Scope:**
 
 - `app/lib/features/quiz/result_screen.dart`
+
+**Catatan:** Dialog hasil sudah ada di dalam `app/lib/features/quiz/screens/quiz_screen.dart` (skor besar di tengah, status, tombol "Kembali ke Materi") dan terverifikasi di perangkat. Belum: XP, mastery, animasi level up, alur remedial, dan layar terpisah `result_screen.dart`.
 
 **DoD:**
 
@@ -1420,3 +1424,4 @@ Dokumen akhir & presentasi.
 | Tanggal    | Perubahan           |
 | ---------- | ------------------- |
 | 2026-10-16 | Draft awal, 65 task |
+| 2026-10-22 | P4-007 & P4-008 → Review (kuis terverifikasi end-to-end di perangkat) |

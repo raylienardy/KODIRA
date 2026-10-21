@@ -757,6 +757,7 @@ class _BottomBar extends StatelessWidget {
                         : onBackToMaterial,
                     style: OutlinedButton.styleFrom(
                       foregroundColor: KodiraColors.neutral700,
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
                       side: BorderSide(
                         color: hasQuiz
                             ? (canReset
@@ -773,7 +774,14 @@ class _BottomBar extends StatelessWidget {
                         fontWeight: FontWeight.w600,
                       ),
                     ),
-                    child: Text(hasQuiz ? 'Reset' : 'Kembali ke Materi'),
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        hasQuiz ? 'Reset' : 'Kembali ke Materi',
+                        maxLines: 1,
+                        softWrap: false,
+                      ),
+                    ),
                   ),
                 ),
               ),
@@ -951,7 +959,14 @@ class _FeedbackSheet extends StatelessWidget {
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
-                            child: Text(secondaryLabel!),
+                            child: FittedBox(
+                              fit: BoxFit.scaleDown,
+                              child: Text(
+                                secondaryLabel!,
+                                maxLines: 1,
+                                softWrap: false,
+                              ),
+                            ),
                           ),
                         ),
                       ),
