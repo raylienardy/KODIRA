@@ -80,11 +80,11 @@ Gunakan bersama `docs/06-workflow.md` untuk kerja dengan opencode.
 | Phase 1 — Design System   | 8      | 6      | 0     | 0      | 2      | 0     |
 | Phase 2 — UI Design       | 6      | 1      | 0     | 0      | 4      | 1     |
 | Phase 3 — Architecture    | 7      | 4      | 0     | 1      | 1      | 1     |
-| Phase 4 — MVP Development | 14     | 4      | 1     | 5      | 3      | 1     |
+| Phase 4 — MVP Development | 14     | 5      | 0     | 5      | 3      | 1     |
 | Phase 5 — AI Integration  | 8      | 0      | 0     | 8      | 0      | 0     |
 | Phase 6 — Testing         | 6      | 0      | 0     | 6      | 0      | 0     |
 | Phase 7 — Documentation   | 6      | 0      | 0     | 6      | 0      | 0     |
-| **Total**                 | **65** | **25** | **1** | **26** | **10** | **3** |
+| **Total**                 | **65** | **26** | **0** | **26** | **10** | **3** |
 
 ---
 
@@ -624,7 +624,7 @@ Fitur inti tanpa AI dulu. Fondasi paling penting.
 
 | Field      | Nilai          |
 | ---------- | -------------- |
-| Status     | Review         |
+| Status     | Done           |
 | Priority   | P0             |
 | Token      | L              |
 | Agent      | build          |
@@ -635,7 +635,7 @@ Fitur inti tanpa AI dulu. Fondasi paling penting.
 - `app/lib/features/auth/`
 - `app/lib/data/repositories/auth_repository.dart`
 
-**Gap:** Test unit auth akan dikerjakan bersama P6-001.
+**Catatan:** Test unit validation (AuthLogic) + parsing (nim/email). Test integrasi Supabase sign-in di-defer sampai Phase 6 (butuh mock supabase_flutter).
 
 **DoD:**
 
@@ -812,7 +812,7 @@ Fitur inti tanpa AI dulu. Fondasi paling penting.
 
 | Field      | Nilai  |
 | ---------- | ------ |
-| Status     | WIP    |
+| Status     | Review |
 | Priority   | P0     |
 | Token      | M      |
 | Agent      | build  |
@@ -822,7 +822,7 @@ Fitur inti tanpa AI dulu. Fondasi paling penting.
 
 - `app/lib/features/gamification/`
 
-**Catatan:** Kode implementasi selesai; test otomasi pending device tersedia. Yang sudah ada: repository `user_progress` (insert/update dengan skor terbaik dipertahankan), provider `allProgressProvider` + `totalXpProvider`, penyimpanan hasil kuis (100 XP untuk lulus ≥70%, 50 XP untuk ≥40%, 0 di bawahnya), unlock level berikutnya saat lulus, serta tampilan Home dengan XP real dan status level (terkunci/aktif/selesai). Belum: streak (P4-010), level locking berbasis mastery, dan animasi naik level.
+**Catatan:** Test unit ProgressLogic PASS (23 kasus) plus kontrak payload repository, total 52 kasus di 4 file test. Test runtime device pending HP tersedia. Yang sudah ada: repository `user_progress` (insert/update dengan skor terbaik dipertahankan), provider `allProgressProvider` + `totalXpProvider`, penyimpanan hasil kuis (100 XP untuk lulus ≥70%, 50 XP untuk ≥40%, 0 di bawahnya), unlock level berikutnya saat lulus, serta tampilan Home dengan XP real dan status level (terkunci/aktif/selesai). Belum: streak (P4-010), level locking berbasis mastery, dan animasi naik level.
 
 **DoD:**
 
@@ -1432,3 +1432,4 @@ Dokumen akhir & presentasi.
 | 2026-10-22 | Seed quiz L16-50 (105 soal) — quiz complete 50/50 level |
 | 2026-10-22 | P4-009 XP & Level System → WIP (kode selesai, test device pending) |
 | 2026-10-22 | Audit stale statuses (P1-001 Done, P4-012 Skip) |
+| 2026-10-22 | P4-001 → Done, P4-009 → Review (unit test: 52 kasus di 4 file test) |

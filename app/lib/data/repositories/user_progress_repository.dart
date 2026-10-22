@@ -1,8 +1,7 @@
-import 'dart:math';
-
 import 'package:supabase_flutter/supabase_flutter.dart' as supa;
 
 import '../models/user_progress_model.dart';
+import 'progress_logic.dart';
 
 /// Repository untuk tabel `user_progress` yang menyimpan progress belajar
 /// per level untuk setiap user.
@@ -70,47 +69,41 @@ class UserProgressRepository {
     required int attempts,
   }) async {
     final existing = await getForLevel(userId, levelId);
-    final nowIso = DateTime.now().toIso8601String();
+    final now = DateTime.now();
 
     try {
       if (existing == null) {
-        await _client.from('user_progress').insert({
-          'user_id': userId,
-          'level_id': levelId,
-          'status': status,
-          'mastery_score': masteryScore,
-          'xp_earned': xpEarned,
-          'attempts': attempts,
-          'last_attempt_at': nowIso,
-          'completed_at': status == 'completed' ? nowIso : null,
-        });
+        await _client
+            .from('user_progress')
+            .insert(
+              ProgressLogic.buildInsertPayload(
+                userId: userId,
+                levelId: levelId,
+                status: status,
+                masteryScore: masteryScore,
+                xpEarned: xpEarned,
+                attempts: attempts,
+                now: now,
+              ),
+            );
         return;
       }
 
-      // Aturan status saat update:
-      // - status `completed` tidak boleh turun ke `active` maupun `remedial`
-      //   ketika user mengulang kuis dengan nilai lebih rendah, sehingga level
-      //   yang sudah selesai tidak terlihat mundur di peta level.
-      // - upgrade dari `active` ke `completed` tetap boleh.
-      // - status lain (mis. `locked`) memakai status baru apa adanya.
-      // XP dan mastery tetap memakai nilai terbaik dan attempts tetap bertambah.
-      final bool isDowngrade =
-          existing.status == 'completed' &&
-          (status == 'active' || status == 'remedial');
-      final String finalStatus = isDowngrade ? 'completed' : status;
-
       await _client
           .from('user_progress')
-          .update({
-            'status': finalStatus,
-            'mastery_score': max(masteryScore, existing.masteryScore),
-            'xp_earned': max(xpEarned, existing.xpEarned),
-            'attempts': existing.attempts + 1,
-            'last_attempt_at': nowIso,
-            'completed_at': finalStatus == 'completed'
-                ? (existing.completedAt?.toIso8601String() ?? nowIso)
-                : null,
-          })
+          .update(
+            ProgressLogic.buildUpdatePayload(
+              existingStatus: existing.status,
+              existingMasteryScore: existing.masteryScore,
+              existingXpEarned: existing.xpEarned,
+              existingAttempts: existing.attempts,
+              existingCompletedAt: existing.completedAt,
+              newStatus: status,
+              newMasteryScore: masteryScore,
+              newXpEarned: xpEarned,
+              now: now,
+            ),
+          )
           .eq('id', existing.id);
     } on supa.PostgrestException catch (e) {
       throw Exception('Gagal menyimpan progress: ${e.message}');

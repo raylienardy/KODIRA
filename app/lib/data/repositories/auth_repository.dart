@@ -1,6 +1,7 @@
 import 'package:supabase_flutter/supabase_flutter.dart' as supa;
 import '../models/user_model.dart';
 import '../../core/errors/auth_exception.dart';
+import 'auth_logic.dart';
 
 class AuthRepository {
   final supa.SupabaseClient _client;
@@ -33,7 +34,7 @@ class AuthRepository {
     required String nim,
     required String password,
   }) async {
-    final email = 'nim_$nim@kodira.local';
+    final email = AuthLogic.nimToEmail(nim);
 
     try {
       final response = await _client.auth.signInWithPassword(
@@ -60,9 +61,7 @@ class AuthRepository {
       return UserModel.fromSupabase(userData);
     } on supa.AuthException catch (e) {
       // Handle error dari Supabase Auth.
-      final message = e.message.toLowerCase();
-      if (message.contains('invalid login credentials') ||
-          message.contains('invalid_credentials')) {
+      if (AuthLogic.isInvalidCredentials(e.message)) {
         throw KodiraAuthException.invalidCredentials();
       }
       throw KodiraAuthException.unknown(e.message);
