@@ -87,15 +87,29 @@ class UserProgressRepository {
         return;
       }
 
+      // Aturan status saat update:
+      // - status `completed` tidak boleh turun ke `active` maupun `remedial`
+      //   ketika user mengulang kuis dengan nilai lebih rendah, sehingga level
+      //   yang sudah selesai tidak terlihat mundur di peta level.
+      // - upgrade dari `active` ke `completed` tetap boleh.
+      // - status lain (mis. `locked`) memakai status baru apa adanya.
+      // XP dan mastery tetap memakai nilai terbaik dan attempts tetap bertambah.
+      final bool isDowngrade =
+          existing.status == 'completed' &&
+          (status == 'active' || status == 'remedial');
+      final String finalStatus = isDowngrade ? 'completed' : status;
+
       await _client
           .from('user_progress')
           .update({
-            'status': status,
+            'status': finalStatus,
             'mastery_score': max(masteryScore, existing.masteryScore),
             'xp_earned': max(xpEarned, existing.xpEarned),
             'attempts': existing.attempts + 1,
             'last_attempt_at': nowIso,
-            'completed_at': status == 'completed' ? nowIso : null,
+            'completed_at': finalStatus == 'completed'
+                ? (existing.completedAt?.toIso8601String() ?? nowIso)
+                : null,
           })
           .eq('id', existing.id);
     } on supa.PostgrestException catch (e) {
