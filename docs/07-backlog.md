@@ -500,7 +500,7 @@ Finalisasi tech stack, database, API contract.
 
 | Field      | Nilai  |
 | ---------- | ------ |
-| Status     | Review |
+| Status     | Done   |
 | Priority   | P0     |
 | Token      | M      |
 | Agent      | plan   |
@@ -510,13 +510,13 @@ Finalisasi tech stack, database, API contract.
 
 - Finalisasi endpoint di `docs/03-architecture.md`
 
-**Gap:** Request body per endpoint belum eksplisit; response envelope + rate limit sudah ada.
+**Catatan:** Request body per endpoint lengkap 2026-10-22. 20 endpoint di §5.1 masing-masing memuat headers, request body (atau "tidak ada"), response 200, dan error 400/401/403/404/500 (+429 untuk endpoint ber-rate-limit).
 
 **DoD:**
 
-- [ ] Semua endpoint terdokumentasi
-- [ ] Request/response format jelas
-- [ ] Rate limit per endpoint
+- [x] Semua endpoint terdokumentasi
+- [x] Request/response format jelas
+- [x] Rate limit per endpoint
 
 ---
 
