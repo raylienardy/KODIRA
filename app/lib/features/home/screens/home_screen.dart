@@ -109,6 +109,11 @@ class _HeaderWidget extends ConsumerWidget {
         .maybeWhen(data: (v) => v, orElse: () => <UserProgressModel>[]);
     final totalXpAsync = ref.watch(totalXpProvider);
     final levelsAsync = ref.watch(allLevelsProvider);
+    final streakAsync = ref.watch(currentStreakProvider);
+    final streak = streakAsync.maybeWhen(
+      data: (value) => value,
+      orElse: () => null,
+    );
 
     var currentLevel = 1;
     var completedCount = 0;
@@ -237,7 +242,12 @@ class _HeaderWidget extends ConsumerWidget {
                 label: 'XP',
                 loading: isXpLoading,
               ),
-              const _StatChip(icon: '🔥', value: '0', label: 'Streak'),
+              _StatChip(
+                icon: '🔥',
+                value: '${streak?.currentStreak ?? 0}',
+                label: 'Streak',
+                loading: streakAsync.isLoading,
+              ),
               _StatChip(
                 icon: '🏆',
                 value: completedCount.toString(),

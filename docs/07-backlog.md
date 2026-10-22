@@ -682,6 +682,8 @@ Fitur inti tanpa AI dulu. Fondasi paling penting.
 
 - `app/lib/features/home/`
 
+**Catatan:** Streak diimplementasi 2026-10-22 (chip real; badge via P4-010)
+
 **DoD:**
 
 - [ ] Menampilkan 50 level (dari database)
@@ -822,7 +824,7 @@ Fitur inti tanpa AI dulu. Fondasi paling penting.
 
 - `app/lib/features/gamification/`
 
-**Catatan:** Test unit ProgressLogic PASS (23 kasus) plus kontrak payload repository, total 52 kasus di 4 file test. Test runtime device pending HP tersedia. Yang sudah ada: repository `user_progress` (insert/update dengan skor terbaik dipertahankan), provider `allProgressProvider` + `totalXpProvider`, penyimpanan hasil kuis (100 XP untuk lulus ≥70%, 50 XP untuk ≥40%, 0 di bawahnya), unlock level berikutnya saat lulus, serta tampilan Home dengan XP real dan status level (terkunci/aktif/selesai). Belum: streak (P4-010), level locking berbasis mastery, dan animasi naik level.
+**Catatan:** Test unit ProgressLogic PASS (23 kasus) plus kontrak payload repository, total 52 kasus di 4 file test. Test runtime device pending HP tersedia. Yang sudah ada: repository `user_progress` (insert/update dengan skor terbaik dipertahankan), provider `allProgressProvider` + `totalXpProvider`, penyimpanan hasil kuis (100 XP untuk lulus ≥70%, 50 XP untuk ≥40%, 0 di bawahnya), unlock level berikutnya saat lulus, serta tampilan Home dengan XP real dan status level (terkunci/aktif/selesai). Belum: badge & achievement (P4-010), level locking berbasis mastery, dan animasi naik level.
 
 **DoD:**
 
@@ -1433,3 +1435,4 @@ Dokumen akhir & presentasi.
 | 2026-10-22 | P4-009 XP & Level System → WIP (kode selesai, test device pending) |
 | 2026-10-22 | Audit stale statuses (P1-001 Done, P4-012 Skip) |
 | 2026-10-22 | P4-001 → Done, P4-009 → Review (unit test: 52 kasus di 4 file test) |
+| 2026-10-22 | Streak logic + repository + chip real (test runtime pending device) |

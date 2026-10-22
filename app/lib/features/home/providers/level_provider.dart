@@ -1,7 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../data/models/level_model.dart';
 import '../../../data/models/user_progress_model.dart';
+import '../../../data/models/user_streak_model.dart';
 import '../../../data/repositories/level_repository.dart';
+import '../../../data/repositories/streak_repository.dart';
 import '../../../data/repositories/user_progress_repository.dart';
 import '../../auth/providers/auth_provider.dart';
 
@@ -49,6 +51,22 @@ final totalXpProvider = FutureProvider<int>((ref) async {
 
 /// Alias lama dari [allProgressProvider], tetap dipakai oleh layar Home.
 final userProgressProvider = allProgressProvider;
+
+final streakRepositoryProvider = Provider<StreakRepository>((ref) {
+  final client = ref.watch(supabaseClientProvider);
+  return StreakRepository(client);
+});
+
+/// Streak harian user yang sedang login, null bila belum pernah aktif.
+final currentStreakProvider = FutureProvider<UserStreakModel?>((ref) async {
+  final authState = ref.watch(authStateProvider);
+  final user = authState.user;
+  if (user == null) {
+    return null;
+  }
+  final repo = ref.watch(streakRepositoryProvider);
+  return repo.getForUser(user.id);
+});
 
 final levelProgressProvider = FutureProvider.family<UserProgressModel?, int>((
   ref,

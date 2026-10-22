@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -50,12 +51,28 @@ class AuthNotifier extends StateNotifier<AuthState> {
     _ref.invalidate(totalXpProvider);
   }
 
+  /// Perbarui streak harian user setiap kali dia masuk (P4-010).
+  ///
+  /// Penulisan streak tidak boleh mengganggu alur login, jadi kegagalannya
+  /// hanya dicatat dan alur login tetap berjalan.
+  Future<void> refreshStreak(String userId) async {
+    try {
+      await _ref
+          .read(streakRepositoryProvider)
+          .updateOnActivity(userId: userId, now: DateTime.now());
+      _ref.invalidate(currentStreakProvider);
+    } catch (e) {
+      debugPrint('Failed to update streak: $e');
+    }
+  }
+
   Future<void> login(String nim, String password) async {
     state = state.copyWith(isLoading: true, errorMessage: null);
     try {
       final user = await _repo.signInWithNim(nim: nim, password: password);
       state = state.copyWith(user: user, isLoading: false);
       refreshProgressProviders();
+      unawaited(refreshStreak(user.id));
     } on KodiraAuthException catch (e) {
       state = state.copyWith(isLoading: false, errorMessage: e.message);
       rethrow;
@@ -74,6 +91,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
   /// Tidak mengubah alur login/logout yang sudah ada.
   void restoreSession(UserModel user) {
     state = AuthState(user: user);
+    unawaited(refreshStreak(user.id));
   }
 
   void clearError() {
