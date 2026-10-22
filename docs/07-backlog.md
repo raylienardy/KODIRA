@@ -80,11 +80,11 @@ Gunakan bersama `docs/06-workflow.md` untuk kerja dengan opencode.
 | Phase 1 — Design System   | 8      | 6      | 0     | 0      | 2      | 0     |
 | Phase 2 — UI Design       | 6      | 1      | 0     | 0      | 4      | 1     |
 | Phase 3 — Architecture    | 7      | 4      | 0     | 1      | 1      | 1     |
-| Phase 4 — MVP Development | 14     | 5      | 0     | 5      | 3      | 1     |
+| Phase 4 — MVP Development | 14     | 5      | 0     | 4      | 4      | 1     |
 | Phase 5 — AI Integration  | 8      | 0      | 0     | 8      | 0      | 0     |
 | Phase 6 — Testing         | 6      | 0      | 0     | 6      | 0      | 0     |
 | Phase 7 — Documentation   | 6      | 0      | 0     | 6      | 0      | 0     |
-| **Total**                 | **65** | **26** | **0** | **26** | **10** | **3** |
+| **Total**                 | **65** | **26** | **0** | **25** | **11** | **3** |
 
 ---
 
@@ -838,7 +838,7 @@ Fitur inti tanpa AI dulu. Fondasi paling penting.
 
 | Field      | Nilai  |
 | ---------- | ------ |
-| Status     | Todo   |
+| Status     | Review |
 | Priority   | P2     |
 | Token      | M      |
 | Agent      | build  |
@@ -847,6 +847,8 @@ Fitur inti tanpa AI dulu. Fondasi paling penting.
 **Scope:**
 
 - `app/lib/features/gamification/badges/`
+
+**Catatan:** Badge (9): streak×3, level×3, XP×3. Achievement (3): first_login, first_quiz_pass, complete_chapter_1. Auto-award via checkAndAward(). UI chip badge count di home. Full list di Profil (P4-011). Test runtime pending device.
 
 **DoD:**
 
@@ -1436,3 +1438,4 @@ Dokumen akhir & presentasi.
 | 2026-10-22 | Audit stale statuses (P1-001 Done, P4-012 Skip) |
 | 2026-10-22 | P4-001 → Done, P4-009 → Review (unit test: 52 kasus di 4 file test) |
 | 2026-10-22 | Streak logic + repository + chip real (test runtime pending device) |
+| 2026-10-22 | P4-010 Badge & Achievement → Review (badge & achievement auto-award, unit test 108 kasus) |

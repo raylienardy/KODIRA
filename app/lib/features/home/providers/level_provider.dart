@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../data/models/level_model.dart';
 import '../../../data/models/user_progress_model.dart';
 import '../../../data/models/user_streak_model.dart';
+import '../../../data/repositories/badge_repository.dart';
 import '../../../data/repositories/level_repository.dart';
 import '../../../data/repositories/streak_repository.dart';
 import '../../../data/repositories/user_progress_repository.dart';
@@ -66,6 +67,24 @@ final currentStreakProvider = FutureProvider<UserStreakModel?>((ref) async {
   }
   final repo = ref.watch(streakRepositoryProvider);
   return repo.getForUser(user.id);
+});
+
+final badgeRepositoryProvider = Provider<BadgeRepository>((ref) {
+  final client = ref.watch(supabaseClientProvider);
+  return BadgeRepository(client);
+});
+
+/// Jumlah badge dan achievement yang sudah dimiliki user.
+final badgeCountProvider = FutureProvider<int>((ref) async {
+  final authState = ref.watch(authStateProvider);
+  final user = authState.user;
+  if (user == null) {
+    return 0;
+  }
+  final repo = ref.watch(badgeRepositoryProvider);
+  final badges = await repo.getBadgeCodes(user.id);
+  final achievements = await repo.getAchievementCodes(user.id);
+  return badges.length + achievements.length;
 });
 
 final levelProgressProvider = FutureProvider.family<UserProgressModel?, int>((

@@ -240,6 +240,18 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
     setState(() => _isFinished = true);
 
     final xpEarned = await _saveProgress(_correctCount, _questions.length);
+
+    // Berikan badge dan achievement yang baru setelah kuis selesai.
+    try {
+      final user = ref.read(authStateProvider).user;
+      if (user != null) {
+        await ref.read(badgeRepositoryProvider).checkAndAward(user.id);
+        ref.invalidate(badgeCountProvider);
+      }
+    } catch (e) {
+      debugPrint('Badge check failed: $e');
+    }
+
     if (!mounted) return;
 
     await showDialog<void>(

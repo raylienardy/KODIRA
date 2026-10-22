@@ -66,6 +66,18 @@ class AuthNotifier extends StateNotifier<AuthState> {
     }
   }
 
+  /// Periksa milestone lalu berikan badge dan achievement yang baru (P4-010).
+  ///
+  /// Kegagalan tidak boleh mengganggu alur login, jadi hanya dicatat.
+  Future<void> refreshBadges(String userId) async {
+    try {
+      await _ref.read(badgeRepositoryProvider).checkAndAward(userId);
+      _ref.invalidate(badgeCountProvider);
+    } catch (e) {
+      debugPrint('Badge check failed: $e');
+    }
+  }
+
   Future<void> login(String nim, String password) async {
     state = state.copyWith(isLoading: true, errorMessage: null);
     try {
@@ -73,6 +85,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
       state = state.copyWith(user: user, isLoading: false);
       refreshProgressProviders();
       unawaited(refreshStreak(user.id));
+      unawaited(refreshBadges(user.id));
     } on KodiraAuthException catch (e) {
       state = state.copyWith(isLoading: false, errorMessage: e.message);
       rethrow;
@@ -92,6 +105,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
   void restoreSession(UserModel user) {
     state = AuthState(user: user);
     unawaited(refreshStreak(user.id));
+    unawaited(refreshBadges(user.id));
   }
 
   void clearError() {

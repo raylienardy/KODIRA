@@ -110,6 +110,7 @@ class _HeaderWidget extends ConsumerWidget {
     final totalXpAsync = ref.watch(totalXpProvider);
     final levelsAsync = ref.watch(allLevelsProvider);
     final streakAsync = ref.watch(currentStreakProvider);
+    final badgeCountAsync = ref.watch(badgeCountProvider);
     final streak = streakAsync.maybeWhen(
       data: (value) => value,
       orElse: () => null,
@@ -252,6 +253,13 @@ class _HeaderWidget extends ConsumerWidget {
                 icon: '🏆',
                 value: completedCount.toString(),
                 label: 'Level',
+              ),
+              _StatChip(
+                icon: '🎖️',
+                value:
+                    '${badgeCountAsync.maybeWhen(data: (c) => c, orElse: () => 0)}',
+                label: 'Badge',
+                loading: badgeCountAsync.isLoading,
               ),
             ],
           ),
