@@ -77,14 +77,14 @@ Gunakan bersama `docs/06-workflow.md` untuk kerja dengan opencode.
 | Phase                     | Total  | Done   | WIP   | Todo   | Review | Skip  |
 | ------------------------- | ------ | ------ | ----- | ------ | ------ | ----- |
 | Phase 0 — Foundation      | 10     | 10     | 0     | 0      | 0      | 0     |
-| Phase 1 — Design System   | 8      | 6      | 0     | 0      | 2      | 0     |
+| Phase 1 — Design System   | 8      | 8      | 0     | 0      | 0      | 0     |
 | Phase 2 — UI Design       | 6      | 1      | 0     | 0      | 4      | 1     |
-| Phase 3 — Architecture    | 7      | 4      | 0     | 1      | 1      | 1     |
+| Phase 3 — Architecture    | 7      | 5      | 0     | 1      | 0      | 1     |
 | Phase 4 — MVP Development | 14     | 6      | 0     | 3      | 4      | 1     |
 | Phase 5 — AI Integration  | 8      | 0      | 0     | 8      | 0      | 0     |
 | Phase 6 — Testing         | 6      | 0      | 0     | 6      | 0      | 0     |
 | Phase 7 — Documentation   | 6      | 0      | 0     | 6      | 0      | 0     |
-| **Total**                 | **65** | **27** | **0** | **24** | **11** | **3** |
+| **Total**                 | **65** | **30** | **0** | **24** | **8** | **3** |
 
 ---
 
@@ -210,7 +210,7 @@ Setup project Flutter, theme, dan fondasi kode.
 
 | Field      | Nilai  |
 | ---------- | ------ |
-| Status     | Review |
+| Status     | Done   |
 | Priority   | P1     |
 | Token      | S      |
 | Agent      | build  |
@@ -222,13 +222,13 @@ Setup project Flutter, theme, dan fondasi kode.
 - Letakkan di `app/assets/fonts/`
 - Update `app/pubspec.yaml`
 
-**Gap:** Release APK 55.4 MB (19 Okt 2026) > 50 MB; perlu split-per-ABI untuk < 50 MB.
+**Catatan:** Font Inter + JetBrains Mono terdaftar di `pubspec.yaml` dan dipakai `theme.dart`. Split per ABI 2026-10-22: armeabi-v7a 16,58 MB, arm64-v8a 18,99 MB, x86_64 20,33 MB (semua < 50 MB). Script: `scripts/build-release.sh`.
 
 **DoD:**
 
-- [ ] Font terdaftar di `pubspec.yaml`
-- [ ] Bisa dipakai di `theme.dart`
-- [ ] Ukuran APK masih < 50 MB
+- [x] Font terdaftar di `pubspec.yaml`
+- [x] Bisa dipakai di `theme.dart`
+- [x] Ukuran APK masih < 50 MB
 
 ---
 
@@ -1442,3 +1442,4 @@ Dokumen akhir & presentasi.
 | 2026-10-22 | Streak logic + repository + chip real (test runtime pending device) |
 | 2026-10-22 | P4-010 Badge & Achievement → Review (badge & achievement auto-award, unit test 108 kasus) |
 | 2026-10-22 | P4-010 → Done, P4-011 Profil & Progress → Review (6 section, unit test 135 kasus) |
+| 2026-10-22 | P1-007 pre-commit hook, P3-003 request body 20 endpoint, P1-005 split ABI → Done (30 Done) |
