@@ -258,7 +258,7 @@ Setup project Flutter, theme, dan fondasi kode.
 
 | Field      | Nilai  |
 | ---------- | ------ |
-| Status     | Review |
+| Status     | Done   |
 | Priority   | P2     |
 | Token      | S      |
 | Agent      | build  |
@@ -268,7 +268,7 @@ Setup project Flutter, theme, dan fondasi kode.
 
 - File: `scripts/pre-commit.sh` + setup di `.git/hooks/`
 
-**Gap:** Hook belum ter-install (`.git/hooks/pre-commit` tidak ada); script tersedia di `scripts/`.
+**Catatan:** Hook ter-install 2026-10-22 via `scripts/install-hooks.sh`; pre-commit jalankan format + analyze check.
 
 **DoD:**
 
