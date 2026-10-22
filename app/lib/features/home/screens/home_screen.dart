@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:kodira/features/lesson/screens/material_screen.dart';
 
 import '../../../app/theme.dart';
@@ -177,11 +178,34 @@ class _HeaderWidget extends ConsumerWidget {
                 tooltip: 'Menu akun',
                 position: PopupMenuPosition.under,
                 onSelected: (value) async {
+                  if (value == 'profile') {
+                    context.push('/profile');
+                    return;
+                  }
                   if (value == 'logout') {
                     await _confirmLogout(context, ref);
                   }
                 },
                 itemBuilder: (context) => [
+                  PopupMenuItem<String>(
+                    value: 'profile',
+                    child: Row(
+                      children: [
+                        const Icon(
+                          Icons.person_outline,
+                          size: 20,
+                          color: KodiraColors.neutral700,
+                        ),
+                        const SizedBox(width: 12),
+                        Text(
+                          'Profil',
+                          style: KodiraTextStyles.body.copyWith(
+                            color: KodiraColors.neutral900,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                   PopupMenuItem<String>(
                     value: 'logout',
                     child: Row(

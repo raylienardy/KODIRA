@@ -80,11 +80,11 @@ Gunakan bersama `docs/06-workflow.md` untuk kerja dengan opencode.
 | Phase 1 — Design System   | 8      | 6      | 0     | 0      | 2      | 0     |
 | Phase 2 — UI Design       | 6      | 1      | 0     | 0      | 4      | 1     |
 | Phase 3 — Architecture    | 7      | 4      | 0     | 1      | 1      | 1     |
-| Phase 4 — MVP Development | 14     | 5      | 0     | 4      | 4      | 1     |
+| Phase 4 — MVP Development | 14     | 6      | 0     | 3      | 4      | 1     |
 | Phase 5 — AI Integration  | 8      | 0      | 0     | 8      | 0      | 0     |
 | Phase 6 — Testing         | 6      | 0      | 0     | 6      | 0      | 0     |
 | Phase 7 — Documentation   | 6      | 0      | 0     | 6      | 0      | 0     |
-| **Total**                 | **65** | **26** | **0** | **25** | **11** | **3** |
+| **Total**                 | **65** | **27** | **0** | **24** | **11** | **3** |
 
 ---
 
@@ -838,7 +838,7 @@ Fitur inti tanpa AI dulu. Fondasi paling penting.
 
 | Field      | Nilai  |
 | ---------- | ------ |
-| Status     | Review |
+| Status     | Done   |
 | Priority   | P2     |
 | Token      | M      |
 | Agent      | build  |
@@ -848,7 +848,7 @@ Fitur inti tanpa AI dulu. Fondasi paling penting.
 
 - `app/lib/features/gamification/badges/`
 
-**Catatan:** Badge (9): streak×3, level×3, XP×3. Achievement (3): first_login, first_quiz_pass, complete_chapter_1. Auto-award via checkAndAward(). UI chip badge count di home. Full list di Profil (P4-011). Test runtime pending device.
+**Catatan:** Badge (9): streak×3, level×3, XP×3. Achievement (3): first_login, first_quiz_pass, complete_chapter_1. Auto-award via checkAndAward(). UI chip badge count di home. Tampil di Profil (P4-011) — dikerjakan 2026-10-22. Test runtime pending device.
 
 **DoD:**
 
@@ -862,7 +862,7 @@ Fitur inti tanpa AI dulu. Fondasi paling penting.
 
 | Field      | Nilai  |
 | ---------- | ------ |
-| Status     | Todo   |
+| Status     | Review |
 | Priority   | P1     |
 | Token      | M      |
 | Agent      | build  |
@@ -871,6 +871,8 @@ Fitur inti tanpa AI dulu. Fondasi paling penting.
 **Scope:**
 
 - `app/lib/features/profile/`
+
+**Catatan:** 6 section: info user (avatar, nama, NIM), stat cards (XP, level aktif, streak), badge grid earned + locked (9 badge, 3 kolom ≥360dp / 2 kolom di bawahnya), achievement list earned + locked dengan tanggal (3 achievement), mastery per topik (progress bar), dan 5 aktivitas terakhir (tanggal relatif). Navigasi dari menu Profil di Home ke route `/profile` (auth guard aktif). Pure helper ProfileLogic diuji 27 kasus, total 135 kasus test PASS. Test runtime pending device.
 
 **DoD:**
 
@@ -1439,3 +1441,4 @@ Dokumen akhir & presentasi.
 | 2026-10-22 | P4-001 → Done, P4-009 → Review (unit test: 52 kasus di 4 file test) |
 | 2026-10-22 | Streak logic + repository + chip real (test runtime pending device) |
 | 2026-10-22 | P4-010 Badge & Achievement → Review (badge & achievement auto-award, unit test 108 kasus) |
+| 2026-10-22 | P4-010 → Done, P4-011 Profil & Progress → Review (6 section, unit test 135 kasus) |

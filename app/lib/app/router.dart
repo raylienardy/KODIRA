@@ -6,6 +6,7 @@ import '../features/auth/providers/auth_provider.dart';
 import '../features/auth/screens/login_screen.dart';
 import '../features/auth/screens/splash_screen.dart';
 import '../features/home/screens/home_screen.dart';
+import '../features/profile/screens/profile_screen.dart';
 
 /// Listenable adapter for GoRouter.
 /// Triggers redirect re-evaluation whenever auth state or session status
@@ -64,6 +65,12 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(path: '/login', builder: (context, state) => const LoginScreen()),
       GoRoute(path: '/home', builder: (context, state) => const HomeScreen()),
+      // Terlindungi otomatis oleh aturan 4 di redirect: tanpa session,
+      // path ini dipaksa kembali ke /login.
+      GoRoute(
+        path: '/profile',
+        builder: (context, state) => const ProfileScreen(),
+      ),
     ],
   );
 });
