@@ -104,7 +104,6 @@ android/key.properties
 
 .pass
 
-.github
 .opencode
 CATATAN-LOGIN.md
 
@@ -116,7 +115,6 @@ CATATAN-LOGIN.md
 app/supabase/.temp/
 supabase/.temp/
 
-reference/
 graphify-out/
 graphify-out/*.html
 graphify-out/cost.json
