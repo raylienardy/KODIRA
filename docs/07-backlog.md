@@ -558,7 +558,7 @@ Finalisasi tech stack, database, API contract.
 - File SQL migration di `app/supabase/migrations/`
 - File seed data di `app/supabase/`: `seed.sql`, `seed-cpp-01.sql`, `seed-cpp-02.sql`, `seed-cpp-03.sql`, `seed-java-01.sql`, `seed-quiz-01.sql`
 
-**Catatan:** Migrasi, RLS, dan 25 policy sudah ada. Seed data untuk testing sudah lengkap: 250 materi, 250 exercise drag_drop untuk 50 level, ditambah 45 soal quiz untuk Level 1-15. Semua file seed bersifat idempotent dan bisa dijalankan berulang.
+**Catatan:** Migrasi, RLS, dan 25 policy sudah ada. Seed data untuk testing sudah lengkap: 250 materi, 250 exercise drag_drop untuk 50 level, ditambah 150 soal quiz untuk 50 level (L1-15 di `seed-quiz-01.sql`, L16-50 di `seed-quiz-02.sql`). Semua file seed bersifat idempotent dan bisa dijalankan berulang.
 
 **DoD:**
 
@@ -1425,3 +1425,4 @@ Dokumen akhir & presentasi.
 | ---------- | ------------------- |
 | 2026-10-16 | Draft awal, 65 task |
 | 2026-10-22 | P4-007 & P4-008 → Review (kuis terverifikasi end-to-end di perangkat) |
+| 2026-10-22 | Seed quiz L16-50 (105 soal) — quiz complete 50/50 level |
