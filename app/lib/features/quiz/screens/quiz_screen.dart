@@ -6,7 +6,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/theme.dart';
 import '../../../data/models/exercise_model.dart';
+import '../../auth/providers/auth_provider.dart';
 import '../../exercise/providers/exercise_provider.dart';
+import '../../home/providers/level_provider.dart';
 
 /// Outcome of a finished quiz session.
 enum QuizResult {
@@ -174,10 +176,71 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
     _showResultDialog();
   }
 
+  /// Simpan hasil kuis ke tabel `user_progress` dan buka level berikutnya
+  /// bila level ini selesai dengan nilai minimal 70 persen.
+  ///
+  /// Mengembalikan XP yang diperoleh, atau 0 bila penyimpanan gagal.
+  Future<int> _saveProgress(int score, int total) async {
+    final user = ref.read(authStateProvider).user;
+    if (user == null || total == 0) return 0;
+
+    final ratio = score / total;
+    final String status;
+    final int xp;
+    if (ratio >= 0.7) {
+      status = 'completed';
+      xp = 100;
+    } else if (ratio >= 0.4) {
+      status = 'active';
+      xp = 50;
+    } else {
+      status = 'active';
+      xp = 0;
+    }
+
+    final repo = ref.read(userProgressRepositoryProvider);
+    try {
+      await repo.upsert(
+        userId: user.id,
+        levelId: widget.levelId,
+        status: status,
+        masteryScore: ratio,
+        xpEarned: xp,
+        attempts: 1,
+      );
+
+      // Buka level berikutnya kalau level ini lulus.
+      if (status == 'completed' && widget.levelId < 50) {
+        final next = widget.levelId + 1;
+        final existingNext = await repo.getForLevel(user.id, next);
+        if (existingNext == null) {
+          await repo.upsert(
+            userId: user.id,
+            levelId: next,
+            status: 'active',
+            masteryScore: 0.0,
+            xpEarned: 0,
+            attempts: 0,
+          );
+        }
+      }
+
+      ref.invalidate(allProgressProvider);
+      ref.invalidate(totalXpProvider);
+      return xp;
+    } catch (e) {
+      debugPrint('Failed to save progress: $e');
+      return 0;
+    }
+  }
+
   Future<void> _showResultDialog() async {
     if (_isFinished) return;
     _stopTimer();
     setState(() => _isFinished = true);
+
+    final xpEarned = await _saveProgress(_correctCount, _questions.length);
+    if (!mounted) return;
 
     await showDialog<void>(
       context: context,
@@ -186,6 +249,7 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
         return _ResultDialog(
           correct: _correctCount,
           total: _questions.length,
+          xpEarned: xpEarned,
           onDone: () => Navigator.of(dialogContext).pop(),
         );
       },
@@ -870,11 +934,13 @@ class _QuizBottomBar extends StatelessWidget {
 class _ResultDialog extends StatelessWidget {
   final int correct;
   final int total;
+  final int xpEarned;
   final VoidCallback onDone;
 
   const _ResultDialog({
     required this.correct,
     required this.total,
+    required this.xpEarned,
     required this.onDone,
   });
 
@@ -977,6 +1043,37 @@ class _ResultDialog extends StatelessWidget {
                 color: KodiraColors.neutral500,
               ),
             ),
+            if (xpEarned > 0) ...[
+              const SizedBox(height: 14),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 8,
+                ),
+                decoration: BoxDecoration(
+                  color: KodiraColors.reward100,
+                  borderRadius: BorderRadius.circular(KodiraRadius.full),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(
+                      Icons.bolt,
+                      size: 16,
+                      color: KodiraColors.reward700,
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      'Kamu mendapat $xpEarned XP',
+                      style: KodiraTextStyles.bodySm.copyWith(
+                        color: KodiraColors.reward700,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
             const SizedBox(height: 16),
             Text(
               _status,

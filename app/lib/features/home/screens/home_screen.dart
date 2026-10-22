@@ -68,6 +68,9 @@ class HomeScreen extends ConsumerWidget {
     }
     // map progress by levelId for quick lookup
     final progressMap = {for (var p in progresses) p.levelId: p};
+    // peta nomor level ke id level supaya pengecekan level sebelumnya tidak
+    // bergantung pada urutan id di database
+    final levelIdByNumber = {for (final l in levels) l.levelNumber: l.id};
     return ListView.builder(
       padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
       itemCount: levels.length,
@@ -76,7 +79,16 @@ class HomeScreen extends ConsumerWidget {
         final progress = progressMap[level.id];
         return Padding(
           padding: const EdgeInsets.only(bottom: 12),
-          child: _LevelCard(level: level, progress: progress),
+          child: _LevelCard(
+            level: level,
+            state: _resolveLevelState(
+              level: level,
+              progress: progress,
+              progressMap: progressMap,
+              levelIdByNumber: levelIdByNumber,
+            ),
+            xpEarned: progress?.xpEarned ?? 0,
+          ),
         );
       },
     );
@@ -93,20 +105,39 @@ class _HeaderWidget extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     // compute current level and xp aggregation
     final List<UserProgressModel> progressList = ref
-        .watch(userProgressProvider)
+        .watch(allProgressProvider)
         .maybeWhen(data: (v) => v, orElse: () => <UserProgressModel>[]);
+    final totalXpAsync = ref.watch(totalXpProvider);
+    final levelsAsync = ref.watch(allLevelsProvider);
+
     var currentLevel = 1;
-    var totalXp = 0;
     var completedCount = 0;
     for (var p in progressList) {
-      totalXp += p.xpEarned;
       if (p.isCompleted) completedCount++;
-      if (p.isActive) currentLevel = p.levelId;
+      // level berjalan = level active paling tinggi, tidak bergantung urutan baris
+      if (p.isActive && p.levelId > currentLevel) currentLevel = p.levelId;
     }
-    // placeholder target xp
+
+    // Total XP diambil dari database supaya selalu sinkron dengan hasil kuis.
+    final totalXp = totalXpAsync.maybeWhen(data: (v) => v, orElse: () => 0);
+    final isXpLoading = totalXpAsync.isLoading;
+
+    // Target XP memakai level berjalan sebagai acuan (100 XP per level).
     final int targetXp = currentLevel * 100;
-    const topic = '';
-    // find current topic from level model if needed (omitted for brevity)
+
+    // Topik level berjalan menggantikan teks kosong yang sebelumnya dipakai.
+    final topic = levelsAsync.maybeWhen(
+      data: (levels) {
+        for (final level in levels) {
+          if (level.levelNumber == currentLevel) {
+            final value = level.topic;
+            return (value == null || value.isEmpty) ? level.title : value;
+          }
+        }
+        return '';
+      },
+      orElse: () => '',
+    );
 
     return Container(
       color: KodiraColors.neutral0,
@@ -200,7 +231,12 @@ class _HeaderWidget extends ConsumerWidget {
             spacing: 8,
             children: [
               // ignore: prefer_const_constructors
-              _StatChip(icon: '⚡', value: totalXp.toString(), label: 'XP'),
+              _StatChip(
+                icon: '⚡',
+                value: '$totalXp',
+                label: 'XP',
+                loading: isXpLoading,
+              ),
               const _StatChip(icon: '🔥', value: '0', label: 'Streak'),
               _StatChip(
                 icon: '🏆',
@@ -238,7 +274,7 @@ class _HeaderWidget extends ConsumerWidget {
           ),
           const SizedBox(height: 8),
           LinearProgressIndicator(
-            value: targetXp == 0 ? 0 : totalXp / targetXp,
+            value: targetXp == 0 ? 0 : (totalXp / targetXp).clamp(0.0, 1.0),
             minHeight: 6,
             backgroundColor: KodiraColors.neutral200,
             valueColor: const AlwaysStoppedAnimation<Color>(
@@ -287,10 +323,12 @@ class _StatChip extends StatelessWidget {
   final String icon;
   final String value;
   final String label;
+  final bool loading;
   const _StatChip({
     required this.icon,
     required this.value,
     required this.label,
+    this.loading = false,
   });
 
   @override
@@ -306,12 +344,22 @@ class _StatChip extends StatelessWidget {
         children: [
           Text(icon, style: const TextStyle(fontSize: 12)),
           const SizedBox(width: 4),
-          Text(
-            value,
-            style: KodiraTextStyles.bodySm.copyWith(
-              color: KodiraColors.neutral900,
+          if (loading)
+            const SizedBox(
+              width: 12,
+              height: 12,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                color: KodiraColors.neutral500,
+              ),
+            )
+          else
+            Text(
+              value,
+              style: KodiraTextStyles.bodySm.copyWith(
+                color: KodiraColors.neutral900,
+              ),
             ),
-          ),
           const SizedBox(width: 4),
           Text(
             label,
@@ -326,52 +374,88 @@ class _StatChip extends StatelessWidget {
 }
 
 // -------------------------------------------------------------------
+// Status tampilan sebuah kartu level
+enum _LevelCardState { locked, active, completed }
+
+// -------------------------------------------------------------------
+// Menentukan status kartu level dari progress user.
+//
+// - Sudah ada progress `completed`  -> selesai
+// - Sudah ada progress `active`     -> sedang dipelajari
+// - Progress `locked` atau `remedial`-> terkunci
+// - Belum ada progress              -> level 1 selalu aktif, level berikutnya
+//   aktif bila level sebelumnya sudah selesai
+_LevelCardState _resolveLevelState({
+  required LevelModel level,
+  required UserProgressModel? progress,
+  required Map<int, UserProgressModel> progressMap,
+  required Map<int, int> levelIdByNumber,
+}) {
+  if (progress != null) {
+    if (progress.isCompleted) return _LevelCardState.completed;
+    if (progress.isActive) return _LevelCardState.active;
+    return _LevelCardState.locked;
+  }
+  if (level.levelNumber <= 1) return _LevelCardState.active;
+  final previousId = levelIdByNumber[level.levelNumber - 1];
+  final previous = previousId == null ? null : progressMap[previousId];
+  return previous?.isCompleted ?? false
+      ? _LevelCardState.active
+      : _LevelCardState.locked;
+}
+
+// -------------------------------------------------------------------
 // Level card widget
 class _LevelCard extends StatelessWidget {
   final LevelModel level;
-  final UserProgressModel? progress;
+  final _LevelCardState state;
+  final int xpEarned;
 
-  const _LevelCard({required this.level, this.progress});
+  const _LevelCard({
+    required this.level,
+    required this.state,
+    required this.xpEarned,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final isLocked = progress == null || progress?.status == 'locked';
-    final isCompleted = progress?.isCompleted ?? false;
-    final isActive = progress?.isActive ?? false;
+    final isLocked = state == _LevelCardState.locked;
+    final isCompleted = state == _LevelCardState.completed;
+    final isActive = state == _LevelCardState.active;
     Color badgeBg;
     Color badgeText;
     String subtitle;
     Widget? trailing;
 
-    if (isLocked) {
-      badgeBg = KodiraColors.neutral200;
-      badgeText = KodiraColors.neutral300;
-      subtitle = 'Terkunci';
-    } else if (isCompleted) {
+    if (isCompleted) {
       badgeBg = KodiraColors.success500;
       badgeText = Colors.white;
-      subtitle = 'Selesai • ${progress!.xpEarned} XP';
+      subtitle = 'Selesai • $xpEarned XP';
       trailing = const Icon(Icons.check, color: KodiraColors.success500);
     } else if (isActive) {
-      badgeBg = KodiraColors.primary700;
+      badgeBg = KodiraColors.reward500;
       badgeText = Colors.white;
-      subtitle = 'Sedang dipelajari';
+      subtitle = xpEarned > 0 ? 'Lanjut • $xpEarned XP' : 'Lanjut';
     } else {
-      // default fallback locked style
+      // level terkunci: tampil redup dan tidak bisa dibuka
       badgeBg = KodiraColors.neutral200;
       badgeText = KodiraColors.neutral300;
       subtitle = 'Terkunci';
     }
 
     return GestureDetector(
-      onTap: () {
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (_) =>
-                MaterialScreen(levelId: level.id, levelTitle: level.title),
-          ),
-        );
-      },
+      onTap: isLocked
+          ? null
+          : () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => MaterialScreen(
+                    levelId: level.id,
+                    levelTitle: level.title,
+                  ),
+                ),
+              );
+            },
       child: Opacity(
         opacity: isLocked ? 0.55 : 1.0,
         child: Container(

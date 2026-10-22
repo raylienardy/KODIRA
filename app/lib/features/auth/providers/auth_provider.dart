@@ -6,6 +6,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../data/models/user_model.dart';
 import '../../../data/repositories/auth_repository.dart';
 import '../../../core/errors/auth_exception.dart';
+import '../../home/providers/level_provider.dart';
 
 // Supabase client singleton
 final supabaseClientProvider = Provider<SupabaseClient>((ref) {
@@ -38,14 +39,23 @@ class AuthState {
 // Auth notifier
 class AuthNotifier extends StateNotifier<AuthState> {
   final AuthRepository _repo;
+  final Ref _ref;
 
-  AuthNotifier(this._repo) : super(const AuthState());
+  AuthNotifier(this._repo, this._ref) : super(const AuthState());
+
+  /// Segarkan cache progress belajar setiap kali user berubah, supaya layar
+  /// Home langsung menampilkan XP dan status level milik user yang masuk.
+  void refreshProgressProviders() {
+    _ref.invalidate(allProgressProvider);
+    _ref.invalidate(totalXpProvider);
+  }
 
   Future<void> login(String nim, String password) async {
     state = state.copyWith(isLoading: true, errorMessage: null);
     try {
       final user = await _repo.signInWithNim(nim: nim, password: password);
       state = state.copyWith(user: user, isLoading: false);
+      refreshProgressProviders();
     } on KodiraAuthException catch (e) {
       state = state.copyWith(isLoading: false, errorMessage: e.message);
       rethrow;
@@ -74,7 +84,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
 // Provider for auth state
 final authStateProvider = StateNotifierProvider<AuthNotifier, AuthState>((ref) {
   final repo = ref.watch(authRepositoryProvider);
-  return AuthNotifier(repo);
+  return AuthNotifier(repo, ref);
 });
 
 // Session status saat app dibuka
@@ -117,6 +127,8 @@ class SessionNotifier extends StateNotifier<SessionStatus> {
       if (user != null) {
         _ref.read(authStateProvider.notifier).restoreSession(user);
         state = SessionStatus.authenticated;
+        _ref.invalidate(allProgressProvider);
+        _ref.invalidate(totalXpProvider);
       } else {
         state = SessionStatus.unauthenticated;
       }
@@ -127,6 +139,10 @@ class SessionNotifier extends StateNotifier<SessionStatus> {
       state = _client.auth.currentSession != null
           ? SessionStatus.authenticated
           : SessionStatus.unauthenticated;
+      if (state == SessionStatus.authenticated) {
+        _ref.invalidate(allProgressProvider);
+        _ref.invalidate(totalXpProvider);
+      }
     } finally {
       if (mounted) _listenAuthChanges();
     }
