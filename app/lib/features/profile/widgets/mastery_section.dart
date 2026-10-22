@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/theme.dart';
+import '../../../core/errors/error_type.dart';
+import '../../../shared/widgets/empty_widget.dart';
+import '../../../shared/widgets/error_widget.dart';
+import '../../../shared/widgets/loading_widget.dart';
 import '../providers/profile_provider.dart';
 
 /// Rata-rata mastery per topik dengan progress bar.
@@ -13,46 +17,17 @@ class MasterySection extends ConsumerWidget {
     final masteryAsync = ref.watch(masteryByTopicProvider);
 
     return masteryAsync.when(
-      loading: () => Column(
-        children: List<Widget>.generate(
-          3,
-          (int index) => Container(
-            margin: const EdgeInsets.only(bottom: 12),
-            height: 36,
-            decoration: BoxDecoration(
-              color: KodiraColors.neutral100,
-              borderRadius: BorderRadius.circular(KodiraRadius.sm),
-            ),
-          ),
-        ),
-      ),
-      error: (error, stackTrace) => Row(
-        children: [
-          Expanded(
-            child: Text(
-              'Gagal memuat mastery.',
-              style: KodiraTextStyles.bodySm.copyWith(
-                color: KodiraColors.alert700,
-              ),
-            ),
-          ),
-          TextButton(
-            onPressed: () => ref.invalidate(masteryByTopicProvider),
-            style: TextButton.styleFrom(
-              foregroundColor: KodiraColors.primary700,
-              minimumSize: const Size(44, 44),
-            ),
-            child: const Text('Coba lagi'),
-          ),
-        ],
+      loading: () => const KodiraLoadingWidget(message: 'Memuat mastery'),
+      error: (error, stackTrace) => KodiraErrorWidget(
+        error: ErrorType.fromException(error),
+        onRetry: () => ref.invalidate(masteryByTopicProvider),
       ),
       data: (Map<String, double> mastery) {
         if (mastery.isEmpty) {
-          return Text(
-            'Belum ada data mastery. Selesaikan kuis untuk mengisi.',
-            style: KodiraTextStyles.bodySm.copyWith(
-              color: KodiraColors.neutral500,
-            ),
+          return const KodiraEmptyWidget(
+            icon: Icons.insights_outlined,
+            title: 'Belum ada data mastery',
+            subtitle: 'Selesaikan kuis untuk mengisi.',
           );
         }
 

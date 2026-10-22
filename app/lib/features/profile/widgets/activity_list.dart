@@ -2,9 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/theme.dart';
+import '../../../core/errors/error_type.dart';
 import '../../../data/models/level_model.dart';
 import '../../../data/models/user_progress_model.dart';
 import '../../../data/repositories/profile_logic.dart';
+import '../../../shared/widgets/empty_widget.dart';
+import '../../../shared/widgets/error_widget.dart';
+import '../../../shared/widgets/loading_widget.dart';
 import '../../home/providers/level_provider.dart';
 import '../providers/profile_provider.dart';
 
@@ -26,46 +30,17 @@ class ActivityList extends ConsumerWidget {
     };
 
     return activityAsync.when(
-      loading: () => Column(
-        children: List<Widget>.generate(
-          3,
-          (int index) => Container(
-            margin: const EdgeInsets.only(bottom: 8),
-            height: 56,
-            decoration: BoxDecoration(
-              color: KodiraColors.neutral100,
-              borderRadius: BorderRadius.circular(KodiraRadius.md),
-            ),
-          ),
-        ),
-      ),
-      error: (error, stackTrace) => Row(
-        children: [
-          Expanded(
-            child: Text(
-              'Gagal memuat aktivitas.',
-              style: KodiraTextStyles.bodySm.copyWith(
-                color: KodiraColors.alert700,
-              ),
-            ),
-          ),
-          TextButton(
-            onPressed: () => ref.invalidate(recentActivityProvider),
-            style: TextButton.styleFrom(
-              foregroundColor: KodiraColors.primary700,
-              minimumSize: const Size(44, 44),
-            ),
-            child: const Text('Coba lagi'),
-          ),
-        ],
+      loading: () => const KodiraLoadingWidget(message: 'Memuat aktivitas'),
+      error: (error, stackTrace) => KodiraErrorWidget(
+        error: ErrorType.fromException(error),
+        onRetry: () => ref.invalidate(recentActivityProvider),
       ),
       data: (List<UserProgressModel> activities) {
         if (activities.isEmpty) {
-          return Text(
-            'Belum ada aktivitas. Mulai level pertama di Home.',
-            style: KodiraTextStyles.bodySm.copyWith(
-              color: KodiraColors.neutral500,
-            ),
+          return const KodiraEmptyWidget(
+            icon: Icons.history,
+            title: 'Belum ada aktivitas',
+            subtitle: 'Mulai level pertama di Home.',
           );
         }
 

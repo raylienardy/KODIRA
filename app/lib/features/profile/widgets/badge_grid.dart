@@ -2,9 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/theme.dart';
+import '../../../core/errors/error_type.dart';
 import '../../../data/models/user_badge_model.dart';
 import '../../../data/repositories/badge_logic.dart';
 import '../../../data/repositories/profile_logic.dart';
+import '../../../shared/widgets/empty_widget.dart';
+import '../../../shared/widgets/error_widget.dart';
+import '../../../shared/widgets/loading_widget.dart';
 import '../providers/profile_provider.dart';
 
 /// Grid badge: seluruh katalog ditampilkan, yang belum diraih terkunci.
@@ -19,9 +23,9 @@ class BadgeGrid extends ConsumerWidget {
     final badgesAsync = ref.watch(userBadgesProvider);
 
     return badgesAsync.when(
-      loading: () => const _BadgeSkeleton(),
-      error: (error, stackTrace) => _ErrorNote(
-        message: 'Gagal memuat badge.',
+      loading: () => const KodiraLoadingWidget(message: 'Memuat badge'),
+      error: (error, stackTrace) => KodiraErrorWidget(
+        error: ErrorType.fromException(error),
         onRetry: () => ref.invalidate(userBadgesProvider),
       ),
       data: (List<UserBadgeModel> badges) {
@@ -36,12 +40,11 @@ class BadgeGrid extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             if (earned.isEmpty) ...[
-              Text(
-                'Belum ada badge. Selesaikan level atau jaga streak untuk '
-                'membuka badge.',
-                style: KodiraTextStyles.bodySm.copyWith(
-                  color: KodiraColors.neutral500,
-                ),
+              const KodiraEmptyWidget(
+                icon: Icons.military_tech_outlined,
+                title: 'Belum ada badge',
+                subtitle:
+                    'Selesaikan level atau jaga streak untuk membuka badge.',
               ),
               const SizedBox(height: 12),
             ],
@@ -132,64 +135,6 @@ class _BadgeTile extends StatelessWidget {
           ),
         ),
       ),
-    );
-  }
-}
-
-class _BadgeSkeleton extends StatelessWidget {
-  const _BadgeSkeleton();
-
-  @override
-  Widget build(BuildContext context) {
-    return GridView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      padding: EdgeInsets.zero,
-      itemCount: 6,
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 3,
-        crossAxisSpacing: 12,
-        mainAxisSpacing: 12,
-        mainAxisExtent: 104,
-      ),
-      itemBuilder: (context, index) => Container(
-        decoration: BoxDecoration(
-          color: KodiraColors.neutral100,
-          borderRadius: BorderRadius.circular(KodiraRadius.md),
-        ),
-      ),
-    );
-  }
-}
-
-class _ErrorNote extends StatelessWidget {
-  final String message;
-  final VoidCallback onRetry;
-
-  const _ErrorNote({required this.message, required this.onRetry});
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Expanded(
-          child: Text(
-            message,
-            style: KodiraTextStyles.bodySm.copyWith(
-              color: KodiraColors.alert700,
-            ),
-          ),
-        ),
-        const SizedBox(width: 8),
-        TextButton(
-          onPressed: onRetry,
-          style: TextButton.styleFrom(
-            foregroundColor: KodiraColors.primary700,
-            minimumSize: const Size(44, 44),
-          ),
-          child: const Text('Coba lagi'),
-        ),
-      ],
     );
   }
 }

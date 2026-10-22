@@ -9,6 +9,10 @@ import '../providers/level_provider.dart';
 import '../../../data/models/user_model.dart';
 import '../../../data/models/level_model.dart';
 import '../../../data/models/user_progress_model.dart';
+import '../../../core/errors/error_type.dart';
+import '../../../shared/widgets/empty_widget.dart';
+import '../../../shared/widgets/error_widget.dart';
+import '../../../shared/widgets/loading_widget.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -31,30 +35,22 @@ class HomeScreen extends ConsumerWidget {
                 data: (levels) => userProgress.when(
                   data: (progressList) => _buildMap(levels, progressList, ref),
                   loading: () =>
-                      const Center(child: CircularProgressIndicator()),
-                  error: (e, _) =>
-                      _errorState(e, () => ref.refresh(allLevelsProvider)),
+                      const KodiraLoadingWidget(message: 'Memuat progress'),
+                  error: (e, _) => KodiraErrorWidget(
+                    error: ErrorType.fromException(e),
+                    onRetry: () => ref.refresh(allLevelsProvider),
+                  ),
                 ),
-                loading: () => const Center(child: CircularProgressIndicator()),
-                error: (e, _) =>
-                    _errorState(e, () => ref.refresh(allLevelsProvider)),
+                loading: () =>
+                    const KodiraLoadingWidget(message: 'Memuat level'),
+                error: (e, _) => KodiraErrorWidget(
+                  error: ErrorType.fromException(e),
+                  onRetry: () => ref.refresh(allLevelsProvider),
+                ),
               ),
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _errorState(Object e, VoidCallback retry) {
-    return Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text('Terjadi kesalahan: $e'),
-          const SizedBox(height: 8),
-          ElevatedButton(onPressed: retry, child: const Text('Coba lagi')),
-        ],
       ),
     );
   }
@@ -65,7 +61,10 @@ class HomeScreen extends ConsumerWidget {
     WidgetRef ref,
   ) {
     if (levels.isEmpty) {
-      return const Center(child: Text('Belum ada level'));
+      return const KodiraEmptyWidget(
+        icon: Icons.menu_book_outlined,
+        title: 'Belum ada level',
+      );
     }
     // map progress by levelId for quick lookup
     final progressMap = {for (var p in progresses) p.levelId: p};

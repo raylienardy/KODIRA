@@ -6,6 +6,10 @@ import '../../exercise/providers/exercise_provider.dart';
 import '../../exercise/screens/drag_drop_screen.dart';
 import '../providers/material_provider.dart';
 import '../../../data/models/material_model.dart';
+import '../../../core/errors/error_type.dart';
+import '../../../shared/widgets/empty_widget.dart';
+import '../../../shared/widgets/error_widget.dart';
+import '../../../shared/widgets/loading_widget.dart';
 
 class MaterialScreen extends ConsumerStatefulWidget {
   final int levelId;
@@ -79,8 +83,9 @@ class _MaterialScreenState extends ConsumerState<MaterialScreen> {
               child: materialsAsync.when(
                 data: (materials) {
                   if (materials.isEmpty) {
-                    return const Center(
-                      child: Text('Belum ada materi untuk level ini'),
+                    return const KodiraEmptyWidget(
+                      icon: Icons.menu_book_outlined,
+                      title: 'Belum ada materi untuk level ini',
                     );
                   }
                   final material = materials[_currentSlideIndex];
@@ -89,21 +94,12 @@ class _MaterialScreenState extends ConsumerState<MaterialScreen> {
                     child: _MaterialCard(material: material),
                   );
                 },
-                loading: () => const Center(child: CircularProgressIndicator()),
-                error: (e, _) => Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text('Terjadi kesalahan: $e'),
-                      const SizedBox(height: 8),
-                      ElevatedButton(
-                        onPressed: () => ref.refresh(
-                          materialsByLevelProvider(widget.levelId),
-                        ),
-                        child: const Text('Coba lagi'),
-                      ),
-                    ],
-                  ),
+                loading: () =>
+                    const KodiraLoadingWidget(message: 'Memuat materi'),
+                error: (e, _) => KodiraErrorWidget(
+                  error: ErrorType.fromException(e),
+                  onRetry: () =>
+                      ref.refresh(materialsByLevelProvider(widget.levelId)),
                 ),
               ),
             ),

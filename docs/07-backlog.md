@@ -80,11 +80,11 @@ Gunakan bersama `docs/06-workflow.md` untuk kerja dengan opencode.
 | Phase 1 — Design System   | 8      | 8      | 0     | 0      | 0      | 0     |
 | Phase 2 — UI Design       | 6      | 1      | 0     | 0      | 4      | 1     |
 | Phase 3 — Architecture    | 7      | 5      | 0     | 1      | 0      | 1     |
-| Phase 4 — MVP Development | 14     | 6      | 0     | 3      | 4      | 1     |
+| Phase 4 — MVP Development | 14     | 6      | 0     | 2      | 5      | 1     |
 | Phase 5 — AI Integration  | 8      | 0      | 0     | 8      | 0      | 0     |
 | Phase 6 — Testing         | 6      | 0      | 0     | 6      | 0      | 0     |
 | Phase 7 — Documentation   | 6      | 0      | 0     | 6      | 0      | 0     |
-| **Total**                 | **65** | **30** | **0** | **24** | **8** | **3** |
+| **Total**                 | **65** | **30** | **0** | **23** | **9** | **3** |
 
 ---
 
@@ -933,7 +933,7 @@ Fitur inti tanpa AI dulu. Fondasi paling penting.
 
 | Field      | Nilai  |
 | ---------- | ------ |
-| Status     | Todo   |
+| Status     | Review |
 | Priority   | P1     |
 | Token      | M      |
 | Agent      | build  |
@@ -943,6 +943,8 @@ Fitur inti tanpa AI dulu. Fondasi paling penting.
 
 - `app/lib/core/errors/`
 - `app/lib/shared/widgets/loading.dart`, `error.dart`
+
+**Catatan:** Shared widgets: KodiraLoadingWidget, KodiraErrorWidget, KodiraEmptyWidget + Result<T> + ErrorType. Refactor 4 screen (home, materi, quiz, profil) pakai widget konsisten. Test unit + widget test PASS. Test runtime device pending.
 
 **DoD:**
 
@@ -1443,3 +1445,4 @@ Dokumen akhir & presentasi.
 | 2026-10-22 | P4-010 Badge & Achievement → Review (badge & achievement auto-award, unit test 108 kasus) |
 | 2026-10-22 | P4-010 → Done, P4-011 Profil & Progress → Review (6 section, unit test 135 kasus) |
 | 2026-10-22 | P1-007 pre-commit hook, P3-003 request body 20 endpoint, P1-005 split ABI → Done (30 Done) |
+| 2026-10-22 | P4-014 error handling + loading states → Review (Result/ErrorType/3 widget, 165 test) |

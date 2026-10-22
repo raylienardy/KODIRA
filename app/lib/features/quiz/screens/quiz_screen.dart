@@ -9,6 +9,10 @@ import '../../../data/models/exercise_model.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../../exercise/providers/exercise_provider.dart';
 import '../../home/providers/level_provider.dart';
+import '../../../core/errors/error_type.dart';
+import '../../../shared/widgets/empty_widget.dart';
+import '../../../shared/widgets/error_widget.dart';
+import '../../../shared/widgets/loading_widget.dart';
 
 /// Outcome of a finished quiz session.
 enum QuizResult {
@@ -338,23 +342,34 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
 
   Widget _buildBody() {
     if (_isLoading) {
-      return const _LoadingView();
+      return const KodiraLoadingWidget(message: 'Memuat kuis');
     }
     if (_error != null) {
-      return _ErrorView(
-        title: 'Gagal memuat kuis',
-        message: _error!,
+      return KodiraErrorWidget(
+        error: ErrorType.fromException(_error!),
         onRetry: _retry,
       );
     }
     if (_questions.isEmpty) {
-      return const _EmptyView();
+      return _emptyState();
     }
     final question = _currentQuestion;
     if (question == null) {
-      return const _EmptyView();
+      return _emptyState();
     }
     return _buildQuestion(question);
+  }
+
+  Widget _emptyState() {
+    return KodiraEmptyWidget(
+      icon: Icons.quiz_outlined,
+      title: 'Kuis belum tersedia',
+      subtitle:
+          'Kuis untuk level ini belum tersedia. Kembali ke materi untuk '
+          'melanjutkan.',
+      actionLabel: 'Kembali ke Materi',
+      onAction: () => Navigator.of(context).maybePop(),
+    );
   }
 
   Widget _buildQuestion(QuizQuestion question) {
@@ -1116,225 +1131,6 @@ class _ResultDialog extends StatelessWidget {
                 ),
                 child: const Text('Kembali ke Materi'),
               ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-// -------------------------------------------------------------------
-class _LoadingView extends StatelessWidget {
-  const _LoadingView();
-
-  @override
-  Widget build(BuildContext context) {
-    return Semantics(
-      label: 'Memuat kuis',
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const _SkeletonLine(width: 160, height: 12),
-            const SizedBox(height: 20),
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: KodiraColors.neutral0,
-                borderRadius: BorderRadius.circular(KodiraRadius.lg),
-                border: Border.all(color: KodiraColors.neutral200),
-              ),
-              child: const Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _SkeletonLine(width: 56, height: 20),
-                  SizedBox(height: 16),
-                  _SkeletonLine(width: double.infinity, height: 18),
-                  SizedBox(height: 8),
-                  _SkeletonLine(width: 220, height: 12),
-                ],
-              ),
-            ),
-            const SizedBox(height: 24),
-            const _SkeletonLine(width: 120, height: 12),
-            const SizedBox(height: 10),
-            for (var i = 0; i < 4; i++) ...[
-              const _SkeletonLine(width: double.infinity, height: 56),
-              const SizedBox(height: 10),
-            ],
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _SkeletonLine extends StatelessWidget {
-  final double width;
-  final double height;
-
-  const _SkeletonLine({required this.width, required this.height});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: width,
-      height: height,
-      decoration: BoxDecoration(
-        color: KodiraColors.neutral200,
-        borderRadius: BorderRadius.circular(KodiraRadius.full),
-      ),
-    );
-  }
-}
-
-// -------------------------------------------------------------------
-class _EmptyView extends StatelessWidget {
-  const _EmptyView();
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 72,
-              height: 72,
-              decoration: const BoxDecoration(
-                color: KodiraColors.neutral100,
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(
-                Icons.quiz_outlined,
-                size: 32,
-                color: KodiraColors.neutral500,
-              ),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'Kuis belum tersedia',
-              textAlign: TextAlign.center,
-              style: KodiraTextStyles.h2.copyWith(
-                color: KodiraColors.neutral900,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Kuis untuk level ini belum tersedia. Kembali ke materi untuk '
-              'melanjutkan.',
-              textAlign: TextAlign.center,
-              style: KodiraTextStyles.body.copyWith(
-                color: KodiraColors.neutral700,
-              ),
-            ),
-            const SizedBox(height: 24),
-            SizedBox(
-              height: 48,
-              child: ElevatedButton(
-                onPressed: () => Navigator.of(context).maybePop(),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: KodiraColors.primary700,
-                  foregroundColor: Colors.white,
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(KodiraRadius.md),
-                  ),
-                  textStyle: const TextStyle(
-                    fontFamily: 'Inter',
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                child: const Text('Kembali ke Materi'),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-// -------------------------------------------------------------------
-class _ErrorView extends StatelessWidget {
-  final String title;
-  final String message;
-  final VoidCallback onRetry;
-
-  const _ErrorView({
-    required this.title,
-    required this.message,
-    required this.onRetry,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 72,
-              height: 72,
-              decoration: const BoxDecoration(
-                color: KodiraColors.alert100,
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(
-                Icons.error_outline,
-                size: 32,
-                color: KodiraColors.alert700,
-              ),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              title,
-              textAlign: TextAlign.center,
-              style: KodiraTextStyles.h2.copyWith(
-                color: KodiraColors.neutral900,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              message,
-              textAlign: TextAlign.center,
-              style: KodiraTextStyles.body.copyWith(
-                color: KodiraColors.neutral700,
-              ),
-            ),
-            const SizedBox(height: 24),
-            SizedBox(
-              height: 48,
-              child: ElevatedButton(
-                onPressed: onRetry,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: KodiraColors.primary700,
-                  foregroundColor: Colors.white,
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(KodiraRadius.md),
-                  ),
-                  textStyle: const TextStyle(
-                    fontFamily: 'Inter',
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                child: const Text('Coba Lagi'),
-              ),
-            ),
-            const SizedBox(height: 8),
-            TextButton(
-              onPressed: () => Navigator.of(context).maybePop(),
-              child: const Text('Kembali ke Materi'),
             ),
           ],
         ),

@@ -2,9 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/theme.dart';
+import '../../../core/errors/error_type.dart';
 import '../../../data/models/user_achievement_model.dart';
 import '../../../data/repositories/badge_logic.dart';
 import '../../../data/repositories/profile_logic.dart';
+import '../../../shared/widgets/empty_widget.dart';
+import '../../../shared/widgets/error_widget.dart';
+import '../../../shared/widgets/loading_widget.dart';
 import '../providers/profile_provider.dart';
 
 /// Daftar achievement: yang sudah diraih bisa diketuk untuk melihat tanggal.
@@ -16,38 +20,10 @@ class AchievementList extends ConsumerWidget {
     final achievementsAsync = ref.watch(userAchievementsProvider);
 
     return achievementsAsync.when(
-      loading: () => Column(
-        children: List<Widget>.generate(
-          3,
-          (int index) => Container(
-            margin: const EdgeInsets.only(bottom: 8),
-            height: 60,
-            decoration: BoxDecoration(
-              color: KodiraColors.neutral100,
-              borderRadius: BorderRadius.circular(KodiraRadius.md),
-            ),
-          ),
-        ),
-      ),
-      error: (error, stackTrace) => Row(
-        children: [
-          Expanded(
-            child: Text(
-              'Gagal memuat achievement.',
-              style: KodiraTextStyles.bodySm.copyWith(
-                color: KodiraColors.alert700,
-              ),
-            ),
-          ),
-          TextButton(
-            onPressed: () => ref.invalidate(userAchievementsProvider),
-            style: TextButton.styleFrom(
-              foregroundColor: KodiraColors.primary700,
-              minimumSize: const Size(44, 44),
-            ),
-            child: const Text('Coba lagi'),
-          ),
-        ],
+      loading: () => const KodiraLoadingWidget(message: 'Memuat achievement'),
+      error: (error, stackTrace) => KodiraErrorWidget(
+        error: ErrorType.fromException(error),
+        onRetry: () => ref.invalidate(userAchievementsProvider),
       ),
       data: (List<UserAchievementModel> achievements) {
         final Map<String, UserAchievementModel> earned =
@@ -60,12 +36,10 @@ class AchievementList extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             if (earned.isEmpty) ...[
-              Text(
-                'Belum ada achievement. Login & lulus kuis pertama untuk '
-                'memulai.',
-                style: KodiraTextStyles.bodySm.copyWith(
-                  color: KodiraColors.neutral500,
-                ),
+              const KodiraEmptyWidget(
+                icon: Icons.emoji_events_outlined,
+                title: 'Belum ada achievement',
+                subtitle: 'Login & lulus kuis pertama untuk memulai.',
               ),
               const SizedBox(height: 12),
             ],
