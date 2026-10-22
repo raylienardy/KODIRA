@@ -3,12 +3,16 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../app/theme.dart';
 import '../../../data/models/exercise_model.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../../exercise/providers/exercise_provider.dart';
 import '../../home/providers/level_provider.dart';
+import '../../lesson/screens/material_screen.dart';
+import '../widgets/result_dialog.dart';
+import '../widgets/result_logic.dart';
 import '../../../core/errors/error_type.dart';
 import '../../../shared/widgets/empty_widget.dart';
 import '../../../shared/widgets/error_widget.dart';
@@ -183,33 +187,64 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
   /// Simpan hasil kuis ke tabel `user_progress` dan buka level berikutnya
   /// bila level ini selesai dengan nilai minimal 70 persen.
   ///
-  /// Mengembalikan XP yang diperoleh, atau 0 bila penyimpanan gagal.
-  Future<int> _saveProgress(int score, int total) async {
+  /// Mengembalikan XP efektif (nilai terbaik antara XP lama dan XP baru),
+  /// XP mentah percobaan ini, mastery percobaan ini, jumlah percobaan, dan
+  /// penanda penyelesaian pertama untuk dialog hasil.
+  Future<
+    ({
+      int xpEarned,
+      int xpThisAttempt,
+      double mastery,
+      int attempts,
+      bool isFirstCompletion,
+    })
+  >
+  _saveProgress(int score, int total) async {
     final user = ref.read(authStateProvider).user;
-    if (user == null || total == 0) return 0;
+    if (user == null || total == 0) {
+      return (
+        xpEarned: 0,
+        xpThisAttempt: 0,
+        mastery: 0.0,
+        attempts: 0,
+        isFirstCompletion: false,
+      );
+    }
 
     final ratio = score / total;
     final String status;
-    final int xp;
+    final int xpThisAttempt;
     if (ratio >= 0.7) {
       status = 'completed';
-      xp = 100;
+      xpThisAttempt = 100;
     } else if (ratio >= 0.4) {
       status = 'active';
-      xp = 50;
+      xpThisAttempt = 50;
     } else {
       status = 'active';
-      xp = 0;
+      xpThisAttempt = 0;
     }
 
     final repo = ref.read(userProgressRepositoryProvider);
+
     try {
+      // Baca baris lama sebelum upsert untuk mendeteksi penyelesaian pertama
+      // dan menghitung nilai efektif (XP memakai nilai terbaik).
+      final existing = await repo.getForLevel(user.id, widget.levelId);
+      final bool isFirstCompletion =
+          existing == null || existing.status != 'completed';
+      final int previousXp = existing?.xpEarned ?? 0;
+      final int effectiveXp = xpThisAttempt > previousXp
+          ? xpThisAttempt
+          : previousXp;
+      final int attempts = (existing?.attempts ?? 0) + 1;
+
       await repo.upsert(
         userId: user.id,
         levelId: widget.levelId,
         status: status,
         masteryScore: ratio,
-        xpEarned: xp,
+        xpEarned: xpThisAttempt,
         attempts: 1,
       );
 
@@ -231,10 +266,23 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
 
       ref.invalidate(allProgressProvider);
       ref.invalidate(totalXpProvider);
-      return xp;
+
+      return (
+        xpEarned: effectiveXp,
+        xpThisAttempt: xpThisAttempt,
+        mastery: ratio,
+        attempts: attempts,
+        isFirstCompletion: isFirstCompletion,
+      );
     } catch (e) {
       debugPrint('Failed to save progress: $e');
-      return 0;
+      return (
+        xpEarned: 0,
+        xpThisAttempt: xpThisAttempt,
+        mastery: ratio,
+        attempts: 1,
+        isFirstCompletion: false,
+      );
     }
   }
 
@@ -243,7 +291,9 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
     _stopTimer();
     setState(() => _isFinished = true);
 
-    final xpEarned = await _saveProgress(_correctCount, _questions.length);
+    final int score = _correctCount;
+    final int total = _questions.length;
+    final result = await _saveProgress(score, total);
 
     // Berikan badge dan achievement yang baru setelah kuis selesai.
     try {
@@ -258,21 +308,66 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
 
     if (!mounted) return;
 
+    final ResultTier tier = ResultLogic.computeTier(score, total);
+
     await showDialog<void>(
       context: context,
       barrierDismissible: false,
       builder: (dialogContext) {
-        return _ResultDialog(
-          correct: _correctCount,
-          total: _questions.length,
-          xpEarned: xpEarned,
-          onDone: () => Navigator.of(dialogContext).pop(),
+        return ResultDialog(
+          score: score,
+          total: total,
+          xpEarned: result.xpEarned,
+          xpThisAttempt: result.xpThisAttempt,
+          mastery: result.mastery,
+          levelId: widget.levelId,
+          attempts: result.attempts,
+          isFirstCompletion: result.isFirstCompletion,
+          isLastLevel: widget.levelId >= 50,
+          onPrimary: () {
+            Navigator.of(dialogContext).pop();
+            if (tier == ResultTier.pass) {
+              if (widget.levelId >= 50) {
+                context.go('/home');
+              } else {
+                _openMaterial(widget.levelId + 1);
+              }
+            } else {
+              _restartQuiz();
+            }
+          },
+          onSecondary: () {
+            Navigator.of(dialogContext).pop();
+            if (tier == ResultTier.pass) {
+              context.go('/home');
+            } else {
+              _openMaterial(widget.levelId);
+            }
+          },
         );
       },
     );
+  }
 
-    if (!mounted) return;
-    Navigator.of(context).pop(QuizResult.backToMaterial);
+  /// Buka materi [levelId] setelah dialog hasil ditutup.
+  void _openMaterial(int levelId) {
+    final String title = widget.levelTitle ?? 'Level $levelId';
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(
+        builder: (_) => MaterialScreen(levelId: levelId, levelTitle: title),
+      ),
+    );
+  }
+
+  /// Ulangi kuis dengan instance baru sehingga soal, timer, dan jumlah
+  /// jawaban benar dimuat ulang dari awal.
+  void _restartQuiz() {
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(
+        builder: (_) =>
+            QuizScreen(levelId: widget.levelId, levelTitle: widget.levelTitle),
+      ),
+    );
   }
 
   QuizQuestion? get _currentQuestion {
@@ -951,188 +1046,6 @@ class _QuizBottomBar extends StatelessWidget {
               child: Text(label),
             ),
           ),
-        ),
-      ),
-    );
-  }
-}
-
-// -------------------------------------------------------------------
-class _ResultDialog extends StatelessWidget {
-  final int correct;
-  final int total;
-  final int xpEarned;
-  final VoidCallback onDone;
-
-  const _ResultDialog({
-    required this.correct,
-    required this.total,
-    required this.xpEarned,
-    required this.onDone,
-  });
-
-  String get _status {
-    if (total == 0) return 'Kuis selesai.';
-    final ratio = correct / total;
-    if (correct == total) {
-      return 'Luar biasa! Kamu menjawab semua soal dengan benar.';
-    }
-    if (ratio >= 0.67) {
-      return 'Bagus! Pemahamanmu sudah kuat, tinggal sedikit lagi.';
-    }
-    if (ratio >= 0.34) {
-      return 'Cukup baik. Bagian yang masih salah perlu diulang.';
-    }
-    return 'Perlu belajar lagi. Baca kembali materinya lalu coba lagi.';
-  }
-
-  IconData get _icon {
-    if (total == 0) return Icons.info_outline;
-    final ratio = correct / total;
-    if (correct == total) return Icons.emoji_events_outlined;
-    if (ratio >= 0.67) return Icons.thumb_up_outlined;
-    return Icons.refresh;
-  }
-
-  Color get _accentColor {
-    if (total == 0) return KodiraColors.primary700;
-    final ratio = correct / total;
-    if (correct == total) return KodiraColors.reward700;
-    if (ratio >= 0.67) return KodiraColors.success700;
-    return KodiraColors.alert700;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Dialog(
-      backgroundColor: Colors.transparent,
-      insetPadding: const EdgeInsets.symmetric(horizontal: 24),
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.fromLTRB(20, 24, 20, 20),
-        decoration: BoxDecoration(
-          color: KodiraColors.neutral0,
-          borderRadius: BorderRadius.circular(KodiraRadius.xl2),
-          boxShadow: KodiraShadows.elevation4,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 64,
-              height: 64,
-              decoration: const BoxDecoration(
-                color: KodiraColors.neutral100,
-                shape: BoxShape.circle,
-              ),
-              child: Icon(_icon, color: _accentColor, size: 30),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'Kuis Selesai',
-              style: KodiraTextStyles.h2.copyWith(
-                color: KodiraColors.neutral900,
-              ),
-            ),
-            const SizedBox(height: 20),
-            Semantics(
-              label: 'Skor $correct dari $total soal benar',
-              excludeSemantics: true,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.baseline,
-                textBaseline: TextBaseline.alphabetic,
-                children: [
-                  Text(
-                    '$correct',
-                    style: const TextStyle(
-                      fontFamily: 'Inter',
-                      fontSize: 56,
-                      fontWeight: FontWeight.w800,
-                      height: 1.0,
-                      color: KodiraColors.neutral900,
-                    ),
-                  ),
-                  Text(
-                    ' / $total',
-                    style: KodiraTextStyles.h2.copyWith(
-                      color: KodiraColors.neutral500,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Jawaban benar $correct dari $total soal',
-              style: KodiraTextStyles.bodySm.copyWith(
-                color: KodiraColors.neutral500,
-              ),
-            ),
-            if (xpEarned > 0) ...[
-              const SizedBox(height: 14),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 14,
-                  vertical: 8,
-                ),
-                decoration: BoxDecoration(
-                  color: KodiraColors.reward100,
-                  borderRadius: BorderRadius.circular(KodiraRadius.full),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(
-                      Icons.bolt,
-                      size: 16,
-                      color: KodiraColors.reward700,
-                    ),
-                    const SizedBox(width: 6),
-                    Text(
-                      'Kamu mendapat $xpEarned XP',
-                      style: KodiraTextStyles.bodySm.copyWith(
-                        color: KodiraColors.reward700,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-            const SizedBox(height: 16),
-            Text(
-              _status,
-              textAlign: TextAlign.center,
-              style: KodiraTextStyles.body.copyWith(
-                color: KodiraColors.neutral700,
-                height: 1.5,
-              ),
-            ),
-            const SizedBox(height: 24),
-            SizedBox(
-              width: double.infinity,
-              height: 50,
-              child: ElevatedButton(
-                onPressed: onDone,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: KodiraColors.primary700,
-                  foregroundColor: Colors.white,
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(KodiraRadius.md),
-                  ),
-                  textStyle: const TextStyle(
-                    fontFamily: 'Inter',
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                child: const Text('Kembali ke Materi'),
-              ),
-            ),
-          ],
         ),
       ),
     );

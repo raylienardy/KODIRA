@@ -800,7 +800,7 @@ Fitur inti tanpa AI dulu. Fondasi paling penting.
 
 - `app/lib/features/quiz/result_screen.dart`
 
-**Catatan:** Dialog hasil sudah ada di dalam `app/lib/features/quiz/screens/quiz_screen.dart` (skor besar di tengah, status, tombol "Kembali ke Materi") dan terverifikasi di perangkat. Belum: XP, mastery, animasi level up, alur remedial, dan layar terpisah `result_screen.dart`.
+**Catatan:** ResultDialog dengan tier (<40% / 40-69% / ≥70%), mastery bar, XP message retake-aware, level-up animation (first completion pass), tombol adaptif (Lanjut/Coba Lagi/Review). Test unit + widget test PASS. Test runtime device pending.
 
 **DoD:**
 
@@ -1446,3 +1446,4 @@ Dokumen akhir & presentasi.
 | 2026-10-22 | P4-010 → Done, P4-011 Profil & Progress → Review (6 section, unit test 135 kasus) |
 | 2026-10-22 | P1-007 pre-commit hook, P3-003 request body 20 endpoint, P1-005 split ABI → Done (30 Done) |
 | 2026-10-22 | P4-014 error handling + loading states → Review (Result/ErrorType/3 widget, 165 test) |
+| 2026-10-22 | P4-008 result dialog tier + mastery + level-up → Review (194 test) |
