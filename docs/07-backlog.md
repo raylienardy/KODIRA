@@ -77,14 +77,14 @@ Gunakan bersama `docs/06-workflow.md` untuk kerja dengan opencode.
 | Phase                     | Total  | Done   | WIP   | Todo   | Review | Skip  |
 | ------------------------- | ------ | ------ | ----- | ------ | ------ | ----- |
 | Phase 0 — Foundation      | 10     | 10     | 0     | 0      | 0      | 0     |
-| Phase 1 — Design System   | 8      | 5      | 0     | 0      | 3      | 0     |
+| Phase 1 — Design System   | 8      | 6      | 0     | 0      | 2      | 0     |
 | Phase 2 — UI Design       | 6      | 1      | 0     | 0      | 4      | 1     |
 | Phase 3 — Architecture    | 7      | 4      | 0     | 1      | 1      | 1     |
-| Phase 4 — MVP Development | 14     | 4      | 1     | 6      | 3      | 0     |
+| Phase 4 — MVP Development | 14     | 4      | 1     | 5      | 3      | 1     |
 | Phase 5 — AI Integration  | 8      | 0      | 0     | 8      | 0      | 0     |
 | Phase 6 — Testing         | 6      | 0      | 0     | 6      | 0      | 0     |
 | Phase 7 — Documentation   | 6      | 0      | 0     | 6      | 0      | 0     |
-| **Total**                 | **65** | **24** | **1** | **27** | **11** | **2** |
+| **Total**                 | **65** | **25** | **1** | **26** | **10** | **3** |
 
 ---
 
@@ -115,7 +115,7 @@ Setup project Flutter, theme, dan fondasi kode.
 
 | Field      | Nilai  |
 | ---------- | ------ |
-| Status     | Review |
+| Status     | Done   |
 | Priority   | P0     |
 | Token      | S      |
 | Agent      | build  |
@@ -125,12 +125,12 @@ Setup project Flutter, theme, dan fondasi kode.
 
 - Buat project Flutter di `app/` (bukan root, biar docs terpisah)
 
-**Gap:** `flutter run` polos memerlukan `--dart-define-from-file=.env`; DoD P1-001 perlu verifikasi ulang.
+**Catatan:** Dev workflow: --dart-define-from-file=.env (lihat ADR-024 + README)
 
 **DoD:**
 
 - [ ] `flutter create --org com.kodira app` berhasil
-- [ ] `flutter run` bisa dijalankan
+- [ ] `flutter run --dart-define-from-file=.env` berhasil
 - [ ] `app/` terbuat dengan struktur standar
 
 ---
@@ -881,7 +881,7 @@ Fitur inti tanpa AI dulu. Fondasi paling penting.
 
 | Field      | Nilai  |
 | ---------- | ------ |
-| Status     | Todo   |
+| Status     | Skip   |
 | Priority   | P0     |
 | Token      | M      |
 | Agent      | build  |
@@ -890,6 +890,8 @@ Fitur inti tanpa AI dulu. Fondasi paling penting.
 **Scope:**
 
 - `app/lib/data/sources/local/`
+
+**Catatan:** Drift dibatalkan karena 0 pemakaian. ADR-020 (Local DB — Drift) di-supersede; local storage tidak dibutuhkan untuk MVP, di-revisit di Phase 5+ bila offline mode dibutuhkan.
 
 **DoD:**
 
@@ -1429,3 +1431,4 @@ Dokumen akhir & presentasi.
 | 2026-10-22 | P4-007 & P4-008 → Review (kuis terverifikasi end-to-end di perangkat) |
 | 2026-10-22 | Seed quiz L16-50 (105 soal) — quiz complete 50/50 level |
 | 2026-10-22 | P4-009 XP & Level System → WIP (kode selesai, test device pending) |
+| 2026-10-22 | Audit stale statuses (P1-001 Done, P4-012 Skip) |
