@@ -42,7 +42,6 @@ class StatCards extends ConsumerWidget {
         0;
 
     return Row(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Expanded(
           child: _StatCard(

@@ -80,11 +80,11 @@ Gunakan bersama `docs/06-workflow.md` untuk kerja dengan opencode.
 | Phase 1 — Design System   | 8      | 8      | 0     | 0      | 0      | 0     |
 | Phase 2 — UI Design       | 6      | 1      | 0     | 0      | 4      | 1     |
 | Phase 3 — Architecture    | 7      | 5      | 0     | 1      | 0      | 1     |
-| Phase 4 — MVP Development | 14     | 8      | 0     | 2      | 3      | 1     |
+| Phase 4 — MVP Development | 14     | 9      | 0     | 2      | 2      | 1     |
 | Phase 5 — AI Integration  | 8      | 0      | 0     | 8      | 0      | 0     |
 | Phase 6 — Testing         | 6      | 0      | 0     | 6      | 0      | 0     |
 | Phase 7 — Documentation   | 6      | 0      | 0     | 6      | 0      | 0     |
-| **Total**                 | **65** | **32** | **0** | **23** | **7** | **3** |
+| **Total**                 | **65** | **33** | **0** | **23** | **6** | **3** |
 
 ---
 
@@ -862,7 +862,7 @@ Fitur inti tanpa AI dulu. Fondasi paling penting.
 
 | Field      | Nilai  |
 | ---------- | ------ |
-| Status     | Review |
+| Status     | Done   |
 | Priority   | P1     |
 | Token      | M      |
 | Agent      | build  |
@@ -872,7 +872,7 @@ Fitur inti tanpa AI dulu. Fondasi paling penting.
 
 - `app/lib/features/profile/`
 
-**Catatan:** 6 section: info user (avatar, nama, NIM), stat cards (XP, level aktif, streak), badge grid earned + locked (9 badge, 3 kolom ≥360dp / 2 kolom di bawahnya), achievement list earned + locked dengan tanggal (3 achievement), mastery per topik (progress bar), dan 5 aktivitas terakhir (tanggal relatif). Navigasi dari menu Profil di Home ke route `/profile` (auth guard aktif). Pure helper ProfileLogic diuji 27 kasus, total 135 kasus test PASS. Runtime 2026-10-23 FAIL: Profil body blank. Investigasi terpisah (Bug#2).
+**Catatan:** 6 section: info user (avatar, nama, NIM), stat cards (XP, level aktif, streak), badge grid earned + locked (9 badge, 3 kolom ≥360dp / 2 kolom di bawahnya), achievement list earned + locked dengan tanggal (3 achievement), mastery per topik (progress bar), dan 5 aktivitas terakhir (tanggal relatif). Navigasi dari menu Profil di Home ke route `/profile` (auth guard aktif). Pure helper ProfileLogic diuji 27 kasus, total 135 kasus test PASS. Runtime verified 2026-10-23 setelah fix stat_cards CrossAxisAlignment.stretch di dalam ListView (Bug#2). 6 section tampil, refresh berfungsi.
 
 **DoD:**
 
@@ -1448,3 +1448,4 @@ Dokumen akhir & presentasi.
 | 2026-10-22 | P4-014 error handling + loading states → Review (Result/ErrorType/3 widget, 165 test) |
 | 2026-10-22 | P4-008 result dialog tier + mastery + level-up → Review (194 test) |
 | 2026-10-23 | Bug#1 v2 (retry backoff + Home banner) fixed. Cold start 5/5 PASS. P4-007/P4-009 Done. |
+| 2026-10-23 | Bug#2 (Profil blank) fixed: stat_cards Row stretch di ListView = infinite layout. Fix hapus stretch. Runtime PASS, P4-011 Done. |
