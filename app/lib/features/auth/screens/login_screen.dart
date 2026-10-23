@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/theme.dart';
+import '../../home/providers/level_provider.dart';
 import '../providers/auth_provider.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
@@ -35,7 +36,22 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       return;
     }
 
-    await ref.read(authStateProvider.notifier).login(nim, password);
+    try {
+      await ref.read(authStateProvider.notifier).login(nim, password);
+    } catch (_) {
+      // Pesan error sudah ditampilkan lewat ref.listen di build().
+      return;
+    }
+
+    if (!mounted) return;
+
+    // Invalidasi dari ref LoginScreen (bukan AuthNotifier) supaya tidak
+    // memicu CircularDependencyError saat login menulis streak/badge.
+    ref.invalidate(allProgressProvider);
+    ref.invalidate(totalXpProvider);
+    ref.invalidate(currentStreakProvider);
+    ref.invalidate(badgeCountProvider);
+    ref.invalidate(allLevelsProvider);
   }
 
   @override

@@ -40,6 +40,7 @@ class HomeScreen extends ConsumerWidget {
                     ref.invalidate(totalXpProvider);
                     ref.invalidate(currentStreakProvider);
                     ref.invalidate(badgeCountProvider);
+                    ref.invalidate(allLevelsProvider);
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text('Profil dimuat ulang')),
                     );

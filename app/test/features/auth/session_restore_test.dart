@@ -50,8 +50,9 @@ class _FakeAuthRepository extends AuthRepository {
 }
 
 class _FakeStreakRepository extends StreakRepository {
-  _FakeStreakRepository() : super(_fakeClient());
+  _FakeStreakRepository({this.onUpdate}) : super(_fakeClient());
 
+  final void Function()? onUpdate;
   int updateCalls = 0;
 
   @override
@@ -60,6 +61,7 @@ class _FakeStreakRepository extends StreakRepository {
     required DateTime now,
   }) async {
     updateCalls += 1;
+    onUpdate?.call();
     return UserStreakModel(
       userId: userId,
       currentStreak: 1,
@@ -70,8 +72,9 @@ class _FakeStreakRepository extends StreakRepository {
 }
 
 class _FakeBadgeRepository extends BadgeRepository {
-  _FakeBadgeRepository() : super(_fakeClient());
+  _FakeBadgeRepository({this.onCheck}) : super(_fakeClient());
 
+  final void Function()? onCheck;
   int checkCalls = 0;
 
   @override
@@ -79,6 +82,7 @@ class _FakeBadgeRepository extends BadgeRepository {
     String userId,
   ) async {
     checkCalls += 1;
+    onCheck?.call();
     return (newBadges: <String>{}, newAchievements: <String>{});
   }
 }
@@ -140,6 +144,43 @@ void main() {
       expect(harness.container.read(authStateProvider).user?.id, 'user-1');
       expect(harness.container.read(authStateProvider).userLoadFailed, isFalse);
       expect(repo.getCurrentUserCalls, 1);
+    });
+
+    test('streak dan badge ditulis sebelum AuthState.user di-set', () async {
+      late final ProviderContainer container;
+      bool userSetSaatWrite = false;
+      bool userSetSaatCheck = false;
+      final _FakeStreakRepository streak = _FakeStreakRepository(
+        onUpdate: () {
+          userSetSaatWrite = container.read(authStateProvider).user != null;
+        },
+      );
+      final _FakeBadgeRepository badge = _FakeBadgeRepository(
+        onCheck: () {
+          userSetSaatCheck = container.read(authStateProvider).user != null;
+        },
+      );
+      final _FakeAuthRepository repo = _FakeAuthRepository(user: _user());
+      final ({ProviderContainer container, Ref ref}) harness = _harness(
+        repo,
+        streakRepository: streak,
+        badgeRepository: badge,
+      );
+      container = harness.container;
+      final SessionNotifier notifier = SessionNotifier.forTesting(
+        repo,
+        harness.ref,
+        hasStoredSession: true,
+      );
+      addTearDown(notifier.dispose);
+
+      await notifier.restoreCompleted;
+
+      expect(streak.updateCalls, 1);
+      expect(badge.checkCalls, 1);
+      expect(userSetSaatWrite, isFalse);
+      expect(userSetSaatCheck, isFalse);
+      expect(container.read(authStateProvider).user?.id, 'user-1');
     });
 
     test('timeout pertama lalu retry sukses mengisi user', () async {

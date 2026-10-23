@@ -61,13 +61,6 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
   AuthNotifier(this._repo, this._ref) : super(const AuthState());
 
-  /// Segarkan cache progress belajar setiap kali user berubah, supaya layar
-  /// Home langsung menampilkan XP dan status level milik user yang masuk.
-  void refreshProgressProviders() {
-    _ref.invalidate(allProgressProvider);
-    _ref.invalidate(totalXpProvider);
-  }
-
   /// Perbarui streak harian user setiap kali dia masuk (P4-010).
   ///
   /// Penulisan streak tidak boleh mengganggu alur login, jadi kegagalannya
@@ -77,7 +70,10 @@ class AuthNotifier extends StateNotifier<AuthState> {
       await _ref
           .read(streakRepositoryProvider)
           .updateOnActivity(userId: userId, now: DateTime.now());
-      _ref.invalidate(currentStreakProvider);
+      // Invalidasi currentStreakProvider dilakukan oleh caller (Home /
+      // LoginScreen) memakai ref miliknya sendiri. Invalidasi dari
+      // AuthNotifier memicu CircularDependencyError karena provider
+      // tersebut bergantung pada authStateProvider.
     } catch (e) {
       debugPrint('Failed to update streak: $e');
     }
@@ -89,7 +85,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
   Future<void> refreshBadges(String userId) async {
     try {
       await _ref.read(badgeRepositoryProvider).checkAndAward(userId);
-      _ref.invalidate(badgeCountProvider);
+      // Invalidasi badgeCountProvider juga dilakukan oleh caller.
     } catch (e) {
       debugPrint('Badge check failed: $e');
     }
@@ -99,14 +95,18 @@ class AuthNotifier extends StateNotifier<AuthState> {
     state = state.copyWith(isLoading: true, errorMessage: null);
     try {
       final user = await _repo.signInWithNim(nim: nim, password: password);
+
+      // Tulis streak & badge SEBELUM AuthState.user berubah. Perubahan
+      // user memicu auto-invalidate provider yang bergantung pada
+      // authStateProvider; saat itu data harus sudah segar.
+      await refreshStreak(user.id);
+      await refreshBadges(user.id);
+
       state = state.copyWith(
         user: user,
         isLoading: false,
         userLoadFailed: false,
       );
-      refreshProgressProviders();
-      unawaited(refreshStreak(user.id));
-      unawaited(refreshBadges(user.id));
     } on KodiraAuthException catch (e) {
       state = state.copyWith(isLoading: false, errorMessage: e.message);
       rethrow;
@@ -123,10 +123,12 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
   /// Mengisi user hasil session restore saat app dibuka.
   /// Tidak mengubah alur login/logout yang sudah ada.
+  ///
+  /// Penulisan streak/badge dilakukan pemanggil ([SessionNotifier._applyUser])
+  /// SEBELUM method ini dipanggil, supaya provider yang bergantung pada
+  /// authStateProvider langsung membaca data yang sudah segar.
   void restoreSession(UserModel user) {
     state = AuthState(user: user);
-    unawaited(refreshStreak(user.id));
-    unawaited(refreshBadges(user.id));
   }
 
   /// Tandai bahwa session ada, tetapi data user belum berhasil dimuat.
@@ -283,7 +285,7 @@ class SessionNotifier extends StateNotifier<SessionStatus> {
           if (!mounted) return;
 
           if (user != null) {
-            _applyUser(user);
+            await _applyUser(user);
             return;
           }
 
@@ -311,11 +313,16 @@ class SessionNotifier extends StateNotifier<SessionStatus> {
     }
   }
 
-  void _applyUser(UserModel user) {
+  Future<void> _applyUser(UserModel user) async {
+    // Tulis streak & badge dulu; AuthState.user belum di-set sehingga
+    // provider turunan belum melakukan refetch.
+    await _ref.read(authStateProvider.notifier).refreshStreak(user.id);
+    await _ref.read(authStateProvider.notifier).refreshBadges(user.id);
+
+    // Set state terakhir: provider yang watch authStateProvider akan
+    // refetch dan mendapatkan data yang sudah ditulis.
     _ref.read(authStateProvider.notifier).restoreSession(user);
     state = SessionStatus.authenticated;
-    _ref.invalidate(allProgressProvider);
-    _ref.invalidate(totalXpProvider);
   }
 
   Future<void> _clearStoredSession() async {
