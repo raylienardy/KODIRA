@@ -24,14 +24,31 @@ final authRepositoryProvider = Provider<AuthRepository>((ref) {
 class AuthState {
   final UserModel? user;
   final bool isLoading;
+
+  /// True bila session lokal ada, tetapi data user gagal dimuat dari server.
+  ///
+  /// Selama flag ini aktif, fitur yang butuh `user.id` (mis. simpan progress)
+  /// harus mencoba memuat ulang user sebelum menyerah.
+  final bool userLoadFailed;
   final String? errorMessage;
 
-  const AuthState({this.user, this.isLoading = false, this.errorMessage});
+  const AuthState({
+    this.user,
+    this.isLoading = false,
+    this.userLoadFailed = false,
+    this.errorMessage,
+  });
 
-  AuthState copyWith({UserModel? user, bool? isLoading, String? errorMessage}) {
+  AuthState copyWith({
+    UserModel? user,
+    bool? isLoading,
+    bool? userLoadFailed,
+    String? errorMessage,
+  }) {
     return AuthState(
       user: user ?? this.user,
       isLoading: isLoading ?? this.isLoading,
+      userLoadFailed: userLoadFailed ?? this.userLoadFailed,
       errorMessage: errorMessage ?? this.errorMessage,
     );
   }
@@ -82,7 +99,11 @@ class AuthNotifier extends StateNotifier<AuthState> {
     state = state.copyWith(isLoading: true, errorMessage: null);
     try {
       final user = await _repo.signInWithNim(nim: nim, password: password);
-      state = state.copyWith(user: user, isLoading: false);
+      state = state.copyWith(
+        user: user,
+        isLoading: false,
+        userLoadFailed: false,
+      );
       refreshProgressProviders();
       unawaited(refreshStreak(user.id));
       unawaited(refreshBadges(user.id));
@@ -108,6 +129,55 @@ class AuthNotifier extends StateNotifier<AuthState> {
     unawaited(refreshBadges(user.id));
   }
 
+  /// Tandai bahwa session ada, tetapi data user belum berhasil dimuat.
+  void setUserLoadFailed() {
+    state = state.copyWith(userLoadFailed: true);
+  }
+
+  /// Ambil user untuk operasi simpan; muat ulang sekali bila state kosong.
+  ///
+  /// Dipakai alur kuis supaya hasil tidak hilang diam-diam ketika cold start
+  /// gagal memuat user. Mengembalikan `null` bila user tetap tidak tersedia.
+  Future<UserModel?> resolveUserForSave() async {
+    final UserModel? current = state.user;
+    if (current != null) return current;
+
+    try {
+      final UserModel? reloaded = await _repo.getCurrentUser().timeout(
+        const Duration(seconds: 5),
+      );
+      if (reloaded != null) {
+        state = state.copyWith(user: reloaded, userLoadFailed: false);
+        return reloaded;
+      }
+    } catch (e) {
+      debugPrint('Failed to reload user for save: $e');
+    }
+
+    return null;
+  }
+
+  /// Muat ulang profil dari banner Home setelah cold start gagal.
+  ///
+  /// Selain mengisi [AuthState.user], method ini menyegarkan streak dan badge
+  /// supaya chip di Home tidak tertinggal di nilai 0 sampai app di-restart.
+  /// Mengembalikan `true` bila user berhasil dimuat.
+  Future<bool> retryUserLoad() async {
+    final UserModel? user = await resolveUserForSave();
+    if (user == null) {
+      setUserLoadFailed();
+      return false;
+    }
+
+    state = state.copyWith(userLoadFailed: false);
+    // Provider progress/streak/badge di-invalidate oleh pemanggil (Home).
+    // Invalidasi dari ref AuthNotifier akan memicu CircularDependencyError
+    // karena provider-provider tersebut bergantung pada authStateProvider.
+    await refreshStreak(user.id);
+    await refreshBadges(user.id);
+    return true;
+  }
+
   void clearError() {
     state = state.copyWith(errorMessage: null);
   }
@@ -127,65 +197,164 @@ enum SessionStatus { loading, authenticated, unauthenticated }
 /// lalu memantau perubahan login/logout lewat stream Supabase.
 class SessionNotifier extends StateNotifier<SessionStatus> {
   SessionNotifier(AuthRepository repo, SupabaseClient client, Ref ref)
-    : _repo = repo,
-      _client = client,
-      _ref = ref,
-      super(
-        client.auth.currentSession == null
-            ? SessionStatus.unauthenticated
-            : SessionStatus.loading,
-      ) {
+    : this._(
+        repo,
+        ref,
+        const Duration(seconds: 5),
+        const <Duration>[
+          Duration.zero,
+          Duration(seconds: 5),
+          Duration(seconds: 10),
+          Duration(seconds: 15),
+        ],
+        hasStoredSession: client.auth.currentSession != null,
+      );
+
+  /// Konstruktor dengan dependency yang bisa dikontrol test.
+  @visibleForTesting
+  SessionNotifier.forTesting(
+    AuthRepository repo,
+    Ref ref, {
+    required bool hasStoredSession,
+    Duration restoreTimeout = const Duration(seconds: 5),
+    List<Duration> retryDelays = const <Duration>[
+      Duration.zero,
+      Duration(seconds: 5),
+      Duration(seconds: 10),
+      Duration(seconds: 15),
+    ],
+  }) : this._(
+         repo,
+         ref,
+         restoreTimeout,
+         retryDelays,
+         hasStoredSession: hasStoredSession,
+       );
+
+  SessionNotifier._(
+    this._repo,
+    this._ref,
+    this._restoreTimeout,
+    this._retryDelays, {
+    required bool hasStoredSession,
+  }) : super(
+         hasStoredSession
+             ? SessionStatus.loading
+             : SessionStatus.unauthenticated,
+       ) {
     if (state == SessionStatus.loading) {
-      _restoreSession();
+      _restoreFuture = _restoreSession();
     } else {
       _listenAuthChanges();
     }
   }
 
   final AuthRepository _repo;
-  final SupabaseClient _client;
   final Ref _ref;
+  final Duration _restoreTimeout;
+  final List<Duration> _retryDelays;
   StreamSubscription<bool>? _authSubscription;
+  Future<void>? _restoreFuture;
+  Future<void>? _userResolution;
+
+  /// Future yang selesai saat percobaan restore awal selesai.
+  @visibleForTesting
+  Future<void> get restoreCompleted => _restoreFuture ?? Future<void>.value();
 
   /// Validasi session tersimpan, isi AuthState dengan user, lalu mulai
   /// memantau perubahan auth berikutnya.
+  ///
+  /// Percobaan pertama langsung jalan; percobaan berikutnya menunggu backoff
+  /// dari [_retryDelays]. Retry hanya untuk gangguan sementara; error domain
+  /// auth langsung membersihkan session tanpa retry.
   Future<void> _restoreSession() async {
     try {
-      final user = await _repo.getCurrentUser().timeout(
-        const Duration(seconds: 5),
-      );
-      if (!mounted) return;
+      for (var attempt = 0; attempt < _retryDelays.length; attempt++) {
+        final Duration delay = _retryDelays[attempt];
+        if (delay > Duration.zero) {
+          await Future<void>.delayed(delay);
+        }
+        if (!mounted) return;
 
-      if (user != null) {
-        _ref.read(authStateProvider.notifier).restoreSession(user);
-        state = SessionStatus.authenticated;
-        _ref.invalidate(allProgressProvider);
-        _ref.invalidate(totalXpProvider);
-      } else {
-        state = SessionStatus.unauthenticated;
+        try {
+          final UserModel? user = await _repo.getCurrentUser().timeout(
+            _restoreTimeout,
+          );
+          if (!mounted) return;
+
+          if (user != null) {
+            _applyUser(user);
+            return;
+          }
+
+          // Session valid tetapi baris user tidak ada: perlakukan sebagai
+          // session tidak valid, bukan gangguan jaringan.
+          state = SessionStatus.unauthenticated;
+          return;
+        } on KodiraAuthException catch (error) {
+          debugPrint('Session restore rejected: ${error.message}');
+          if (!mounted) return;
+          await _clearStoredSession();
+          if (!mounted) return;
+          state = SessionStatus.unauthenticated;
+          return;
+        } catch (error) {
+          debugPrint('Restore attempt ${attempt + 1} failed: $error');
+        }
       }
-    } catch (_) {
-      // Validasi gagal (mis. jaringan) — jangan paksa login ulang selama
-      // session lokal masih ada.
+
       if (!mounted) return;
-      state = _client.auth.currentSession != null
-          ? SessionStatus.authenticated
-          : SessionStatus.unauthenticated;
-      if (state == SessionStatus.authenticated) {
-        _ref.invalidate(allProgressProvider);
-        _ref.invalidate(totalXpProvider);
-      }
+      _ref.read(authStateProvider.notifier).setUserLoadFailed();
+      state = SessionStatus.authenticated;
     } finally {
       if (mounted) _listenAuthChanges();
     }
   }
 
+  void _applyUser(UserModel user) {
+    _ref.read(authStateProvider.notifier).restoreSession(user);
+    state = SessionStatus.authenticated;
+    _ref.invalidate(allProgressProvider);
+    _ref.invalidate(totalXpProvider);
+  }
+
+  Future<void> _clearStoredSession() async {
+    try {
+      await _repo.signOut();
+    } catch (error) {
+      debugPrint('Failed to clear stored session: $error');
+    }
+  }
+
   void _listenAuthChanges() {
     _authSubscription = _repo.authStateChanges().listen((hasSession) {
-      state = hasSession
-          ? SessionStatus.authenticated
-          : SessionStatus.unauthenticated;
+      if (!mounted) return;
+      if (!hasSession) {
+        state = SessionStatus.unauthenticated;
+        return;
+      }
+
+      state = SessionStatus.authenticated;
+      if (_ref.read(authStateProvider).user == null) {
+        _resolveUserAfterAuthEvent();
+      }
     });
+  }
+
+  void _resolveUserAfterAuthEvent() {
+    _userResolution ??= _resolveUserOnce().whenComplete(() {
+      _userResolution = null;
+    });
+  }
+
+  Future<void> _resolveUserOnce() async {
+    final UserModel? user = await _ref
+        .read(authStateProvider.notifier)
+        .resolveUserForSave();
+    if (!mounted) return;
+    if (user == null) {
+      _ref.read(authStateProvider.notifier).setUserLoadFailed();
+    }
   }
 
   @override

@@ -200,8 +200,29 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
     })
   >
   _saveProgress(int score, int total) async {
-    final user = ref.read(authStateProvider).user;
-    if (user == null || total == 0) {
+    if (total == 0) {
+      return (
+        xpEarned: 0,
+        xpThisAttempt: 0,
+        mastery: 0.0,
+        attempts: 0,
+        isFirstCompletion: false,
+      );
+    }
+
+    var user = ref.read(authStateProvider).user;
+    user ??= await ref.read(authStateProvider.notifier).resolveUserForSave();
+    if (user == null) {
+      if (mounted) {
+        ref.read(authStateProvider.notifier).setUserLoadFailed();
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              'Sesi Anda bermasalah. Logout dan login ulang untuk menyimpan XP.',
+            ),
+          ),
+        );
+      }
       return (
         xpEarned: 0,
         xpThisAttempt: 0,

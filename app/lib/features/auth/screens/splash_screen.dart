@@ -61,6 +61,16 @@ class SplashScreen extends StatelessWidget {
                 valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
               ),
             ),
+            const SizedBox(height: 12),
+            const Text(
+              'Memuat profil...',
+              style: TextStyle(
+                fontFamily: 'Inter',
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+                color: KodiraColors.neutral0,
+              ),
+            ),
           ],
         ),
       ),

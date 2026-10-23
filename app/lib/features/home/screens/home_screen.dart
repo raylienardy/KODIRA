@@ -29,7 +29,24 @@ class HomeScreen extends ConsumerWidget {
       body: SafeArea(
         child: Column(
           children: [
-            _HeaderWidget(user: user),
+            if (authState.userLoadFailed)
+              _ProfileLoadFailedBanner(
+                onRetry: () async {
+                  final bool ok = await ref
+                      .read(authStateProvider.notifier)
+                      .retryUserLoad();
+                  if (ok && context.mounted) {
+                    ref.invalidate(allProgressProvider);
+                    ref.invalidate(totalXpProvider);
+                    ref.invalidate(currentStreakProvider);
+                    ref.invalidate(badgeCountProvider);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Profil dimuat ulang')),
+                    );
+                  }
+                },
+              ),
+            _HeaderWidget(user: user, userLoadFailed: authState.userLoadFailed),
             Expanded(
               child: allLevels.when(
                 data: (levels) => userProgress.when(
@@ -96,13 +113,74 @@ class HomeScreen extends ConsumerWidget {
 }
 
 // -------------------------------------------------------------------
+// Banner kegagalan memuat profil
+class _ProfileLoadFailedBanner extends StatelessWidget {
+  final VoidCallback onRetry;
+
+  const _ProfileLoadFailedBanner({required this.onRetry});
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      container: true,
+      button: true,
+      excludeSemantics: true,
+      label: 'Gagal memuat profil. Ketuk untuk mencoba lagi.',
+      onTap: onRetry,
+      child: Material(
+        color: KodiraColors.alert100,
+        child: InkWell(
+          onTap: onRetry,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            child: Row(
+              children: [
+                const Icon(
+                  Icons.warning_amber_rounded,
+                  color: KodiraColors.alert700,
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    'Gagal memuat profil. Tap untuk coba lagi.',
+                    style: KodiraTextStyles.body.copyWith(
+                      color: KodiraColors.alert700,
+                    ),
+                  ),
+                ),
+                IconButton(
+                  onPressed: onRetry,
+                  icon: const Icon(Icons.refresh, color: KodiraColors.alert700),
+                  tooltip: 'Coba lagi',
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// -------------------------------------------------------------------
 // Header widget
 class _HeaderWidget extends ConsumerWidget {
   final UserModel? user;
-  const _HeaderWidget({required this.user});
+  final bool userLoadFailed;
+  const _HeaderWidget({required this.user, required this.userLoadFailed});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final UserModel? currentUser = user;
+    final String displayName;
+    if (currentUser != null) {
+      displayName = 'Hai, ${currentUser.name}';
+    } else if (userLoadFailed) {
+      displayName = 'Hai, Mahasiswa';
+    } else {
+      displayName = 'Memuat profil...';
+    }
+
     // compute current level and xp aggregation
     final List<UserProgressModel> progressList = ref
         .watch(allProgressProvider)
@@ -158,7 +236,7 @@ class _HeaderWidget extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Hai, ${user?.name ?? "Mahasiswa"}',
+                    displayName,
                     style: KodiraTextStyles.h2.copyWith(
                       color: KodiraColors.neutral900,
                     ),

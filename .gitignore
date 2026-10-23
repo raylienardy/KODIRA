@@ -119,3 +119,6 @@ graphify-out/
 graphify-out/*.html
 graphify-out/cost.json
 graphify-out/.graphify_semantic_marker
+
+# User backup files (local only)
+backup_*.json
