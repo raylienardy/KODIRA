@@ -80,11 +80,11 @@ Gunakan bersama `docs/06-workflow.md` untuk kerja dengan opencode.
 | Phase 1 — Design System   | 8      | 8      | 0     | 0      | 0      | 0     |
 | Phase 2 — UI Design       | 6      | 1      | 0     | 0      | 4      | 1     |
 | Phase 3 — Architecture    | 7      | 5      | 0     | 1      | 0      | 1     |
-| Phase 4 — MVP Development | 14     | 6      | 0     | 2      | 5      | 1     |
+| Phase 4 — MVP Development | 14     | 8      | 0     | 2      | 3      | 1     |
 | Phase 5 — AI Integration  | 8      | 0      | 0     | 8      | 0      | 0     |
 | Phase 6 — Testing         | 6      | 0      | 0     | 6      | 0      | 0     |
 | Phase 7 — Documentation   | 6      | 0      | 0     | 6      | 0      | 0     |
-| **Total**                 | **65** | **30** | **0** | **23** | **9** | **3** |
+| **Total**                 | **65** | **32** | **0** | **23** | **7** | **3** |
 
 ---
 
@@ -765,7 +765,7 @@ Fitur inti tanpa AI dulu. Fondasi paling penting.
 
 | Field      | Nilai  |
 | ---------- | ------ |
-| Status     | Review |
+| Status     | Done   |
 | Priority   | P0     |
 | Token      | M      |
 | Agent      | build  |
@@ -775,7 +775,7 @@ Fitur inti tanpa AI dulu. Fondasi paling penting.
 
 - `app/lib/features/quiz/`
 
-**Catatan:** Terverifikasi end-to-end di perangkat (2026-10-22, commit `89b5811`). MVP yang berjalan: 3 soal per level (L1–L15), timer 60 detik per soal dengan progress bar, pilihan ganda 4 opsi, submit jawaban, feedback benar/salah + explanation, auto-submit saat waktu habis, dialog hasil (skor 1/3 + status), dan tombol "Kembali ke Materi". Belum: simpan skor ke DB, adaptive engine (Phase 5), kuis untuk L16–L50.
+**Catatan:** Terverifikasi end-to-end di perangkat (2026-10-22, commit `89b5811`). MVP yang berjalan: 3 soal per level, timer 60 detik per soal dengan progress bar, pilihan ganda 4 opsi, submit jawaban, feedback benar/salah + explanation, auto-submit saat waktu habis, dialog hasil, dan tombol "Kembali ke Materi". Runtime verified 2026-10-23: timer 60 detik, feedback per soal, timeout auto-submit, result dialog; simpan skor/XP ke database sudah aktif (lihat P4-009). Adaptive engine tetap di Phase 5.
 
 **DoD:**
 
@@ -800,7 +800,7 @@ Fitur inti tanpa AI dulu. Fondasi paling penting.
 
 - `app/lib/features/quiz/result_screen.dart`
 
-**Catatan:** ResultDialog dengan tier (<40% / 40-69% / ≥70%), mastery bar, XP message retake-aware, level-up animation (first completion pass), tombol adaptif (Lanjut/Coba Lagi/Review). Test unit + widget test PASS. Test runtime device pending.
+**Catatan:** ResultDialog dengan tier (<40% / 40-69% / ≥70%), mastery bar, XP message retake-aware, level-up animation (first completion pass), tombol adaptif (Lanjut/Coba Lagi/Review). Test unit + widget test PASS. Runtime verified 2026-10-23: dialog result menampilkan Mastery 100% dan XP message. Animasi level-up belum tertangkap screenshot.
 
 **DoD:**
 
@@ -814,7 +814,7 @@ Fitur inti tanpa AI dulu. Fondasi paling penting.
 
 | Field      | Nilai  |
 | ---------- | ------ |
-| Status     | Review |
+| Status     | Done   |
 | Priority   | P0     |
 | Token      | M      |
 | Agent      | build  |
@@ -824,7 +824,7 @@ Fitur inti tanpa AI dulu. Fondasi paling penting.
 
 - `app/lib/features/gamification/`
 
-**Catatan:** Test unit ProgressLogic PASS (23 kasus) plus kontrak payload repository, total 52 kasus di 4 file test. Test runtime device pending HP tersedia. Yang sudah ada: repository `user_progress` (insert/update dengan skor terbaik dipertahankan), provider `allProgressProvider` + `totalXpProvider`, penyimpanan hasil kuis (100 XP untuk lulus ≥70%, 50 XP untuk ≥40%, 0 di bawahnya), unlock level berikutnya saat lulus, serta tampilan Home dengan XP real dan status level (terkunci/aktif/selesai). Belum: badge & achievement (P4-010), level locking berbasis mastery, dan animasi naik level.
+**Catatan:** Test unit ProgressLogic PASS (23 kasus) plus kontrak payload repository, total 52 kasus di 4 file test. Runtime verified 2026-10-23 setelah Bug#1 v2 fixed: L1 completed persist (status completed, skor 1, 100 XP), L2 unlock active, retake tidak menurunkan skor; Home menampilkan 100 XP / Level 2. Yang sudah ada: repository `user_progress` (insert/update dengan skor terbaik dipertahankan), provider `allProgressProvider` + `totalXpProvider`, penyimpanan hasil kuis (100 XP untuk lulus ≥70%, 50 XP untuk ≥40%, 0 di bawahnya), unlock level berikutnya saat lulus, serta tampilan Home dengan XP real dan status level (terkunci/aktif/selesai). Level locking berbasis mastery dan animasi naik level tetap di luar scope P4-009.
 
 **DoD:**
 
@@ -872,7 +872,7 @@ Fitur inti tanpa AI dulu. Fondasi paling penting.
 
 - `app/lib/features/profile/`
 
-**Catatan:** 6 section: info user (avatar, nama, NIM), stat cards (XP, level aktif, streak), badge grid earned + locked (9 badge, 3 kolom ≥360dp / 2 kolom di bawahnya), achievement list earned + locked dengan tanggal (3 achievement), mastery per topik (progress bar), dan 5 aktivitas terakhir (tanggal relatif). Navigasi dari menu Profil di Home ke route `/profile` (auth guard aktif). Pure helper ProfileLogic diuji 27 kasus, total 135 kasus test PASS. Test runtime pending device.
+**Catatan:** 6 section: info user (avatar, nama, NIM), stat cards (XP, level aktif, streak), badge grid earned + locked (9 badge, 3 kolom ≥360dp / 2 kolom di bawahnya), achievement list earned + locked dengan tanggal (3 achievement), mastery per topik (progress bar), dan 5 aktivitas terakhir (tanggal relatif). Navigasi dari menu Profil di Home ke route `/profile` (auth guard aktif). Pure helper ProfileLogic diuji 27 kasus, total 135 kasus test PASS. Runtime 2026-10-23 FAIL: Profil body blank. Investigasi terpisah (Bug#2).
 
 **DoD:**
 
@@ -944,7 +944,7 @@ Fitur inti tanpa AI dulu. Fondasi paling penting.
 - `app/lib/core/errors/`
 - `app/lib/shared/widgets/loading.dart`, `error.dart`
 
-**Catatan:** Shared widgets: KodiraLoadingWidget, KodiraErrorWidget, KodiraEmptyWidget + Result<T> + ErrorType. Refactor 4 screen (home, materi, quiz, profil) pakai widget konsisten. Test unit + widget test PASS. Test runtime device pending.
+**Catatan:** Shared widgets: KodiraLoadingWidget, KodiraErrorWidget, KodiraEmptyWidget + Result<T> + ErrorType. Refactor 4 screen (home, materi, quiz, profil) pakai widget konsisten. Test unit + widget test PASS. Loading state runtime verified 2026-10-23 (splash dan loader level). Error state belum diuji.
 
 **DoD:**
 
@@ -1447,3 +1447,4 @@ Dokumen akhir & presentasi.
 | 2026-10-22 | P1-007 pre-commit hook, P3-003 request body 20 endpoint, P1-005 split ABI → Done (30 Done) |
 | 2026-10-22 | P4-014 error handling + loading states → Review (Result/ErrorType/3 widget, 165 test) |
 | 2026-10-22 | P4-008 result dialog tier + mastery + level-up → Review (194 test) |
+| 2026-10-23 | Bug#1 v2 (retry backoff + Home banner) fixed. Cold start 5/5 PASS. P4-007/P4-009 Done. |
