@@ -1,16 +1,18 @@
 import 'package:supabase_flutter/supabase_flutter.dart' as supa;
 
 import '../models/user_progress_model.dart';
+import 'i_user_progress_repository.dart';
 import 'progress_logic.dart';
 
 /// Repository untuk tabel `user_progress` yang menyimpan progress belajar
 /// per level untuk setiap user.
-class UserProgressRepository {
+class UserProgressRepository implements IUserProgressRepository {
   final supa.SupabaseClient _client;
 
   UserProgressRepository(this._client);
 
   /// Ambil seluruh progress milik satu user.
+  @override
   Future<List<UserProgressModel>> getAllForUser(String userId) async {
     try {
       final response = await _client
@@ -33,6 +35,7 @@ class UserProgressRepository {
   }
 
   /// Ambil progress user pada satu level, atau null bila belum ada.
+  @override
   Future<UserProgressModel?> getForLevel(String userId, int levelId) async {
     try {
       final response = await _client
@@ -60,6 +63,7 @@ class UserProgressRepository {
   /// - `attempts` bertambah satu karena ada percobaan baru.
   /// - `status` memakai status baru (override) dan `completed_at` diisi
   ///   sekarang bila statusnya `completed`, dibersihkan bila tidak.
+  @override
   Future<void> upsert({
     required String userId,
     required int levelId,
@@ -113,6 +117,7 @@ class UserProgressRepository {
   }
 
   /// Total XP yang sudah dikumpulkan user dari seluruh level.
+  @override
   Future<int> getTotalXp(String userId) async {
     final progress = await getAllForUser(userId);
     return progress.fold<int>(0, (sum, item) => sum + item.xpEarned);

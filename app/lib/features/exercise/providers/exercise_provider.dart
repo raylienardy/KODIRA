@@ -1,9 +1,10 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../data/models/exercise_model.dart';
 import '../../../data/repositories/exercise_repository.dart';
+import '../../../data/repositories/i_exercise_repository.dart';
 import '../../auth/providers/auth_provider.dart';
 
-final exerciseRepositoryProvider = Provider<ExerciseRepository>((ref) {
+final exerciseRepositoryProvider = Provider<IExerciseRepository>((ref) {
   final client = ref.watch(supabaseClientProvider);
   return ExerciseRepository(client);
 });

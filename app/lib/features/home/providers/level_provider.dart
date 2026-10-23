@@ -3,17 +3,21 @@ import '../../../data/models/level_model.dart';
 import '../../../data/models/user_progress_model.dart';
 import '../../../data/models/user_streak_model.dart';
 import '../../../data/repositories/badge_repository.dart';
+import '../../../data/repositories/i_badge_repository.dart';
+import '../../../data/repositories/i_level_repository.dart';
+import '../../../data/repositories/i_streak_repository.dart';
+import '../../../data/repositories/i_user_progress_repository.dart';
 import '../../../data/repositories/level_repository.dart';
 import '../../../data/repositories/streak_repository.dart';
 import '../../../data/repositories/user_progress_repository.dart';
 import '../../auth/providers/auth_provider.dart';
 
-final levelRepositoryProvider = Provider<LevelRepository>((ref) {
+final levelRepositoryProvider = Provider<ILevelRepository>((ref) {
   final client = ref.watch(supabaseClientProvider);
   return LevelRepository(client);
 });
 
-final userProgressRepositoryProvider = Provider<UserProgressRepository>((ref) {
+final userProgressRepositoryProvider = Provider<IUserProgressRepository>((ref) {
   final client = ref.watch(supabaseClientProvider);
   return UserProgressRepository(client);
 });
@@ -53,7 +57,7 @@ final totalXpProvider = FutureProvider<int>((ref) async {
 /// Alias lama dari [allProgressProvider], tetap dipakai oleh layar Home.
 final userProgressProvider = allProgressProvider;
 
-final streakRepositoryProvider = Provider<StreakRepository>((ref) {
+final streakRepositoryProvider = Provider<IStreakRepository>((ref) {
   final client = ref.watch(supabaseClientProvider);
   return StreakRepository(client);
 });
@@ -69,7 +73,7 @@ final currentStreakProvider = FutureProvider<UserStreakModel?>((ref) async {
   return repo.getForUser(user.id);
 });
 
-final badgeRepositoryProvider = Provider<BadgeRepository>((ref) {
+final badgeRepositoryProvider = Provider<IBadgeRepository>((ref) {
   final client = ref.watch(supabaseClientProvider);
   return BadgeRepository(client);
 });

@@ -2,13 +2,15 @@ import 'package:supabase_flutter/supabase_flutter.dart' as supa;
 import '../models/user_model.dart';
 import '../../core/errors/auth_exception.dart';
 import 'auth_logic.dart';
+import 'i_auth_repository.dart';
 
-class AuthRepository {
+class AuthRepository implements IAuthRepository {
   final supa.SupabaseClient _client;
 
   AuthRepository(this._client);
 
   /// Mengambil user yang sedang login (jika ada).
+  @override
   Future<UserModel?> getCurrentUser() async {
     final session = _client.auth.currentSession;
     if (session == null) return null;
@@ -30,6 +32,7 @@ class AuthRepository {
 
   /// Login dengan NIM + password.
   /// NIM dikonversi ke format email internal sebelum dipakai ke Supabase.
+  @override
   Future<UserModel> signInWithNim({
     required String nim,
     required String password,
@@ -73,6 +76,7 @@ class AuthRepository {
   }
 
   /// Logout user.
+  @override
   Future<void> signOut() async {
     try {
       await _client.auth.signOut();
@@ -82,6 +86,7 @@ class AuthRepository {
   }
 
   /// Stream perubahan status auth (true = logged in).
+  @override
   Stream<bool> authStateChanges() {
     return _client.auth.onAuthStateChange.map((data) => data.session != null);
   }

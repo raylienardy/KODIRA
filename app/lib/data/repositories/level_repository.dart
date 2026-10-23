@@ -1,13 +1,15 @@
 import 'package:supabase_flutter/supabase_flutter.dart' as supa;
 import '../models/level_model.dart';
 import '../models/user_progress_model.dart';
+import 'i_level_repository.dart';
 
-class LevelRepository {
+class LevelRepository implements ILevelRepository {
   final supa.SupabaseClient _client;
 
   LevelRepository(this._client);
 
   /// Ambil semua level dari tabel `levels`, urut by level_number ASC.
+  @override
   Future<List<LevelModel>> getAllLevels() async {
     try {
       final response = await _client
@@ -27,6 +29,7 @@ class LevelRepository {
   }
 
   /// Ambil satu level berdasarkan ID.
+  @override
   Future<LevelModel?> getLevelById(int id) async {
     try {
       final response = await _client
@@ -45,6 +48,7 @@ class LevelRepository {
   }
 
   /// Ambil semua progress user dari tabel `user_progress`.
+  @override
   Future<List<UserProgressModel>> getUserProgress(String userId) async {
     try {
       final response = await _client
@@ -67,6 +71,7 @@ class LevelRepository {
   }
 
   /// Ambil progress spesifik user untuk level tertentu.
+  @override
   Future<UserProgressModel?> getProgressForLevel(
     String userId,
     int levelId,

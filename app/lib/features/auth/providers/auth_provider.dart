@@ -6,6 +6,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../data/models/user_model.dart';
 import '../../../data/repositories/auth_repository.dart';
+import '../../../data/repositories/i_auth_repository.dart';
 import '../../../core/errors/auth_exception.dart';
 import '../../home/providers/level_provider.dart';
 
@@ -14,8 +15,8 @@ final supabaseClientProvider = Provider<SupabaseClient>((ref) {
   return Supabase.instance.client;
 });
 
-// AuthRepository provider
-final authRepositoryProvider = Provider<AuthRepository>((ref) {
+// Auth repository provider
+final authRepositoryProvider = Provider<IAuthRepository>((ref) {
   final client = ref.watch(supabaseClientProvider);
   return AuthRepository(client);
 });
@@ -56,7 +57,7 @@ class AuthState {
 
 // Auth notifier
 class AuthNotifier extends StateNotifier<AuthState> {
-  final AuthRepository _repo;
+  final IAuthRepository _repo;
   final Ref _ref;
 
   AuthNotifier(this._repo, this._ref) : super(const AuthState());
@@ -195,10 +196,10 @@ final authStateProvider = StateNotifierProvider<AuthNotifier, AuthState>((ref) {
 enum SessionStatus { loading, authenticated, unauthenticated }
 
 /// Menentukan status session saat launch: memvalidasi session tersimpan
-/// lewat [AuthRepository.getCurrentUser], mengisi [AuthState] dengan user,
+/// lewat repository auth, mengisi [AuthState] dengan user,
 /// lalu memantau perubahan login/logout lewat stream Supabase.
 class SessionNotifier extends StateNotifier<SessionStatus> {
-  SessionNotifier(AuthRepository repo, SupabaseClient client, Ref ref)
+  SessionNotifier(IAuthRepository repo, SupabaseClient client, Ref ref)
     : this._(
         repo,
         ref,
@@ -215,7 +216,7 @@ class SessionNotifier extends StateNotifier<SessionStatus> {
   /// Konstruktor dengan dependency yang bisa dikontrol test.
   @visibleForTesting
   SessionNotifier.forTesting(
-    AuthRepository repo,
+    IAuthRepository repo,
     Ref ref, {
     required bool hasStoredSession,
     Duration restoreTimeout = const Duration(seconds: 5),
@@ -251,7 +252,7 @@ class SessionNotifier extends StateNotifier<SessionStatus> {
     }
   }
 
-  final AuthRepository _repo;
+  final IAuthRepository _repo;
   final Ref _ref;
   final Duration _restoreTimeout;
   final List<Duration> _retryDelays;

@@ -1,15 +1,17 @@
 import 'package:supabase_flutter/supabase_flutter.dart' as supa;
 
 import 'badge_logic.dart';
+import 'i_badge_repository.dart';
 
 /// Repository untuk tabel `user_badges` dan `user_achievements` yang menyimpan
 /// pencapaian gamifikasi milik user.
-class BadgeRepository {
+class BadgeRepository implements IBadgeRepository {
   final supa.SupabaseClient _client;
 
   BadgeRepository(this._client);
 
   /// Kode badge yang sudah dimiliki user.
+  @override
   Future<Set<String>> getBadgeCodes(String userId) async {
     try {
       final response = await _client
@@ -32,6 +34,7 @@ class BadgeRepository {
   }
 
   /// Kode achievement yang sudah dimiliki user.
+  @override
   Future<Set<String>> getAchievementCodes(String userId) async {
     try {
       final response = await _client
@@ -57,6 +60,7 @@ class BadgeRepository {
   ///
   /// Memakai upsert dengan `onConflict` pada `(user_id, badge_code)` supaya
   /// aman ketika dua pemicu berjalan bersamaan (login dan kuis).
+  @override
   Future<void> awardBadges({
     required String userId,
     required Set<String> badgeCodes,
@@ -84,6 +88,7 @@ class BadgeRepository {
   /// Berikan achievement ke user.
   ///
   /// Memakai upsert dengan `onConflict` pada `(user_id, achievement_code)`.
+  @override
   Future<void> awardAchievements({
     required String userId,
     required Set<String> achievementCodes,
@@ -113,6 +118,7 @@ class BadgeRepository {
   /// Dipanggil setelah login, setelah session restore, dan setelah kuis
   /// selesai. Idempotent: badge serta achievement yang sudah dimiliki tidak
   /// ditulis ulang.
+  @override
   Future<({Set<String> newBadges, Set<String> newAchievements})> checkAndAward(
     String userId,
   ) async {

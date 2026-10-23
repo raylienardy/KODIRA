@@ -1,15 +1,17 @@
 import 'package:supabase_flutter/supabase_flutter.dart' as supa;
 
 import '../models/user_streak_model.dart';
+import 'i_streak_repository.dart';
 import 'streak_logic.dart';
 
 /// Repository untuk tabel `user_streaks` yang menyimpan streak harian user.
-class StreakRepository {
+class StreakRepository implements IStreakRepository {
   final supa.SupabaseClient _client;
 
   StreakRepository(this._client);
 
   /// Ambil streak milik satu user, atau null bila belum pernah aktif.
+  @override
   Future<UserStreakModel?> getForUser(String userId) async {
     try {
       final response = await _client
@@ -29,6 +31,7 @@ class StreakRepository {
 
   /// Perbarui streak saat user aktif. Idempotent per hari: kalau user sudah
   /// aktif hari ini, tidak ada baris yang ditulis ulang.
+  @override
   Future<UserStreakModel> updateOnActivity({
     required String userId,
     required DateTime now,

@@ -80,11 +80,11 @@ Gunakan bersama `docs/06-workflow.md` untuk kerja dengan opencode.
 | Phase 1 — Design System   | 8      | 8      | 0     | 0      | 0      | 0     |
 | Phase 2 — UI Design       | 6      | 1      | 0     | 0      | 4      | 1     |
 | Phase 3 — Architecture    | 7      | 5      | 0     | 1      | 0      | 1     |
-| Phase 4 — MVP Development | 14     | 9      | 0     | 2      | 2      | 1     |
+| Phase 4 — MVP Development | 14     | 9      | 0     | 1      | 3      | 1     |
 | Phase 5 — AI Integration  | 8      | 0      | 0     | 8      | 0      | 0     |
 | Phase 6 — Testing         | 6      | 0      | 0     | 6      | 0      | 0     |
 | Phase 7 — Documentation   | 6      | 0      | 0     | 6      | 0      | 0     |
-| **Total**                 | **65** | **33** | **0** | **23** | **6** | **3** |
+| **Total**                 | **65** | **33** | **0** | **22** | **7** | **3** |
 
 ---
 
@@ -911,7 +911,7 @@ Fitur inti tanpa AI dulu. Fondasi paling penting.
 
 | Field      | Nilai  |
 | ---------- | ------ |
-| Status     | Todo   |
+| Status     | Review |
 | Priority   | P0     |
 | Token      | M      |
 | Agent      | build  |
@@ -920,6 +920,8 @@ Fitur inti tanpa AI dulu. Fondasi paling penting.
 **Scope:**
 
 - `app/lib/data/repositories/`
+
+**Catatan:** 7 interface (IAuth, ILevel, IMaterial, IExercise, IUserProgress, IStreak, IBadge). Concrete implements interface. 7 provider return interface type. AuthNotifier/SessionNotifier field & constructor type updated. Fake implementation test PASS (14 kasus). Behavior tidak berubah — runtime verification opsional.
 
 **DoD:**
 
@@ -1449,3 +1451,4 @@ Dokumen akhir & presentasi.
 | 2026-10-22 | P4-008 result dialog tier + mastery + level-up → Review (194 test) |
 | 2026-10-23 | Bug#1 v2 (retry backoff + Home banner) fixed. Cold start 5/5 PASS. P4-007/P4-009 Done. |
 | 2026-10-23 | Bug#2 (Profil blank) fixed: stat_cards Row stretch di ListView = infinite layout. Fix hapus stretch. Runtime PASS, P4-011 Done. |
+| 2026-10-23 | P4-013 Repository Interfaces → Review (7 interface, 7 provider, 14 test) |

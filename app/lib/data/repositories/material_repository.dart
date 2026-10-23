@@ -1,12 +1,14 @@
 import 'package:supabase_flutter/supabase_flutter.dart' as supa;
 import '../models/material_model.dart';
+import 'i_material_repository.dart';
 
-class MaterialRepository {
+class MaterialRepository implements IMaterialRepository {
   final supa.SupabaseClient _client;
 
   MaterialRepository(this._client);
 
   /// Ambil semua materi untuk level tertentu, urut by slide_order ASC.
+  @override
   Future<List<MaterialModel>> getMaterialsByLevel(int levelId) async {
     try {
       final response = await _client
