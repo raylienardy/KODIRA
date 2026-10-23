@@ -80,11 +80,11 @@ Gunakan bersama `docs/06-workflow.md` untuk kerja dengan opencode.
 | Phase 1 — Design System   | 8      | 8      | 0     | 0      | 0      | 0     |
 | Phase 2 — UI Design       | 6      | 1      | 0     | 0      | 4      | 1     |
 | Phase 3 — Architecture    | 7      | 5      | 0     | 1      | 0      | 1     |
-| Phase 4 — MVP Development | 14     | 9      | 0     | 1      | 3      | 1     |
+| Phase 4 — MVP Development | 14     | 10     | 0     | 1      | 2      | 1     |
 | Phase 5 — AI Integration  | 8      | 0      | 0     | 8      | 0      | 0     |
 | Phase 6 — Testing         | 6      | 0      | 0     | 6      | 0      | 0     |
 | Phase 7 — Documentation   | 6      | 0      | 0     | 6      | 0      | 0     |
-| **Total**                 | **65** | **33** | **0** | **22** | **7** | **3** |
+| **Total**                 | **65** | **34** | **0** | **22** | **6** | **3** |
 
 ---
 
@@ -872,7 +872,7 @@ Fitur inti tanpa AI dulu. Fondasi paling penting.
 
 - `app/lib/features/profile/`
 
-**Catatan:** 6 section: info user (avatar, nama, NIM), stat cards (XP, level aktif, streak), badge grid earned + locked (9 badge, 3 kolom ≥360dp / 2 kolom di bawahnya), achievement list earned + locked dengan tanggal (3 achievement), mastery per topik (progress bar), dan 5 aktivitas terakhir (tanggal relatif). Navigasi dari menu Profil di Home ke route `/profile` (auth guard aktif). Pure helper ProfileLogic diuji 27 kasus, total 135 kasus test PASS. Runtime verified 2026-10-23 setelah fix stat_cards CrossAxisAlignment.stretch di dalam ListView (Bug#2). 6 section tampil, refresh berfungsi.
+**Catatan:** 6 section: info user (avatar, nama, NIM), stat cards (XP, level aktif, streak), badge grid earned + locked (9 badge, 3 kolom ≥360dp / 2 kolom di bawahnya), achievement list earned + locked dengan tanggal (3 achievement), mastery per topik (progress bar), dan 5 aktivitas terakhir (tanggal relatif). Navigasi dari menu Profil di Home ke route `/profile` (auth guard aktif). Pure helper ProfileLogic diuji 27 kasus, total 135 kasus test PASS. Runtime verified 2026-10-23 setelah fix stat_cards CrossAxisAlignment.stretch di dalam ListView (Bug#2). 6 section tampil, refresh berfungsi, achievement tap menampilkan dialog tanggal (Login Pertama, 23 Okt 2026).
 
 **DoD:**
 
@@ -911,7 +911,7 @@ Fitur inti tanpa AI dulu. Fondasi paling penting.
 
 | Field      | Nilai  |
 | ---------- | ------ |
-| Status     | Review |
+| Status     | Done   |
 | Priority   | P0     |
 | Token      | M      |
 | Agent      | build  |
@@ -921,7 +921,7 @@ Fitur inti tanpa AI dulu. Fondasi paling penting.
 
 - `app/lib/data/repositories/`
 
-**Catatan:** 7 interface (IAuth, ILevel, IMaterial, IExercise, IUserProgress, IStreak, IBadge). Concrete implements interface. 7 provider return interface type. AuthNotifier/SessionNotifier field & constructor type updated. Fake implementation test PASS (14 kasus). Behavior tidak berubah — runtime verification opsional.
+**Catatan:** 7 interface (IAuth, ILevel, IMaterial, IExercise, IUserProgress, IStreak, IBadge). Concrete implements interface. 7 provider return interface type. AuthNotifier/SessionNotifier field & constructor type updated. Fake implementation test PASS (14 kasus). Runtime verified 2026-10-23: total suite 220 test PASS, tidak ada regresi. Refactor auth invalidation (13063b5) termasuk fix CircularDependencyError dari Bug#1 v2; banner retry meng-invalidate allLevelsProvider sehingga grid level auto-refresh.
 
 **DoD:**
 
@@ -1452,3 +1452,4 @@ Dokumen akhir & presentasi.
 | 2026-10-23 | Bug#1 v2 (retry backoff + Home banner) fixed. Cold start 5/5 PASS. P4-007/P4-009 Done. |
 | 2026-10-23 | Bug#2 (Profil blank) fixed: stat_cards Row stretch di ListView = infinite layout. Fix hapus stretch. Runtime PASS, P4-011 Done. |
 | 2026-10-23 | P4-013 Repository Interfaces → Review (7 interface, 7 provider, 14 test) |
+| 2026-10-23 | Bug#2 Profil fix (3bfd276) runtime verified. P4-011 Done. P4-013 Done (220 test). Fix A (13063b5) banner retry auto-refresh verified. |
