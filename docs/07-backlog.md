@@ -80,11 +80,11 @@ Gunakan bersama `docs/06-workflow.md` untuk kerja dengan opencode.
 | Phase 1 — Design System   | 8      | 8      | 0     | 0      | 0      | 0     |
 | Phase 2 — UI Design       | 6      | 1      | 0     | 0      | 4      | 1     |
 | Phase 3 — Architecture    | 7      | 5      | 0     | 1      | 0      | 1     |
-| Phase 4 — MVP Development | 14     | 10     | 0     | 1      | 2      | 1     |
+| Phase 4 — MVP Development | 14     | 12     | 0     | 0      | 0      | 2     |
 | Phase 5 — AI Integration  | 8      | 0      | 0     | 8      | 0      | 0     |
 | Phase 6 — Testing         | 6      | 0      | 0     | 6      | 0      | 0     |
 | Phase 7 — Documentation   | 6      | 0      | 0     | 6      | 0      | 0     |
-| **Total**                 | **65** | **34** | **0** | **22** | **6** | **3** |
+| **Total**                 | **65** | **36** | **0** | **21** | **4** | **4** |
 
 ---
 
@@ -743,7 +743,7 @@ Fitur inti tanpa AI dulu. Fondasi paling penting.
 
 | Field      | Nilai  |
 | ---------- | ------ |
-| Status     | Todo   |
+| Status     | Skip   |
 | Priority   | P1     |
 | Token      | L      |
 | Agent      | build  |
@@ -752,6 +752,8 @@ Fitur inti tanpa AI dulu. Fondasi paling penting.
 **Scope:**
 
 - `app/lib/features/exercise/code_editor/`
+
+**Catatan:** Skip — blocked Phase 5. Butuh Judge0 backend integration (P5-007). Akan diimplementasi bersama code runner Phase 5.
 
 **DoD:**
 
@@ -790,7 +792,7 @@ Fitur inti tanpa AI dulu. Fondasi paling penting.
 
 | Field      | Nilai  |
 | ---------- | ------ |
-| Status     | Review |
+| Status     | Done   |
 | Priority   | P0     |
 | Token      | M      |
 | Agent      | build  |
@@ -800,7 +802,7 @@ Fitur inti tanpa AI dulu. Fondasi paling penting.
 
 - `app/lib/features/quiz/result_screen.dart`
 
-**Catatan:** ResultDialog dengan tier (<40% / 40-69% / ≥70%), mastery bar, XP message retake-aware, level-up animation (first completion pass), tombol adaptif (Lanjut/Coba Lagi/Review). Test unit + widget test PASS. Runtime verified 2026-10-23: dialog result menampilkan Mastery 100% dan XP message. Animasi level-up belum tertangkap screenshot.
+**Catatan:** ResultDialog dengan tier (<40% / 40-69% / ≥70%), mastery bar, XP message retake-aware, level-up animation (first completion pass), tombol adaptif (Lanjut/Coba Lagi/Review). Test unit + widget test PASS. Runtime verified 2026-10-23 dari clean state (attempts=1): animasi level-up trigger di first completion. Frame animasi tertangkap visual pada t≈3704 ms setelah tap Lihat Hasil (screencap cadence ~500 ms, bukan 150/350/600 ms): circle level + teks "Level 1 terbuka!". Semantics widget `Naik ke level 1` terkonfirmasi dari kode. Result dialog: 3/3, Mastery 100%, 100 XP, tombol Lanjut ke Level 2. Retake tidak trigger animasi (guard `isFirstCompletion`).
 
 **DoD:**
 
@@ -935,7 +937,7 @@ Fitur inti tanpa AI dulu. Fondasi paling penting.
 
 | Field      | Nilai  |
 | ---------- | ------ |
-| Status     | Review |
+| Status     | Done   |
 | Priority   | P1     |
 | Token      | M      |
 | Agent      | build  |
@@ -946,7 +948,7 @@ Fitur inti tanpa AI dulu. Fondasi paling penting.
 - `app/lib/core/errors/`
 - `app/lib/shared/widgets/loading.dart`, `error.dart`
 
-**Catatan:** Shared widgets: KodiraLoadingWidget, KodiraErrorWidget, KodiraEmptyWidget + Result<T> + ErrorType. Refactor 4 screen (home, materi, quiz, profil) pakai widget konsisten. Test unit + widget test PASS. Loading state runtime verified 2026-10-23 (splash dan loader level). Error state belum diuji.
+**Catatan:** Shared widgets: KodiraLoadingWidget, KodiraErrorWidget, KodiraEmptyWidget + Result<T> + ErrorType. Refactor 4 screen (home, materi, quiz, profil) pakai widget konsisten. Test unit + widget test PASS. Runtime verified 2026-10-23: KodiraErrorWidget muncul saat network fail (airplane mode) pada Materi L2, teks "Koneksi bermasalah. Periksa internet Anda.", tombol "Coba Lagi". Retry saat offline tetap error; setelah network restore retry sukses memuat slide 1/5. Loading state verified di splash dan level loader.
 
 **DoD:**
 
@@ -1453,3 +1455,4 @@ Dokumen akhir & presentasi.
 | 2026-10-23 | Bug#2 (Profil blank) fixed: stat_cards Row stretch di ListView = infinite layout. Fix hapus stretch. Runtime PASS, P4-011 Done. |
 | 2026-10-23 | P4-013 Repository Interfaces → Review (7 interface, 7 provider, 14 test) |
 | 2026-10-23 | Bug#2 Profil fix (3bfd276) runtime verified. P4-011 Done. P4-013 Done (220 test). Fix A (13063b5) banner retry auto-refresh verified. |
+| 2026-10-23 | P4-008 animasi level-up + P4-014 error state runtime verified. P4-006 Skip (blocked Phase 5). Phase 4 selesai (12 Done, 0 Review doable, 2 Skip). |
