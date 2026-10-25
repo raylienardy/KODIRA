@@ -83,8 +83,8 @@ Gunakan bersama `docs/06-workflow.md` untuk kerja dengan opencode.
 | Phase 4 — MVP Development | 14     | 12     | 0     | 0      | 0      | 2     |
 | Phase 5 — AI Integration  | 8      | 0      | 0     | 8      | 0      | 0     |
 | Phase 6 — Testing         | 6      | 0      | 0     | 6      | 0      | 0     |
-| Phase 7 — Documentation   | 6      | 0      | 0     | 6      | 0      | 0     |
-| **Total**                 | **65** | **36** | **0** | **21** | **4** | **4** |
+| Phase 7 — Documentation   | 6      | 3      | 0     | 3      | 0      | 0     |
+| **Total**                 | **65** | **39** | **0** | **18** | **4** | **4** |
 
 ---
 
@@ -1351,67 +1351,73 @@ Dokumen akhir & presentasi.
 
 ### P7-004: Source Code Cleanup
 
-| Field      | Nilai  |
-| ---------- | ------ |
-| Status     | Todo   |
-| Priority   | P1     |
-| Token      | M      |
-| Agent      | build  |
-| Dependency | P6-006 |
+| Field      | Nilai   |
+| ---------- | ------- |
+| Status     | ✅ Done |
+| Priority   | P1      |
+| Token      | M       |
+| Agent      | build   |
+| Dependency | P6-006  |
 
 **Scope:**
 
 - Hapus kode mati, TODO, komentar debug
 
+**Catatan:** Kode sudah bersih: 0 `print()` production, 0 TODO/FIXME real (3 false positive: masteryScore/toDouble). 11 `debugPrint` kept as production safety. Tidak ada cleanup needed.
+
 **DoD:**
 
-- [ ] Tidak ada `print()` di production
-- [ ] Tidak ada TODO tertinggal
-- [ ] Semua file terpakai
+- [x] Tidak ada `print()` di production
+- [x] Tidak ada TODO tertinggal
+- [x] Semua file terpakai
 
 ---
 
 ### P7-005: README Final
 
-| Field      | Nilai  |
-| ---------- | ------ |
-| Status     | Todo   |
-| Priority   | P1     |
-| Token      | S      |
-| Agent      | build  |
-| Dependency | P7-004 |
+| Field      | Nilai   |
+| ---------- | ------- |
+| Status     | ✅ Done |
+| Priority   | P1      |
+| Token      | S       |
+| Agent      | build   |
+| Dependency | P7-004  |
 
 **Scope:**
 
 - `README.md` di root
 
+**Catatan:** README final: badges, 10 fitur, 8 screenshot embed, stack table, setup guide, build release, roadmap aktual, CI badge.
+
 **DoD:**
 
-- [ ] Cara install & run
-- [ ] Screenshot aplikasi
-- [ ] Link dokumentasi
+- [x] Cara install & run
+- [x] Screenshot aplikasi
+- [x] Link dokumentasi
 
 ---
 
 ### P7-006: Arsip & Handover
 
-| Field      | Nilai  |
-| ---------- | ------ |
-| Status     | Todo   |
-| Priority   | P2     |
-| Token      | S      |
-| Agent      | build  |
-| Dependency | P7-005 |
+| Field      | Nilai   |
+| ---------- | ------- |
+| Status     | ✅ Done |
+| Priority   | P2      |
+| Token      | S       |
+| Agent      | build   |
+| Dependency | P7-005  |
 
 **Scope:**
 
 - `docs/10-handover.md` — catatan untuk tim berikutnya
 
+**Catatan:** `docs/10-handover.md` 9 section lengkap.
+
 **DoD:**
 
-- [ ] Apa yang sudah selesai
-- [ ] Apa yang belum
-- [ ] Rekomendasi lanjutan
+- [x] Apa yang sudah selesai
+- [x] Apa yang belum
+- [x] Rekomendasi lanjutan
 
 ---
 
@@ -1456,3 +1462,4 @@ Dokumen akhir & presentasi.
 | 2026-10-23 | P4-013 Repository Interfaces → Review (7 interface, 7 provider, 14 test) |
 | 2026-10-23 | Bug#2 Profil fix (3bfd276) runtime verified. P4-011 Done. P4-013 Done (220 test). Fix A (13063b5) banner retry auto-refresh verified. |
 | 2026-10-23 | P4-008 animasi level-up + P4-014 error state runtime verified. P4-006 Skip (blocked Phase 5). Phase 4 selesai (12 Done, 0 Review doable, 2 Skip). |
+| 2026-10-24 | P7-004/005/006 Done. Phase 7 3/6. Screenshot rename `.png.png` → `.png`. README final. Handover created. |
