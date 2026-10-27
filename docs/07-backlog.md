@@ -1463,3 +1463,4 @@ Dokumen akhir & presentasi.
 | 2026-10-23 | Bug#2 Profil fix (3bfd276) runtime verified. P4-011 Done. P4-013 Done (220 test). Fix A (13063b5) banner retry auto-refresh verified. |
 | 2026-10-23 | P4-008 animasi level-up + P4-014 error state runtime verified. P4-006 Skip (blocked Phase 5). Phase 4 selesai (12 Done, 0 Review doable, 2 Skip). |
 | 2026-10-24 | P7-004/005/006 Done. Phase 7 3/6. Screenshot rename `.png.png` → `.png`. README final. Handover created. |
+| 2026-10-25 | Verified seed-quiz-02.sql (105 quiz L16-50, commit 53e2de2 2026-10-22) — idempotent verified (150 quiz tetap 150 setelah re-run), match DB, cross-syntax 0, CJK 0. Quiz coverage 100% (50/50). Total exercises 400. |
