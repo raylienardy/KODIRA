@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -9,8 +10,10 @@ Future<void> main() async {
   try {
     await initSupabase();
   } catch (error, stackTrace) {
-    debugPrint('Supabase initialization failed: $error');
-    debugPrintStack(stackTrace: stackTrace);
+    if (kDebugMode) {
+      debugPrint('Supabase initialization failed: $error');
+      debugPrintStack(stackTrace: stackTrace);
+    }
     runApp(ConfigErrorApp(error: error));
     return;
   }

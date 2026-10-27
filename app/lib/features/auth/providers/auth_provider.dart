@@ -76,7 +76,9 @@ class AuthNotifier extends StateNotifier<AuthState> {
       // AuthNotifier memicu CircularDependencyError karena provider
       // tersebut bergantung pada authStateProvider.
     } catch (e) {
-      debugPrint('Failed to update streak: $e');
+      if (kDebugMode) {
+        debugPrint('Failed to update streak: $e');
+      }
     }
   }
 
@@ -88,7 +90,9 @@ class AuthNotifier extends StateNotifier<AuthState> {
       await _ref.read(badgeRepositoryProvider).checkAndAward(userId);
       // Invalidasi badgeCountProvider juga dilakukan oleh caller.
     } catch (e) {
-      debugPrint('Badge check failed: $e');
+      if (kDebugMode) {
+        debugPrint('Badge check failed: $e');
+      }
     }
   }
 
@@ -154,7 +158,9 @@ class AuthNotifier extends StateNotifier<AuthState> {
         return reloaded;
       }
     } catch (e) {
-      debugPrint('Failed to reload user for save: $e');
+      if (kDebugMode) {
+        debugPrint('Failed to reload user for save: $e');
+      }
     }
 
     return null;
@@ -295,14 +301,18 @@ class SessionNotifier extends StateNotifier<SessionStatus> {
           state = SessionStatus.unauthenticated;
           return;
         } on KodiraAuthException catch (error) {
-          debugPrint('Session restore rejected: ${error.message}');
+          if (kDebugMode) {
+            debugPrint('Session restore rejected: ${error.message}');
+          }
           if (!mounted) return;
           await _clearStoredSession();
           if (!mounted) return;
           state = SessionStatus.unauthenticated;
           return;
         } catch (error) {
-          debugPrint('Restore attempt ${attempt + 1} failed: $error');
+          if (kDebugMode) {
+            debugPrint('Restore attempt ${attempt + 1} failed: $error');
+          }
         }
       }
 
@@ -330,7 +340,9 @@ class SessionNotifier extends StateNotifier<SessionStatus> {
     try {
       await _repo.signOut();
     } catch (error) {
-      debugPrint('Failed to clear stored session: $error');
+      if (kDebugMode) {
+        debugPrint('Failed to clear stored session: $error');
+      }
     }
   }
 

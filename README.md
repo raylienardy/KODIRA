@@ -181,18 +181,18 @@ kodira/
 
 ## Roadmap
 
-| Phase | Fokus                             | Status           |
-| ----- | --------------------------------- | ---------------- |
-| 0     | Foundation                        | ✅ Selesai       |
-| 1     | Design System                     | ✅ Selesai       |
-| 2     | UI Design                         | ✅ Selesai       |
-| 3     | Architecture                      | ✅ Selesai       |
-| 4     | MVP Development                   | ✅ Selesai       |
-| 5     | AI Integration                    | ⏳ Blocked (backend) |
-| 6     | Testing & Evaluation              | ⏳ Pending (Phase 5) |
-| 7     | Documentation & Presentation      | 🚧 Dalam proses  |
+| Phase | Fokus                             | Status                                  |
+| ----- | --------------------------------- | --------------------------------------- |
+| 0     | Foundation                        | ✅ Selesai                              |
+| 1     | Design System                     | ✅ Selesai                              |
+| 2     | UI Design                         | 🚧 1 Done, 4 Review, 1 Skip             |
+| 3     | Architecture                      | 🚧 5 Done, 1 Todo, 1 Skip               |
+| 4     | MVP Development                   | ✅ Selesai (12 Done, 2 Skip)            |
+| 5     | AI Integration                    | ⏳ Blocked (backend; 8 Todo)            |
+| 6     | Testing & Evaluation              | ⏳ Pending Phase 5 (6 Todo)             |
+| 7     | Documentation & Presentation      | 🚧 Dalam proses (3/6 Done, 3 Todo)      |
 
-**Phase 4 MVP Development:** SELESAI (12 Done / 0 Todo / 0 Review / 2 Skip = 14 task)
+**Phase 4 MVP Development:** 12 Done / 0 Todo / 0 Review / 2 Skip = 14 task.
 
 Detail fase: [`docs/00-phases.md`](docs/00-phases.md)
 

@@ -686,7 +686,9 @@ Provider dipilih via env variable `AI_PROVIDER`.
 ## ADR-020: Local DB — Drift
 
 **Tanggal:** 2026-10-16  
-**Status:** Accepted
+**Status:** Superseded
+
+**Catatan:** Digantikan oleh penyimpanan in-memory/Supabase. Lihat P4-012 di backlog.
 
 ### Konteks
 KODIRA butuh local database untuk cache materi, progress, dan mastery 

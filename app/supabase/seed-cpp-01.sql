@@ -3,7 +3,7 @@
 --
 -- Tujuan:
 --   1. Exercises drag_drop untuk Level 2 (Variabel & Konstanta) — 5 exercise
---   2. Materials Level 4-15 (12 level x 5 slide = 60 slide)
+--   2. Materials Level 1 (5 slide) dan Level 4-15 (12 level x 5 slide = 60 slide)
 --   3. Exercises drag_drop Level 4-15 (12 level x 5 exercise = 60 exercise)
 --
 -- File ini adalah CHUNK 1 dari 4 file seed:
@@ -11,7 +11,7 @@
 --   2. seed-cpp-02.sql             — L16-25
 --   3. seed-cpp-03.sql             — L26-35
 --   4. seed-java-01.sql             — L36-50
---   File seed.sql (L1-3) tetap dipertahankan dan tidak diubah oleh file ini.
+--   File seed.sql (L1-3) tetap dipertahankan; file ini menambah materi L1.
 --
 -- Cara menjalankan (dari folder app/):
 --   supabase db query --linked --file supabase/seed-cpp-01.sql
@@ -162,7 +162,74 @@ WHERE l.level_number = 2 AND l.language = 'cpp'
   );
 
 -- ============================================
--- SECTION 2: MATERIALS LEVEL 4 — Operator Aritmatika
+-- SECTION 2A: MATERIALS LEVEL 1 — Pengenalan C++
+-- ============================================
+
+INSERT INTO public.materials (level_id, slide_order, title, content, code_snippet)
+SELECT l.id, 1, 'Apa Itu C++',
+       'C++ adalah bahasa pemrograman yang digunakan untuk membuat berbagai program. Program ditulis sebagai instruksi yang kemudian diterjemahkan oleh compiler.',
+       NULL
+FROM public.levels l
+WHERE l.level_number = 1 AND l.language = 'cpp'
+  AND NOT EXISTS (
+    SELECT 1 FROM public.materials m
+    WHERE m.level_id = l.id AND m.slide_order = 1
+  );
+
+INSERT INTO public.materials (level_id, slide_order, title, content, code_snippet)
+SELECT l.id, 2, 'Struktur Dasar Program',
+       'Program C++ umumnya memiliki fungsi main sebagai titik awal eksekusi. Instruksi program ditulis di antara kurung kurawal fungsi tersebut.',
+       'int main() {
+  return 0;
+}'
+FROM public.levels l
+WHERE l.level_number = 1 AND l.language = 'cpp'
+  AND NOT EXISTS (
+    SELECT 1 FROM public.materials m
+    WHERE m.level_id = l.id AND m.slide_order = 2
+  );
+
+INSERT INTO public.materials (level_id, slide_order, title, content, code_snippet)
+SELECT l.id, 3, 'Menampilkan Teks',
+       'Untuk menampilkan teks ke terminal, C++ menyediakan cout dari pustaka iostream. Operator << mengirimkan nilai ke keluaran.',
+       '#include <iostream>
+
+int main() {
+  std::cout << "Halo, C++!";
+  return 0;
+}'
+FROM public.levels l
+WHERE l.level_number = 1 AND l.language = 'cpp'
+  AND NOT EXISTS (
+    SELECT 1 FROM public.materials m
+    WHERE m.level_id = l.id AND m.slide_order = 3
+  );
+
+INSERT INTO public.materials (level_id, slide_order, title, content, code_snippet)
+SELECT l.id, 4, 'Komentar dalam Kode',
+       'Komentar membantu menjelaskan kode dan tidak dijalankan oleh program. Komentar satu baris diawali dengan dua garis miring.',
+       '// Program pertama
+std::cout << "Halo!";'
+FROM public.levels l
+WHERE l.level_number = 1 AND l.language = 'cpp'
+  AND NOT EXISTS (
+    SELECT 1 FROM public.materials m
+    WHERE m.level_id = l.id AND m.slide_order = 4
+  );
+
+INSERT INTO public.materials (level_id, slide_order, title, content, code_snippet)
+SELECT l.id, 5, 'Siap Berlatih',
+       'Kamu sudah mengenal struktur program C++ dan cara menampilkan teks. Lanjutkan dengan latihan menyusun kode dan kuis singkat.',
+       NULL
+FROM public.levels l
+WHERE l.level_number = 1 AND l.language = 'cpp'
+  AND NOT EXISTS (
+    SELECT 1 FROM public.materials m
+    WHERE m.level_id = l.id AND m.slide_order = 5
+  );
+
+-- ============================================
+-- SECTION 3: MATERIALS LEVEL 4 — Operator Aritmatika
 -- ============================================
 
 INSERT INTO public.materials (level_id, slide_order, title, content, code_snippet)
@@ -2505,6 +2572,7 @@ WHERE l.level_number = 15 AND l.language = 'cpp'
 -- ============================================
 -- SECTION 26: VERIFICATION (relatif per level)
 -- ============================================
+-- Level 1: 5 material (file ini) + 5 exercise (seed.sql)
 -- Level 2: 5 material (dari seed.sql) + 5 exercise (file ini)
 -- Level 4-15: 5 material + 5 exercise dari file ini
 -- Verifikasi memakai jumlah per level, bukan total absolut, agar file ini
@@ -2516,7 +2584,7 @@ DECLARE
   v_count INT;
 BEGIN
   FOR v_level_number IN
-    SELECT unnest(ARRAY[2, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15])
+    SELECT unnest(ARRAY[1, 2, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15])
   LOOP
     SELECT count(*) INTO v_count
     FROM public.materials m

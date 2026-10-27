@@ -363,7 +363,7 @@ internal `nim_<nim>@kodira.local` pada implementasi Supabase saat ini.
 ```json
 {
   "nim": "2402095010141",
-  "password": "rahasia123"
+  "password": "<password>"
 }
 ```
 

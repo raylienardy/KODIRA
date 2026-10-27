@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -91,7 +92,9 @@ class ProfileScreen extends ConsumerWidget {
         ref.read(recentActivityProvider.future),
       ]);
     } catch (error) {
-      debugPrint('Profile refresh failed: $error');
+      if (kDebugMode) {
+        debugPrint('Profile refresh failed: $error');
+      }
     }
   }
 }

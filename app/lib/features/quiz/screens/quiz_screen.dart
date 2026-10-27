@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -296,7 +297,9 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
         isFirstCompletion: isFirstCompletion,
       );
     } catch (e) {
-      debugPrint('Failed to save progress: $e');
+      if (kDebugMode) {
+        debugPrint('Failed to save progress: $e');
+      }
       return (
         xpEarned: 0,
         xpThisAttempt: xpThisAttempt,
@@ -324,7 +327,9 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
         ref.invalidate(badgeCountProvider);
       }
     } catch (e) {
-      debugPrint('Badge check failed: $e');
+      if (kDebugMode) {
+        debugPrint('Badge check failed: $e');
+      }
     }
 
     if (!mounted) return;
