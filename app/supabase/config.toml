@@ -1,0 +1,13 @@
+project_id = "vnmrivutawqxcoklamcb"
+
+[functions.ai-hint]
+verify_jwt = true
+
+[functions.ai-feedback]
+verify_jwt = true
+
+[functions.ai-generate-quiz]
+verify_jwt = true
+
+[functions.code-runner]
+verify_jwt = true
