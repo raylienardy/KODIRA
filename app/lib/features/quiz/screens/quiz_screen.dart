@@ -18,6 +18,7 @@ import '../../../core/errors/error_type.dart';
 import '../../../shared/widgets/empty_widget.dart';
 import '../../../shared/widgets/error_widget.dart';
 import '../../../shared/widgets/loading_widget.dart';
+import '../../ai_mentor/widgets/feedback_bottom_sheet.dart';
 
 /// Outcome of a finished quiz session.
 enum QuizResult {
@@ -531,9 +532,22 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
           if (_isSubmitted) ...[
             const SizedBox(height: 6),
             _FeedbackCard(
-              isCorrect: _selectedOptionId == question.answerId,
+              isCorrect: _selectedOptionId == question.answerId && !_isTimedOut,
               isTimedOut: _isTimedOut,
               explanation: question.explanation,
+              onRequestAiFeedback: () {
+                showModalBottomSheet<void>(
+                  context: context,
+                  isScrollControlled: true,
+                  builder: (_) => FeedbackBottomSheet(
+                    levelId: widget.levelId,
+                    topic: widget.levelTitle ?? 'Kuis',
+                    userCode: '',
+                    expectedAnswer: question.explanation,
+                    isCorrect: false,
+                  ),
+                );
+              },
             ),
           ],
         ],
@@ -944,11 +958,13 @@ class _FeedbackCard extends StatelessWidget {
   final bool isCorrect;
   final bool isTimedOut;
   final String explanation;
+  final VoidCallback onRequestAiFeedback;
 
   const _FeedbackCard({
     required this.isCorrect,
     required this.isTimedOut,
     required this.explanation,
+    required this.onRequestAiFeedback,
   });
 
   @override
@@ -1008,6 +1024,22 @@ class _FeedbackCard extends StatelessWidget {
                       height: 1.5,
                     ),
                   ),
+                  if (!isCorrect) ...[
+                    const SizedBox(height: 8),
+                    Semantics(
+                      button: true,
+                      label: 'Minta Feedback AI untuk jawaban yang salah',
+                      child: TextButton.icon(
+                        onPressed: onRequestAiFeedback,
+                        icon: const Icon(Icons.auto_awesome, size: 18),
+                        label: const Text('Minta Feedback AI'),
+                        style: TextButton.styleFrom(
+                          minimumSize: const Size.fromHeight(48),
+                          foregroundColor: KodiraColors.primary700,
+                        ),
+                      ),
+                    ),
+                  ],
                 ],
               ),
             ),

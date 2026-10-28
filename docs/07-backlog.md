@@ -81,10 +81,10 @@ Gunakan bersama `docs/06-workflow.md` untuk kerja dengan opencode.
 | Phase 2 — UI Design       | 6      | 1      | 0     | 0      | 4      | 1     |
 | Phase 3 — Architecture    | 7      | 5      | 0     | 1      | 0      | 1     |
 | Phase 4 — MVP Development | 14     | 12     | 0     | 0      | 0      | 2     |
-| Phase 5 — AI Integration  | 8      | 0      | 0     | 8      | 0      | 0     |
+| Phase 5 — AI Integration  | 8      | 4      | 0     | 3      | 1      | 0     |
 | Phase 6 — Testing         | 6      | 0      | 0     | 6      | 0      | 0     |
 | Phase 7 — Documentation   | 6      | 3      | 0     | 3      | 0      | 0     |
-| **Total**                 | **65** | **39** | **0** | **18** | **4** | **4** |
+| **Total**                 | **65** | **43** | **0** | **13** | **5** | **4** |
 
 ---
 
@@ -967,7 +967,7 @@ Integrasi AI Mentor, adaptive quiz, guardrail.
 
 | Field      | Nilai  |
 | ---------- | ------ |
-| Status     | Todo   |
+| Status     | Done   |
 | Priority   | P0     |
 | Token      | M      |
 | Agent      | build  |
@@ -990,7 +990,7 @@ Integrasi AI Mentor, adaptive quiz, guardrail.
 
 | Field      | Nilai  |
 | ---------- | ------ |
-| Status     | Todo   |
+| Status     | Done   |
 | Priority   | P0     |
 | Token      | L      |
 | Agent      | build  |
@@ -1012,7 +1012,7 @@ Integrasi AI Mentor, adaptive quiz, guardrail.
 
 | Field      | Nilai  |
 | ---------- | ------ |
-| Status     | Todo   |
+| Status     | Done   |
 | Priority   | P0     |
 | Token      | M      |
 | Agent      | build  |
@@ -1058,7 +1058,7 @@ Integrasi AI Mentor, adaptive quiz, guardrail.
 
 | Field      | Nilai  |
 | ---------- | ------ |
-| Status     | Todo   |
+| Status     | Done   |
 | Priority   | P1     |
 | Token      | L      |
 | Agent      | build  |
@@ -1080,7 +1080,7 @@ Integrasi AI Mentor, adaptive quiz, guardrail.
 
 | Field      | Nilai  |
 | ---------- | ------ |
-| Status     | Todo   |
+| Status     | Review |
 | Priority   | P0     |
 | Token      | M      |
 | Agent      | build  |
@@ -1464,3 +1464,4 @@ Dokumen akhir & presentasi.
 | 2026-10-23 | P4-008 animasi level-up + P4-014 error state runtime verified. P4-006 Skip (blocked Phase 5). Phase 4 selesai (12 Done, 0 Review doable, 2 Skip). |
 | 2026-10-24 | P7-004/005/006 Done. Phase 7 3/6. Screenshot rename `.png.png` → `.png`. README final. Handover created. |
 | 2026-10-25 | Verified seed-quiz-02.sql (105 quiz L16-50, commit 53e2de2 2026-10-22) — idempotent verified (150 quiz tetap 150 setelah re-run), match DB, cross-syntax 0, CJK 0. Quiz coverage 100% (50/50). Total exercises 400. |
+| 2026-10-28 | Phase 5A+5B: 4 Edge Functions live; Flutter AI layer dan hint/feedback sheet terhubung ke material, quiz, drag_drop. P5-001/002/003/005 Done; P5-006 Review karena rate limit belum. |

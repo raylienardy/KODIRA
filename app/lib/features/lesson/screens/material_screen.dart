@@ -10,6 +10,7 @@ import '../../../core/errors/error_type.dart';
 import '../../../shared/widgets/empty_widget.dart';
 import '../../../shared/widgets/error_widget.dart';
 import '../../../shared/widgets/loading_widget.dart';
+import '../../ai_mentor/widgets/hint_bottom_sheet.dart';
 
 class MaterialScreen extends ConsumerStatefulWidget {
   final int levelId;
@@ -119,7 +120,7 @@ class _MaterialScreenState extends ConsumerState<MaterialScreen> {
           materialsAsync.hasValue &&
               materialsAsync.value!.isNotEmpty &&
               _currentSlideIndex < materialsAsync.value!.length - 1
-          ? const _HintFab()
+          ? _HintFab(levelId: widget.levelId, topic: widget.levelTitle)
           : null,
       floatingActionButtonLocation: FloatingActionButtonLocation.startFloat,
     );
@@ -370,28 +371,43 @@ class _NavigationBar extends StatelessWidget {
 
 // -------------------------------------------------------------------
 class _HintFab extends StatelessWidget {
-  const _HintFab();
+  final int levelId;
+  final String topic;
+
+  const _HintFab({required this.levelId, required this.topic});
 
   @override
   Widget build(BuildContext context) {
-    return FloatingActionButton.extended(
-      onPressed: () {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Hint akan tersedia di Phase 5')),
-        );
-      },
-      backgroundColor: KodiraColors.primary700,
-      elevation: 0,
-      label: const Text(
-        'Minta Hint',
-        style: TextStyle(
-          fontFamily: 'Inter',
-          fontWeight: FontWeight.w600,
-          fontSize: 12,
+    return Semantics(
+      button: true,
+      label: 'Tombol minta hint untuk level $levelId',
+      child: FloatingActionButton.extended(
+        onPressed: () {
+          showModalBottomSheet<void>(
+            context: context,
+            isScrollControlled: true,
+            builder: (_) =>
+                HintBottomSheet(levelId: levelId, topic: topic, userCode: ''),
+          );
+        },
+        backgroundColor: KodiraColors.primary700,
+        foregroundColor: Colors.white,
+        elevation: 0,
+        label: const Text(
+          'Minta Hint',
+          style: TextStyle(
+            fontFamily: 'Inter',
+            fontWeight: FontWeight.w600,
+            fontSize: 12,
+            color: Colors.white,
+          ),
+        ),
+        icon: const Icon(
+          Icons.lightbulb_outline,
           color: Colors.white,
+          size: 18,
         ),
       ),
-      icon: const Icon(Icons.lightbulb_outline, color: Colors.white, size: 18),
     );
   }
 }

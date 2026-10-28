@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/theme.dart';
 import '../../../data/models/exercise_model.dart';
+import '../../ai_mentor/widgets/feedback_bottom_sheet.dart';
 import '../../quiz/screens/quiz_screen.dart';
 import '../providers/exercise_provider.dart';
 import '../widgets/drag_token.dart';
@@ -248,6 +249,19 @@ class _DragDropScreenState extends ConsumerState<DragDropScreen> {
           iconBackground: KodiraColors.alert100,
           title: 'Belum tepat',
           message: message,
+          levelId: widget.levelId,
+          userCode: _data == null
+              ? ''
+              : _dropZoneIds
+                    .map((id) => _data!.tokenById[id]?.text ?? '')
+                    .where((text) => text.isNotEmpty)
+                    .join(' '),
+          expectedAnswer: _data == null
+              ? ''
+              : _data!.answer
+                    .map((id) => _data!.tokenById[id]?.text ?? '')
+                    .where((text) => text.isNotEmpty)
+                    .join(' '),
           secondaryLabel: 'Reset',
           onSecondary: () => Navigator.of(context).pop(_FeedbackResult.reset),
           primaryLabel: 'Coba Lagi',
@@ -845,6 +859,9 @@ class _BottomBar extends StatelessWidget {
 
 // -------------------------------------------------------------------
 class _FeedbackSheet extends StatelessWidget {
+  final int? levelId;
+  final String userCode;
+  final String expectedAnswer;
   final IconData icon;
   final Color iconColor;
   final Color iconBackground;
@@ -856,6 +873,9 @@ class _FeedbackSheet extends StatelessWidget {
   final VoidCallback onPrimary;
 
   const _FeedbackSheet({
+    this.levelId,
+    this.userCode = '',
+    this.expectedAnswer = '',
     required this.icon,
     required this.iconColor,
     required this.iconBackground,
@@ -934,6 +954,34 @@ class _FeedbackSheet extends StatelessWidget {
                     height: 1.5,
                   ),
                 ),
+                if (levelId != null && levelId! > 0) ...[
+                  const SizedBox(height: 8),
+                  Semantics(
+                    button: true,
+                    label: 'Minta Feedback AI untuk latihan yang salah',
+                    child: TextButton.icon(
+                      onPressed: () {
+                        showModalBottomSheet<void>(
+                          context: context,
+                          isScrollControlled: true,
+                          builder: (_) => FeedbackBottomSheet(
+                            levelId: levelId!,
+                            topic: 'Latihan',
+                            userCode: userCode,
+                            expectedAnswer: expectedAnswer,
+                            isCorrect: false,
+                          ),
+                        );
+                      },
+                      icon: const Icon(Icons.auto_awesome, size: 18),
+                      label: const Text('Minta Feedback AI'),
+                      style: TextButton.styleFrom(
+                        minimumSize: const Size.fromHeight(48),
+                        foregroundColor: KodiraColors.primary700,
+                      ),
+                    ),
+                  ),
+                ],
                 const SizedBox(height: 24),
                 if (secondaryLabel != null && onSecondary != null)
                   Row(
