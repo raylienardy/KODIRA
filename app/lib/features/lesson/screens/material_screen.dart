@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../app/theme.dart';
 import '../../exercise/providers/exercise_provider.dart';
 import '../../exercise/screens/drag_drop_screen.dart';
+import '../../exercise/screens/code_editor_screen.dart';
 import '../providers/material_provider.dart';
 import '../../../data/models/material_model.dart';
 import '../../../core/errors/error_type.dart';
@@ -112,6 +113,16 @@ class _MaterialScreenState extends ConsumerState<MaterialScreen> {
                 onPrev: () => setState(() => _currentSlideIndex--),
                 onNext: () => setState(() => _currentSlideIndex++),
                 onFinish: _openExercise,
+                onCodeEditor: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => CodeEditorScreen(
+                        levelId: widget.levelId,
+                        levelTitle: widget.levelTitle,
+                      ),
+                    ),
+                  );
+                },
               ),
           ],
         ),
@@ -299,6 +310,7 @@ class _NavigationBar extends StatelessWidget {
   final VoidCallback onPrev;
   final VoidCallback onNext;
   final VoidCallback onFinish;
+  final VoidCallback onCodeEditor;
 
   const _NavigationBar({
     required this.currentIndex,
@@ -307,6 +319,7 @@ class _NavigationBar extends StatelessWidget {
     required this.onPrev,
     required this.onNext,
     required this.onFinish,
+    required this.onCodeEditor,
   });
 
   bool get isLast => currentIndex == total - 1;
@@ -323,46 +336,72 @@ class _NavigationBar extends StatelessWidget {
           top: BorderSide(color: KodiraColors.neutral200, width: 1),
         ),
       ),
-      child: Row(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          if (currentIndex > 0)
-            TextButton(
-              onPressed: onPrev,
-              child: const Text(
-                'Sebelumnya',
-                style: TextStyle(color: KodiraColors.neutral700),
-              ),
-            ),
-          const Spacer(),
-          SizedBox(
-            height: 48,
-            child: ElevatedButton(
-              onPressed: isFinish && isLoading
-                  ? null
-                  : (isFinish ? onFinish : onNext),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: KodiraColors.primary700,
-                foregroundColor: Colors.white,
-                disabledBackgroundColor: KodiraColors.primary700,
-                disabledForegroundColor: Colors.white,
-                elevation: 0,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(KodiraRadius.md),
+          Row(
+            children: [
+              if (currentIndex > 0)
+                TextButton(
+                  onPressed: onPrev,
+                  child: const Text(
+                    'Sebelumnya',
+                    style: TextStyle(color: KodiraColors.neutral700),
+                  ),
                 ),
-                padding: const EdgeInsets.symmetric(horizontal: 24),
+              const Spacer(),
+              SizedBox(
+                height: 48,
+                child: ElevatedButton(
+                  onPressed: isFinish && isLoading
+                      ? null
+                      : (isFinish ? onFinish : onNext),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: KodiraColors.primary700,
+                    foregroundColor: Colors.white,
+                    disabledBackgroundColor: KodiraColors.primary700,
+                    disabledForegroundColor: Colors.white,
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(KodiraRadius.md),
+                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                  ),
+                  child: isFinish && isLoading
+                      ? const SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              Colors.white,
+                            ),
+                          ),
+                        )
+                      : Text(isFinish ? 'Lanjut ke Latihan' : 'Lanjut'),
+                ),
               ),
-              child: isFinish && isLoading
-                  ? const SizedBox(
-                      width: 18,
-                      height: 18,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                      ),
-                    )
-                  : Text(isFinish ? 'Lanjut ke Latihan' : 'Lanjut'),
-            ),
+            ],
           ),
+          if (isLast) ...[
+            const SizedBox(height: 12),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                onPressed: onCodeEditor,
+                icon: const Icon(Icons.code, size: 20),
+                label: const Text('Latihan Coding'),
+                style: OutlinedButton.styleFrom(
+                  minimumSize: const Size.fromHeight(48),
+                  foregroundColor: KodiraColors.primary700,
+                  side: const BorderSide(color: KodiraColors.primary700),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(KodiraRadius.md),
+                  ),
+                ),
+              ),
+            ),
+          ],
         ],
       ),
     );

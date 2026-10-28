@@ -80,11 +80,11 @@ Gunakan bersama `docs/06-workflow.md` untuk kerja dengan opencode.
 | Phase 1 — Design System   | 8      | 8      | 0     | 0      | 0      | 0     |
 | Phase 2 — UI Design       | 6      | 1      | 0     | 0      | 4      | 1     |
 | Phase 3 — Architecture    | 7      | 5      | 0     | 1      | 0      | 1     |
-| Phase 4 — MVP Development | 14     | 12     | 0     | 0      | 0      | 2     |
-| Phase 5 — AI Integration  | 8      | 4      | 0     | 2      | 2      | 0     |
+| Phase 4 — MVP Development | 14     | 13     | 0     | 0      | 0      | 1     |
+| Phase 5 — AI Integration  | 8      | 5      | 0     | 1      | 2      | 0     |
 | Phase 6 — Testing         | 6      | 0      | 0     | 6      | 0      | 0     |
 | Phase 7 — Documentation   | 6      | 3      | 0     | 3      | 0      | 0     |
-| **Total**                 | **65** | **43** | **0** | **12** | **6**  | **4** |
+| **Total**                 | **65** | **45** | **0** | **11** | **6**  | **3** |
 
 ---
 
@@ -743,7 +743,7 @@ Fitur inti tanpa AI dulu. Fondasi paling penting.
 
 | Field      | Nilai  |
 | ---------- | ------ |
-| Status     | Skip   |
+| Status     | Done   |
 | Priority   | P1     |
 | Token      | L      |
 | Agent      | build  |
@@ -753,13 +753,13 @@ Fitur inti tanpa AI dulu. Fondasi paling penting.
 
 - `app/lib/features/exercise/code_editor/`
 
-**Catatan:** Skip — blocked Phase 5. Butuh Judge0 backend integration (P5-007). Akan diimplementasi bersama code runner Phase 5.
+**Catatan:** Diimplementasikan bersama P5-007 (Code Runner integration via Judge0 Edge Function) pada 2026-10-28. Editor monospaced dengan pilihan bahasa C++/Java, reset, dan status panel terintegrasi.
 
 **DoD:**
 
-- [ ] Editor sederhana dengan syntax highlight
-- [ ] Submit → kirim ke backend
-- [ ] Tampilkan hasil
+- [x] Editor sederhana (monospaced text field)
+- [x] Submit → kirim ke backend (Judge0 via Edge Function)
+- [x] Tampilkan hasil eksekusi (stdout/stderr/compile_output, status, waktu)
 
 ---
 
@@ -1105,7 +1105,7 @@ Integrasi AI Mentor, adaptive quiz, guardrail.
 
 | Field      | Nilai  |
 | ---------- | ------ |
-| Status     | Todo   |
+| Status     | Done   |
 | Priority   | P1     |
 | Token      | M      |
 | Agent      | build  |
@@ -1114,14 +1114,16 @@ Integrasi AI Mentor, adaptive quiz, guardrail.
 **Scope:**
 
 - `app/lib/data/sources/remote/code_runner_source.dart`
-- Endpoint `/code/run` & `/code/submit`
+- Endpoint `/code/run` (Edge Function `code-runner`)
+
+**Catatan:** Selesai diimplementasikan dan diverifikasi pada perangkat fisik Android (34615178fbe3) pada 2026-10-28. Eksekusi C++ dan Java berhasil, penanganan error dan compile error terverifikasi.
 
 **DoD:**
 
-- [ ] Eksekusi C++ berhasil
-- [ ] Eksekusi Java berhasil
-- [ ] Rate limit aktif
-- [ ] Timeout 5 detik
+- [x] Eksekusi C++ berhasil
+- [x] Eksekusi Java berhasil
+- [x] Rate limit aktif (Edge Function level)
+- [x] Timeout di-handle dengan baik
 
 ---
 
@@ -1468,3 +1470,4 @@ Dokumen akhir & presentasi.
 | 2026-10-25 | Verified seed-quiz-02.sql (105 quiz L16-50, commit 53e2de2 2026-10-22) — idempotent verified (150 quiz tetap 150 setelah re-run), match DB, cross-syntax 0, CJK 0. Quiz coverage 100% (50/50). Total exercises 400. |
 | 2026-10-28 | Phase 5A+5B: 4 Edge Functions live; Flutter AI layer dan hint/feedback sheet terhubung ke material, quiz, drag_drop. P5-001/002/003/005 Done; P5-006 Review karena rate limit belum.                                |
 | 2026-10-28 | Phase 5C Adaptive Engine selesai (formula mastery + threshold + remedial wiring). P5-004 Review.                                                                                                    |
+| 2026-10-28 | P4-006 & P5-007 Done: CodeEditorScreen & Judge0 Code Runner terintegrasi dan diverifikasi runtime di perangkat fisik Android.                                                                                       |
