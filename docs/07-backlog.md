@@ -743,7 +743,7 @@ Fitur inti tanpa AI dulu. Fondasi paling penting.
 
 | Field      | Nilai  |
 | ---------- | ------ |
-| Status     | Done   |
+| Status     | Review |
 | Priority   | P1     |
 | Token      | L      |
 | Agent      | build  |
@@ -753,13 +753,13 @@ Fitur inti tanpa AI dulu. Fondasi paling penting.
 
 - `app/lib/features/exercise/code_editor/`
 
-**Catatan:** Diimplementasikan bersama P5-007 (Code Runner integration via Judge0 Edge Function) pada 2026-10-28. Editor monospaced dengan pilihan bahasa C++/Java, reset, dan status panel terintegrasi.
+**Catatan:** Revive 5D. CodeEditorScreen (TextField mono, language selector, Judge0 wire). Runtime verified C++/Java + compile error. GAP: syntax highlight belum (debt — butuh package seperti flutter_code_editor, akan diimplementasi next iteration).
 
 **DoD:**
 
-- [x] Editor sederhana (monospaced text field)
-- [x] Submit → kirim ke backend (Judge0 via Edge Function)
-- [x] Tampilkan hasil eksekusi (stdout/stderr/compile_output, status, waktu)
+- [ ] Editor sederhana dengan syntax highlight
+- [x] Submit → kirim ke backend
+- [x] Tampilkan hasil
 
 ---
 
@@ -1105,7 +1105,7 @@ Integrasi AI Mentor, adaptive quiz, guardrail.
 
 | Field      | Nilai  |
 | ---------- | ------ |
-| Status     | Done   |
+| Status     | Review |
 | Priority   | P1     |
 | Token      | M      |
 | Agent      | build  |
@@ -1116,14 +1116,14 @@ Integrasi AI Mentor, adaptive quiz, guardrail.
 - `app/lib/data/sources/remote/code_runner_source.dart`
 - Endpoint `/code/run` (Edge Function `code-runner`)
 
-**Catatan:** Selesai diimplementasikan dan diverifikasi pada perangkat fisik Android (34615178fbe3) pada 2026-10-28. Eksekusi C++ dan Java berhasil, penanganan error dan compile error terverifikasi.
+**Catatan:** code-runner Edge Function (ce.judge0.com). Flutter source+repo+screen wired. Runtime verified C++/Java. GAP: rate limit belum (P5-006), timeout 5s belum (Edge Function pakai 20s timeout).
 
 **DoD:**
 
 - [x] Eksekusi C++ berhasil
 - [x] Eksekusi Java berhasil
-- [x] Rate limit aktif (Edge Function level)
-- [x] Timeout di-handle dengan baik
+- [ ] Rate limit aktif (Edge Function level)
+- [ ] Timeout 5 detik
 
 ---
 
