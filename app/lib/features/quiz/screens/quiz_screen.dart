@@ -7,18 +7,20 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/theme.dart';
+import '../../../core/errors/error_type.dart';
 import '../../../data/models/exercise_model.dart';
+import '../../../shared/widgets/empty_widget.dart';
+import '../../../shared/widgets/error_widget.dart';
+import '../../../shared/widgets/loading_widget.dart';
+import '../../adaptive/services/adaptive_engine.dart';
+import '../../adaptive/widgets/remedial_dialog.dart';
+import '../../ai_mentor/widgets/feedback_bottom_sheet.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../../exercise/providers/exercise_provider.dart';
 import '../../home/providers/level_provider.dart';
 import '../../lesson/screens/material_screen.dart';
 import '../widgets/result_dialog.dart';
 import '../widgets/result_logic.dart';
-import '../../../core/errors/error_type.dart';
-import '../../../shared/widgets/empty_widget.dart';
-import '../../../shared/widgets/error_widget.dart';
-import '../../../shared/widgets/loading_widget.dart';
-import '../../ai_mentor/widgets/feedback_bottom_sheet.dart';
 
 /// Outcome of a finished quiz session.
 enum QuizResult {
@@ -33,8 +35,14 @@ const int kQuizSecondsPerQuestion = 60;
 class QuizScreen extends ConsumerStatefulWidget {
   final int levelId;
   final String? levelTitle;
+  final List<QuizQuestion>? overrideQuestions;
 
-  const QuizScreen({required this.levelId, this.levelTitle, super.key});
+  const QuizScreen({
+    required this.levelId,
+    this.levelTitle,
+    this.overrideQuestions,
+    super.key,
+  });
 
   @override
   ConsumerState<QuizScreen> createState() => _QuizScreenState();
@@ -50,6 +58,7 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
   bool _isTimedOut = false;
   int _secondsRemaining = kQuizSecondsPerQuestion;
   int _correctCount = 0;
+  int _totalSecondsUsed = 0;
   bool _isLoading = true;
   bool _isFinished = false;
   String? _error;
@@ -70,6 +79,24 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
   }
 
   Future<void> _loadQuestions({bool refresh = false}) async {
+    if (widget.overrideQuestions != null &&
+        widget.overrideQuestions!.isNotEmpty) {
+      setState(() {
+        _questions = widget.overrideQuestions!;
+        _isLoading = false;
+        _error = null;
+        _currentIndex = 0;
+        _correctCount = 0;
+        _totalSecondsUsed = 0;
+        _selectedOptionId = null;
+        _isSubmitted = false;
+        _isTimedOut = false;
+        _secondsRemaining = kQuizSecondsPerQuestion;
+      });
+      _startTimer();
+      return;
+    }
+
     if (refresh) {
       ref.invalidate(quizExercisesProvider(widget.levelId));
     }
@@ -94,6 +121,7 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
         _error = null;
         _currentIndex = 0;
         _correctCount = 0;
+        _totalSecondsUsed = 0;
         _selectedOptionId = null;
         _isSubmitted = false;
         _isTimedOut = false;
@@ -156,10 +184,13 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
 
     final question = _questions[_currentIndex];
     final isCorrect = !timedOut && _selectedOptionId == question.answerId;
+    final int secondsSpent = (kQuizSecondsPerQuestion - _secondsRemaining)
+        .clamp(0, kQuizSecondsPerQuestion);
 
     setState(() {
       _isSubmitted = true;
       _isTimedOut = timedOut;
+      _totalSecondsUsed += secondsSpent;
       if (isCorrect) _correctCount++;
     });
   }
@@ -187,11 +218,9 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
   }
 
   /// Simpan hasil kuis ke tabel `user_progress` dan buka level berikutnya
-  /// bila level ini selesai dengan nilai minimal 70 persen.
+  /// bila level ini selesai dengan nilai mastery minimal 70 persen.
   ///
-  /// Mengembalikan XP efektif (nilai terbaik antara XP lama dan XP baru),
-  /// XP mentah percobaan ini, mastery percobaan ini, jumlah percobaan, dan
-  /// penanda penyelesaian pertama untuk dialog hasil.
+  /// Menggunakan formula adaptif PRD: M = 0.45A + 0.25C + 0.20(1 - E) + 0.10(1 - Tn).
   Future<
     ({
       int xpEarned,
@@ -234,26 +263,35 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
       );
     }
 
-    final ratio = score / total;
-    final String status;
-    final int xpThisAttempt;
-    if (ratio >= 0.7) {
-      status = 'completed';
-      xpThisAttempt = 100;
-    } else if (ratio >= 0.4) {
-      status = 'active';
-      xpThisAttempt = 50;
-    } else {
-      status = 'active';
-      xpThisAttempt = 0;
-    }
-
     final repo = ref.read(userProgressRepositoryProvider);
 
     try {
-      // Baca baris lama sebelum upsert untuk mendeteksi penyelesaian pertama
-      // dan menghitung nilai efektif (XP memakai nilai terbaik).
       final existing = await repo.getForLevel(user.id, widget.levelId);
+      final double previousMastery = existing?.masteryScore ?? 0.0;
+
+      // Hitung nilai mastery adaptif sesungguhnya berdasarkan formula PRD & Arsitektur
+      final double adaptiveMastery = AdaptiveEngine.computeMastery(
+        correct: score,
+        total: total,
+        secondsUsed: _totalSecondsUsed,
+        timeLimitPerQuestion: kQuizSecondsPerQuestion,
+        previousMastery: previousMastery,
+      );
+
+      final String status;
+      final int xpThisAttempt;
+      if (adaptiveMastery >= AdaptiveEngine.masteryPass) {
+        status = 'completed';
+        xpThisAttempt = 100;
+      } else if (adaptiveMastery >= AdaptiveEngine.masteryRemedialMin) {
+        status = 'active';
+        xpThisAttempt = 50;
+      } else {
+        status = 'active';
+        xpThisAttempt = 0;
+      }
+
+      // Deteksi penyelesaian pertama dan hitung XP efektif
       final bool isFirstCompletion =
           existing == null || existing.status != 'completed';
       final int previousXp = existing?.xpEarned ?? 0;
@@ -262,16 +300,17 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
           : previousXp;
       final int attempts = (existing?.attempts ?? 0) + 1;
 
+      // Simpan nilai masteryScore dengan M formula adaptif, bukan sekadar rasio jawaban
       await repo.upsert(
         userId: user.id,
         levelId: widget.levelId,
         status: status,
-        masteryScore: ratio,
+        masteryScore: adaptiveMastery,
         xpEarned: xpThisAttempt,
         attempts: 1,
       );
 
-      // Buka level berikutnya kalau level ini lulus.
+      // Buka level berikutnya kalau level ini lulus (M >= 0.70).
       if (status == 'completed' && widget.levelId < 50) {
         final next = widget.levelId + 1;
         final existingNext = await repo.getForLevel(user.id, next);
@@ -293,7 +332,7 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
       return (
         xpEarned: effectiveXp,
         xpThisAttempt: xpThisAttempt,
-        mastery: ratio,
+        mastery: adaptiveMastery,
         attempts: attempts,
         isFirstCompletion: isFirstCompletion,
       );
@@ -301,10 +340,11 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
       if (kDebugMode) {
         debugPrint('Failed to save progress: $e');
       }
+      final double fallbackMastery = total > 0 ? (score / total) : 0.0;
       return (
         xpEarned: 0,
-        xpThisAttempt: xpThisAttempt,
-        mastery: ratio,
+        xpThisAttempt: 0,
+        mastery: fallbackMastery,
         attempts: 1,
         isFirstCompletion: false,
       );
@@ -359,6 +399,10 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
               } else {
                 _openMaterial(widget.levelId + 1);
               }
+            } else if (AdaptiveEngine.shouldTriggerRemedialQuiz(
+              result.mastery,
+            )) {
+              _showRemedialDialog(result.mastery);
             } else {
               _restartQuiz();
             }
@@ -367,9 +411,50 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
             Navigator.of(dialogContext).pop();
             if (tier == ResultTier.pass) {
               context.go('/home');
+            } else if (AdaptiveEngine.shouldTriggerRemedialQuiz(
+              result.mastery,
+            )) {
+              _showRemedialDialog(result.mastery);
             } else {
               _openMaterial(widget.levelId);
             }
+          },
+        );
+      },
+    );
+  }
+
+  /// Tampilkan dialog remedial AI saat skor mastery < 40%.
+  Future<void> _showRemedialDialog(double mastery) async {
+    if (!mounted) return;
+    await showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogCtx) {
+        return RemedialDialog(
+          levelId: widget.levelId,
+          topic: widget.levelTitle ?? 'Level ${widget.levelId}',
+          language: _questions.isNotEmpty ? _questions.first.language : 'cpp',
+          mastery: mastery,
+          onRetry: () {
+            Navigator.of(dialogCtx).pop();
+            _restartQuiz();
+          },
+          onBackToMaterial: () {
+            Navigator.of(dialogCtx).pop();
+            _openMaterial(widget.levelId);
+          },
+          onStartRemedial: (remedialQuestions) {
+            Navigator.of(dialogCtx).pop();
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(
+                builder: (_) => QuizScreen(
+                  levelId: widget.levelId,
+                  levelTitle: widget.levelTitle,
+                  overrideQuestions: remedialQuestions,
+                ),
+              ),
+            );
           },
         );
       },
@@ -612,6 +697,74 @@ class QuizQuestion {
       options: options,
       answerId: rawAnswer,
       explanation: rawExplanation,
+    );
+  }
+
+  /// Parser untuk mengubah respons Map kuis dari Edge Function AI menjadi [QuizQuestion].
+  static QuizQuestion? fromAiMap(
+    Map<String, dynamic> map, {
+    String language = 'cpp',
+  }) {
+    final prompt = map['question'] ?? map['prompt'];
+    if (prompt is! String || prompt.trim().isEmpty) return null;
+
+    final rawOptions = map['options'];
+    if (rawOptions is! List || rawOptions.length < 2) return null;
+
+    final options = <QuizOption>[];
+    for (var i = 0; i < rawOptions.length; i++) {
+      final opt = rawOptions[i];
+      final String id = 'opt_$i';
+      final String text;
+      if (opt is String) {
+        text = opt;
+      } else if (opt is Map && opt['text'] is String) {
+        text = opt['text'] as String;
+      } else {
+        text = opt.toString();
+      }
+      if (text.trim().isEmpty) return null;
+      options.add(QuizOption(id: id, text: text));
+    }
+
+    final rawAnswer = map['answer'];
+    String answerId;
+    if (rawAnswer is int && rawAnswer >= 0 && rawAnswer < options.length) {
+      answerId = 'opt_$rawAnswer';
+    } else if (rawAnswer is String) {
+      final parsedIndex = int.tryParse(rawAnswer);
+      if (parsedIndex != null &&
+          parsedIndex >= 0 &&
+          parsedIndex < options.length) {
+        answerId = 'opt_$parsedIndex';
+      } else {
+        final matched = options.firstWhere(
+          (o) => o.id == rawAnswer || o.text == rawAnswer,
+          orElse: () => options.first,
+        );
+        answerId = matched.id;
+      }
+    } else {
+      answerId = options.first.id;
+    }
+
+    final rawExplanation = map['explanation'];
+    final explanation =
+        rawExplanation is String && rawExplanation.trim().isNotEmpty
+        ? rawExplanation
+        : 'Pembahasan belum tersedia.';
+
+    final rawLang = map['language'];
+    final effectiveLang = rawLang is String && rawLang.isNotEmpty
+        ? rawLang
+        : language;
+
+    return QuizQuestion(
+      prompt: prompt,
+      language: effectiveLang,
+      options: options,
+      answerId: answerId,
+      explanation: explanation,
     );
   }
 }

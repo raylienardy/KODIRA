@@ -81,10 +81,10 @@ Gunakan bersama `docs/06-workflow.md` untuk kerja dengan opencode.
 | Phase 2 — UI Design       | 6      | 1      | 0     | 0      | 4      | 1     |
 | Phase 3 — Architecture    | 7      | 5      | 0     | 1      | 0      | 1     |
 | Phase 4 — MVP Development | 14     | 12     | 0     | 0      | 0      | 2     |
-| Phase 5 — AI Integration  | 8      | 4      | 0     | 3      | 1      | 0     |
+| Phase 5 — AI Integration  | 8      | 4      | 0     | 2      | 2      | 0     |
 | Phase 6 — Testing         | 6      | 0      | 0     | 6      | 0      | 0     |
 | Phase 7 — Documentation   | 6      | 3      | 0     | 3      | 0      | 0     |
-| **Total**                 | **65** | **43** | **0** | **13** | **5** | **4** |
+| **Total**                 | **65** | **43** | **0** | **12** | **6**  | **4** |
 
 ---
 
@@ -113,13 +113,13 @@ Setup project Flutter, theme, dan fondasi kode.
 
 ### P1-001: Setup Project Flutter
 
-| Field      | Nilai  |
-| ---------- | ------ |
-| Status     | Done   |
-| Priority   | P0     |
-| Token      | S      |
-| Agent      | build  |
-| Dependency | —      |
+| Field      | Nilai |
+| ---------- | ----- |
+| Status     | Done  |
+| Priority   | P0    |
+| Token      | S     |
+| Agent      | build |
+| Dependency | —     |
 
 **Scope:**
 
@@ -1034,7 +1034,7 @@ Integrasi AI Mentor, adaptive quiz, guardrail.
 
 | Field      | Nilai  |
 | ---------- | ------ |
-| Status     | Todo   |
+| Status     | Review |
 | Priority   | P0     |
 | Token      | XL     |
 | Agent      | build  |
@@ -1045,12 +1045,14 @@ Integrasi AI Mentor, adaptive quiz, guardrail.
 - `app/lib/features/adaptive/` (rule-based)
 - Formula mastery
 
+**Catatan:** Formula M = 0.45A + 0.25C + 0.20(1-E) + 0.10(1-Tn) di `adaptive_engine.dart`. Threshold 0.70 pass / 0.40-0.69 remedial / <0.40 fail + trigger ai-generate-quiz remedial. Wire ke quiz result: mastery_score disimpan = M (bukan ratio). Test 20+ kasus. Test runtime device pending.
+
 **DoD:**
 
-- [ ] Hitung mastery dari event
-- [ ] Threshold 0.40 & 0.70
-- [ ] Level locking logic
-- [ ] Test unit coverage 90%+
+- [x] Hitung mastery dari event
+- [x] Threshold 0.40 & 0.70
+- [x] Level locking logic
+- [x] Test unit coverage 90%+
 
 ---
 
@@ -1443,25 +1445,26 @@ Dokumen akhir & presentasi.
 
 ## 14. Update Log
 
-| Tanggal    | Perubahan           |
-| ---------- | ------------------- |
-| 2026-10-16 | Draft awal, 65 task |
-| 2026-10-22 | P4-007 & P4-008 → Review (kuis terverifikasi end-to-end di perangkat) |
-| 2026-10-22 | Seed quiz L16-50 (105 soal) — quiz complete 50/50 level |
-| 2026-10-22 | P4-009 XP & Level System → WIP (kode selesai, test device pending) |
-| 2026-10-22 | Audit stale statuses (P1-001 Done, P4-012 Skip) |
-| 2026-10-22 | P4-001 → Done, P4-009 → Review (unit test: 52 kasus di 4 file test) |
-| 2026-10-22 | Streak logic + repository + chip real (test runtime pending device) |
-| 2026-10-22 | P4-010 Badge & Achievement → Review (badge & achievement auto-award, unit test 108 kasus) |
-| 2026-10-22 | P4-010 → Done, P4-011 Profil & Progress → Review (6 section, unit test 135 kasus) |
-| 2026-10-22 | P1-007 pre-commit hook, P3-003 request body 20 endpoint, P1-005 split ABI → Done (30 Done) |
-| 2026-10-22 | P4-014 error handling + loading states → Review (Result/ErrorType/3 widget, 165 test) |
-| 2026-10-22 | P4-008 result dialog tier + mastery + level-up → Review (194 test) |
-| 2026-10-23 | Bug#1 v2 (retry backoff + Home banner) fixed. Cold start 5/5 PASS. P4-007/P4-009 Done. |
-| 2026-10-23 | Bug#2 (Profil blank) fixed: stat_cards Row stretch di ListView = infinite layout. Fix hapus stretch. Runtime PASS, P4-011 Done. |
-| 2026-10-23 | P4-013 Repository Interfaces → Review (7 interface, 7 provider, 14 test) |
-| 2026-10-23 | Bug#2 Profil fix (3bfd276) runtime verified. P4-011 Done. P4-013 Done (220 test). Fix A (13063b5) banner retry auto-refresh verified. |
-| 2026-10-23 | P4-008 animasi level-up + P4-014 error state runtime verified. P4-006 Skip (blocked Phase 5). Phase 4 selesai (12 Done, 0 Review doable, 2 Skip). |
-| 2026-10-24 | P7-004/005/006 Done. Phase 7 3/6. Screenshot rename `.png.png` → `.png`. README final. Handover created. |
+| Tanggal    | Perubahan                                                                                                                                                                                                           |
+| ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 2026-10-16 | Draft awal, 65 task                                                                                                                                                                                                 |
+| 2026-10-22 | P4-007 & P4-008 → Review (kuis terverifikasi end-to-end di perangkat)                                                                                                                                               |
+| 2026-10-22 | Seed quiz L16-50 (105 soal) — quiz complete 50/50 level                                                                                                                                                             |
+| 2026-10-22 | P4-009 XP & Level System → WIP (kode selesai, test device pending)                                                                                                                                                  |
+| 2026-10-22 | Audit stale statuses (P1-001 Done, P4-012 Skip)                                                                                                                                                                     |
+| 2026-10-22 | P4-001 → Done, P4-009 → Review (unit test: 52 kasus di 4 file test)                                                                                                                                                 |
+| 2026-10-22 | Streak logic + repository + chip real (test runtime pending device)                                                                                                                                                 |
+| 2026-10-22 | P4-010 Badge & Achievement → Review (badge & achievement auto-award, unit test 108 kasus)                                                                                                                           |
+| 2026-10-22 | P4-010 → Done, P4-011 Profil & Progress → Review (6 section, unit test 135 kasus)                                                                                                                                   |
+| 2026-10-22 | P1-007 pre-commit hook, P3-003 request body 20 endpoint, P1-005 split ABI → Done (30 Done)                                                                                                                          |
+| 2026-10-22 | P4-014 error handling + loading states → Review (Result/ErrorType/3 widget, 165 test)                                                                                                                               |
+| 2026-10-22 | P4-008 result dialog tier + mastery + level-up → Review (194 test)                                                                                                                                                  |
+| 2026-10-23 | Bug#1 v2 (retry backoff + Home banner) fixed. Cold start 5/5 PASS. P4-007/P4-009 Done.                                                                                                                              |
+| 2026-10-23 | Bug#2 (Profil blank) fixed: stat_cards Row stretch di ListView = infinite layout. Fix hapus stretch. Runtime PASS, P4-011 Done.                                                                                     |
+| 2026-10-23 | P4-013 Repository Interfaces → Review (7 interface, 7 provider, 14 test)                                                                                                                                            |
+| 2026-10-23 | Bug#2 Profil fix (3bfd276) runtime verified. P4-011 Done. P4-013 Done (220 test). Fix A (13063b5) banner retry auto-refresh verified.                                                                               |
+| 2026-10-23 | P4-008 animasi level-up + P4-014 error state runtime verified. P4-006 Skip (blocked Phase 5). Phase 4 selesai (12 Done, 0 Review doable, 2 Skip).                                                                   |
+| 2026-10-24 | P7-004/005/006 Done. Phase 7 3/6. Screenshot rename `.png.png` → `.png`. README final. Handover created.                                                                                                            |
 | 2026-10-25 | Verified seed-quiz-02.sql (105 quiz L16-50, commit 53e2de2 2026-10-22) — idempotent verified (150 quiz tetap 150 setelah re-run), match DB, cross-syntax 0, CJK 0. Quiz coverage 100% (50/50). Total exercises 400. |
-| 2026-10-28 | Phase 5A+5B: 4 Edge Functions live; Flutter AI layer dan hint/feedback sheet terhubung ke material, quiz, drag_drop. P5-001/002/003/005 Done; P5-006 Review karena rate limit belum. |
+| 2026-10-28 | Phase 5A+5B: 4 Edge Functions live; Flutter AI layer dan hint/feedback sheet terhubung ke material, quiz, drag_drop. P5-001/002/003/005 Done; P5-006 Review karena rate limit belum.                                |
+| 2026-10-28 | Phase 5C Adaptive Engine selesai (formula mastery + threshold + remedial wiring). P5-004 Review.                                                                                                    |
