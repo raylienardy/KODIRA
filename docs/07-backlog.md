@@ -80,11 +80,11 @@ Gunakan bersama `docs/06-workflow.md` untuk kerja dengan opencode.
 | Phase 1 — Design System   | 8      | 8      | 0     | 0      | 0      | 0     |
 | Phase 2 — UI Design       | 6      | 1      | 0     | 0      | 4      | 1     |
 | Phase 3 — Architecture    | 7      | 5      | 0     | 1      | 0      | 1     |
-| Phase 4 — MVP Development | 14     | 13     | 0     | 0      | 0      | 1     |
-| Phase 5 — AI Integration  | 8      | 5      | 0     | 1      | 2      | 0     |
+| Phase 4 — MVP Development | 14     | 12     | 0     | 0      | 1      | 1     |
+| Phase 5 — AI Integration  | 8      | 4      | 0     | 1      | 3      | 0     |
 | Phase 6 — Testing         | 6      | 0      | 0     | 6      | 0      | 0     |
 | Phase 7 — Documentation   | 6      | 3      | 0     | 3      | 0      | 0     |
-| **Total**                 | **65** | **45** | **0** | **11** | **6**  | **3** |
+| **Total**                 | **65** | **43** | **0** | **11** | **8**  | **3** |
 
 ---
 
