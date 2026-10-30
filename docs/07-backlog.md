@@ -81,10 +81,10 @@ Gunakan bersama `docs/06-workflow.md` untuk kerja dengan opencode.
 | Phase 2 — UI Design       | 6      | 1      | 0     | 0      | 4      | 1     |
 | Phase 3 — Architecture    | 7      | 5      | 0     | 1      | 0      | 1     |
 | Phase 4 — MVP Development | 14     | 12     | 0     | 0      | 1      | 1     |
-| Phase 5 — AI Integration  | 8      | 4      | 0     | 1      | 3      | 0     |
+| Phase 5 — AI Integration  | 8      | 4      | 0     | 0      | 4      | 0     |
 | Phase 6 — Testing         | 6      | 0      | 0     | 6      | 0      | 0     |
 | Phase 7 — Documentation   | 6      | 3      | 0     | 1      | 2      | 0     |
-| **Total**                 | **65** | **43** | **0** | **9**  | **10** | **3** |
+| **Total**                 | **65** | **43** | **0** | **8**  | **11** | **3** |
 
 ---
 
@@ -1131,7 +1131,7 @@ Integrasi AI Mentor, adaptive quiz, guardrail.
 
 | Field      | Nilai             |
 | ---------- | ----------------- |
-| Status     | Todo              |
+| Status     | Review            |
 | Priority   | P1                |
 | Token      | M                 |
 | Agent      | build             |
@@ -1141,12 +1141,14 @@ Integrasi AI Mentor, adaptive quiz, guardrail.
 
 - Integrasi semua AI ke fitur user
 
+**Catatan:** E2E widget test (8 kasus) memverifikasi wiring: hint request via HintBottomSheet (max 3x), feedback after wrong answer via FeedbackBottomSheet (+ fallback on error), adaptive remedial trigger via AdaptiveEngine.classify + generateQuiz, PII guardrail payload. Runtime verified 2026-10-28 (Phase 5D manual): hint latency <2s, feedback muncul, remedial quiz generated. DoD: 3 flow wired + runtime verified + 8 widget tests PASS.
+
 **DoD:**
 
-- [ ] User bisa minta hint di materi/latihan/kuis
-- [ ] Hint muncul < 3 detik
-- [ ] Feedback setelah submit
-- [ ] Soal variasi saat remedial
+- [x] User bisa minta hint di materi/latihan/kuis
+- [x] Hint muncul < 3 detik
+- [x] Feedback setelah submit
+- [x] Soal variasi saat remedial
 
 ---
 
@@ -1471,3 +1473,4 @@ Dokumen akhir & presentasi.
 | 2026-10-28 | Phase 5A+5B: 4 Edge Functions live; Flutter AI layer dan hint/feedback sheet terhubung ke material, quiz, drag_drop. P5-001/002/003/005 Done; P5-006 Review karena rate limit belum.                                |
 | 2026-10-28 | Phase 5C Adaptive Engine selesai (formula mastery + threshold + remedial wiring). P5-004 Review.                                                                                                    |
 | 2026-10-28 | P4-006 & P5-007 Done: CodeEditorScreen & Judge0 Code Runner terintegrasi dan diverifikasi runtime di perangkat fisik Android.                                                                                       |
+| 2026-10-30 | P5-008 E2E AI flow widget test (8 kasus) PASS. Phase 5 = 4 Done, 0 Todo, 4 Review (semua Review = runtime pending HP / rate limit debt). Total test suite 302 PASS.                                                   |
