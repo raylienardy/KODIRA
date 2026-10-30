@@ -11,7 +11,7 @@
 
 ## Abstrak
 
-Pemrograman dasar merupakan mata kuliah fundamental yang menentukan keberhasilan akademik mahasiswa Program Studi Pendidikan Teknologi Informasi dan Komputer (JTIK). Namun, mahasiswa semester satu sering kali menghadapi tantangan berat berupa abstraksi logika komputasi yang tinggi, penurunan motivasi belajar secara drastis, serta ketergantungan yang tidak sehat pada perangkat kecerdasan buatan (*Artificial Intelligence*) generatif yang memberikan jawaban instan tanpa melatih proses berpikir kritis. Penelitian ini mengembangkan KODIRA (Koding Cepat & Riang), sebuah aplikasi mobile lintas platform berbasis Android yang mengintegrasikan tiga pilar utama: sistem gamifikasi terstruktur (XP, level, badge, streak, achievement), AI Adaptive Mentor dengan pembatasan hint bertahap (level 1–3) menggunakan *guardrail* ketat, serta Adaptive Quiz engine berbasis formula mastery $M = 0.45A + 0.25C + 0.20(1-E) + 0.10(1-T_n)$. Menggunakan metode pengembangan ADDIE (*Analysis, Design, Development, Implementation, Evaluation*), KODIRA dibangun menggunakan teknologi modern meliputi Flutter 3.44, State Management Riverpod, backend Supabase (PostgreSQL, Auth, RLS, Edge Functions), integrasi Groq API (*gpt-oss-120b*), dan Judge0 CE untuk *code runner* C++ serta Java. Hasil pengujian menunjukkan bahwa aplikasi ini berhasil melewati 294 unit dan widget test (*PASS*) dengan integrasi CI/CD GitHub Actions yang stabil, serta terverifikasi secara runtime pada perangkat fisik Android. KODIRA terbukti mampu menyediakan lingkungan belajar mandiri yang adaptif, aman dari paparan PII, dan efektif bagi mahasiswa tingkat awal.
+Pemrograman dasar merupakan mata kuliah fundamental yang menentukan keberhasilan akademik mahasiswa Program Studi Pendidikan Teknologi Informasi dan Komputer (JTIK). Namun, mahasiswa semester satu sering kali menghadapi tantangan berat berupa abstraksi logika komputasi yang tinggi, penurunan motivasi belajar secara drastis, serta ketergantungan yang tidak sehat pada perangkat kecerdasan buatan (*Artificial Intelligence*) generatif yang memberikan jawaban instan tanpa melatih proses berpikir kritis. Penelitian ini mengembangkan KODIRA (Koding Cepat & Riang), sebuah aplikasi mobile lintas platform berbasis Android yang mengintegrasikan tiga pilar utama: sistem gamifikasi terstruktur (XP, level, badge, streak, achievement), AI Adaptive Mentor dengan pembatasan hint bertahap (level 1–3) menggunakan *guardrail* ketat, serta Adaptive Quiz engine berbasis formula mastery $M = 0.45A + 0.25C + 0.20(1-E) + 0.10(1-T_n)$. Menggunakan metode pengembangan ADDIE (*Analysis, Design, Development, Implementation, Evaluation*), KODIRA dibangun menggunakan teknologi modern meliputi Flutter 3.44, State Management Riverpod, backend Supabase (PostgreSQL, Auth, RLS, Edge Functions), integrasi Groq API (*gpt-oss-120b*), dan Judge0 CE untuk *code runner* C++ serta Java. Hasil pengujian menunjukkan bahwa aplikasi ini berhasil melewati 302 unit dan widget test (*PASS*) dengan integrasi CI/CD GitHub Actions yang stabil, serta terverifikasi secara runtime pada perangkat fisik Android. KODIRA terbukti mampu menyediakan lingkungan belajar mandiri yang adaptif, aman dari paparan PII, dan efektif bagi mahasiswa tingkat awal.
 
 **Kata kunci:** *gamification, adaptive learning, AI mentor, pemrograman dasar, Flutter, ADDIE*
 
@@ -43,7 +43,7 @@ Tujuan yang ingin dicapai melalui penelitian ini meliputi:
 1. Menghasilkan aplikasi mobile KODIRA yang andal dan intuitif untuk pembelajaran C++ dan Java bagi mahasiswa JTIK semester 1.
 2. Mengimplementasikan modul AI Adaptive Mentor yang aman, mematuhi batasan privasi (tanpa PII), serta menerapkannya melalui mekanisme *prompt engineering* tiga tingkat kesukaran hint.
 3. Membangun mesin kuis adaptif yang mampu mengevaluasi akurasi, kompleksitas waktu, riwayat penguasaan, dan tingkat kesulitan soal untuk menghasilkan skor mastery yang akurat.
-4. Memvalidasi kualitas kode dan stabilitas sistem melalui pengujian ekstensif yang mencakup 294 unit dan widget test (*PASS*) serta verifikasi langsung di perangkat fisik.
+4. Memvalidasi kualitas kode dan stabilitas sistem melalui pengujian ekstensif yang mencakup 302 unit dan widget test (*PASS*) serta verifikasi langsung di perangkat fisik.
 
 ### 1.4 Manfaat Penelitian
 
@@ -105,7 +105,7 @@ Penelitian ini mengikuti alur sistematis dari model ADDIE yang dimodifikasi untu
 2. **Design (Desain):** Merancang arsitektur aplikasi (*Clean Architecture*, *feature-first*), desain antarmuka pengguna sesuai standar *design system* KODIRA, pemodelan basis data relasional di Supabase, dan perancangan kontrak API.
 3. **Development (Pengembangan):** Menulis kode program aplikasi menggunakan Flutter & Dart, membangun backend Supabase beserta migrasi SQL dan *seed data* (650 item konten), serta mengimplementasikan 4 Edge Functions untuk AI dan *code runner*.
 4. **Implementation (Implementasi):** Menyiapkan pipa CI/CD menggunakan GitHub Actions untuk pengujian otomatis, membangun APK *release* dengan optimasi *split per ABI*, serta melakukan instalasi dan pengujian di perangkat fisik Android.
-5. **Evaluation (Evaluasi):** Menjalankan rangkaian 294 unit dan widget test (*automated testing*), melakukan verifikasi fungsionalitas *runtime* secara langsung, serta memastikan seluruh kriteria selesai (*Definition of Done*).
+5. **Evaluation (Evaluasi):** Menjalankan rangkaian 302 unit dan widget test (*automated testing*), melakukan verifikasi fungsionalitas *runtime* secara langsung, serta memastikan seluruh kriteria selesai (*Definition of Done*).
 
 ### 3.2 Arsitektur Sistem dan Teknologi
 
@@ -168,7 +168,7 @@ Antarmuka aplikasi KODIRA diwakili melalui delapan tangkapan layar berikut yang 
 
 ### 4.2 Hasil Pengujian dan Validasi
 
-Kualitas dan keandalan sistem divalidasi melalui eksekusi pengujian otomatis (*automated testing*) dan pengujian *runtime* pada perangkat keras fisik Android (Xiaomi / Android 13). Seluruh rangkaian pengujian berhasil diselesaikan dengan status **294 Unit & Widget Test PASS**.
+Kualitas dan keandalan sistem divalidasi melalui eksekusi pengujian otomatis (*automated testing*) dan pengujian *runtime* pada perangkat keras fisik Android (Xiaomi / Android 13). Seluruh rangkaian pengujian berhasil diselesaikan dengan status **302 unit & widget test PASS**.
 
 Tabel berikut menyajikan rincian sebaran pengujian per modul:
 
@@ -184,9 +184,30 @@ Tabel berikut menyajikan rincian sebaran pengujian per modul:
 | **Quiz Result Logic** (Tier classification) | 22 | ✅ PASS |
 | **Widget UI Tests** (Screens, dialogs, sheets) | 30+ | ✅ PASS |
 | **Code Editor & Judge0 Integration** | 8+ | ✅ PASS |
-| **Total Keseluruhan** | **294** | **✅ PASS** |
+| **E2E AI Flow** | **8** | ✅ PASS |
+| **Total Keseluruhan** | **302** | **✅ PASS** |
 
 Pipa CI/CD yang dikonfigurasi melalui GitHub Actions berjalan secara konsisten dengan durasi rata-rata 90–120 detik, memastikan bahwa setiap perubahan kode memenuhi standar kualitas ketat tanpa adanya regresi.
+
+### 4.2.1 Preliminary User Testing
+
+Sebelum uji coba lapangan skala besar (P6-004), dilakukan pengujian preliminary secara informal kepada satu QA tester dari tim pengembang. Pengujian berfokus pada verifikasi fungsional 13 alur utama aplikasi:
+
+1. Login NIM dan session restore
+2. Level map 50 level dengan status
+3. Materi 5 slide per level
+4. Latihan drag & drop 5 exercise
+5. Kuis adaptif 3 soal dengan timer
+6. AI Adaptive Mentor (hint 3 level)
+7. AI feedback setelah jawaban salah
+8. AI remedial quiz generation
+9. Code Editor C++/Java via Judge0
+10. XP persistence + level unlock
+11. Streak harian
+12. Badge & achievement auto-award
+13. Profil 6 section
+
+**Hasil**: Seluruh 13 alur berjalan fungsional pada perangkat Android fisik (Android 13). Tidak ditemukan crash atau blocker kritis. Keterbatasan: pengujian belum terukur secara statistik (SUS score atau *N-gain*), direncanakan pada Phase 6 (P6-004) dengan minimal 20 responden mahasiswa JTIK semester 1.
 
 ### 4.3 Pembahasan
 
@@ -195,12 +216,55 @@ Hasil pengujian membuktikan bahwa pendekatan hibrida yang diterapkan KODIRA memb
 - **Keunggulan Scaffolding AI:** Pembatasan interaksi AI menjadi tiga tingkat hint terbukti berhasil mengurangi kecenderungan mahasiswa menyalin jawaban secara buta. Mahasiswa dipaksa membaca petunjuk konseptual terlebih dahulu sebelum mendapatkan bantuan teknis lanjutan.
 - **Keadilan Evaluasi (Adaptive Quiz):** Formula mastery terbukti mampu memberikan penilaian yang adil. Mahasiswa yang menjawab benar dengan waktu cepat dan konsistensi tinggi mendapatkan apresiasi maksimal, sementara mahasiswa yang mengalami kesulitan langsung diarahkan pada modul remedial tanpa frustrasi berlebihan.
 
-### 4.4 Keterbatasan Penelitian
+### 4.4 Keterbatasan dan Saran Pengembangan
 
-Meskipun pencapaian teknis telah memenuhi target MVP, terdapat beberapa keterbatasan yang perlu dicatat untuk pengembangan masa depan:
-1. Layanan kecerdasan buatan masih bergantung pada *free tier* dari penyedia LLM eksternal yang memiliki batasan *rate limit* (30 permintaan per menit).
-2. Code editor pada aplikasi saat ini masih berupa *plain text field* monospaced tanpa dukungan *syntax highlighting* tingkat lanjut akibat keterbatasan waktu pengembangan (ditunda sebagai *technical debt*).
-3. Pengujian skala besar langsung kepada kelas mahasiswa JTIK (*user acceptance testing* / P6-004) belum dilaksanakan secara penuh dan direncanakan sebagai agenda lanjutan.
+Berdasarkan review dosen pengampu dan evaluasi internal tim pengembang, teridentifikasi beberapa area pengembangan yang belum tercakup dalam MVP saat ini dan menjadi rekomendasi untuk iterasi berikutnya. Pengembangan-pengembangan ini **tidak** termasuk dalam scope Phase 0-5 yang telah diselesaikan, melainkan roadmap lanjutan.
+
+#### 4.4.1 Pengelompokan Level Berdasarkan Tingkat Kesulitan
+
+Saat ini 50 level ditampilkan secara linier (level 1-35 C++, 36-50 Java) tanpa pengelompokan visual berdasarkan tingkat kesulitan (mudah/sedang/tinggi). Pengembangan yang disarankan: mengelompokkan level ke dalam tiga kategori kesulitan yang jelas, dengan indikator visual dan batas antar kategori.
+
+#### 4.4.2 Dashboard Admin untuk Dosen
+
+Aplikasi belum menyediakan interface khusus untuk dosen memantau aktivitas mahasiswa secara agregat. Pengembangan yang disarankan: dashboard web/mobile terpisah yang menampilkan metrik seperti:
+- Seberapa sering mahasiswa aktif
+- Progres penguasaan materi per mahasiswa
+- Tingkat penyelesaian level
+- Topik yang sering menjadi kesulitan
+- Materi yang perlu di-update
+
+#### 4.4.3 Klarifikasi Formula Mastery
+
+Formula mastery $M = 0.45A + 0.25C + 0.20(1-E) + 0.10(1-T_n)$ yang digunakan saat ini mengevaluasi performa holistik, bukan hanya benar/salah. Konsekuensinya: mahasiswa yang menjawab 100% benar namun dengan waktu lambat atau riwayat konsistensi rendah mungkin tidak mendapat skor 100%. Hal ini pernah menimbulkan kebingungan pada pengguna yang melihat skor mastery tidak mencapai 100% meskipun jawaban benar semua. Pengembangan yang disarankan: menampilkan breakdown formula ($A, C, E, T_n$) pada UI profil agar mahasiswa memahami faktor yang mempengaruhi skor.
+
+#### 4.4.4 Fitur Ubah Password
+
+Fitur perubahan password mandiri (lupa password) belum tersedia. Saat ini reset password harus dilakukan manual oleh admin. Pengembangan yang disarankan: fitur "Lupa Password" yang mengirim kode reset via email atau verifikasi NIM + pertanyaan keamanan.
+
+#### 4.4.5 Halaman About / Aturan Penggunaan
+
+Halaman yang menjelaskan cara pakai aplikasi, aturan naik level, cara memperoleh XP, dan informasi umum belum tersedia. Pengembangan yang disarankan: halaman "Tentang" atau "Panduan" yang dapat diakses dari menu profil.
+
+#### 4.4.6 XP Bervariasi per Tingkat Kesulitan
+
+Saat ini XP bersifat flat: 100 XP untuk lulus, 50 XP untuk remedial, 0 XP untuk gagal. Pengembangan yang disarankan: sistem XP bertingkat sesuai tingkat kesulitan level (mudah = 50 XP, sedang = 100 XP, tinggi = 150 XP, dan seterusnya) agar reward sebanding dengan effort.
+
+#### 4.4.7 Leaderboard
+
+Fitur leaderboard untuk menampilkan peringkat 1-3 mahasiswa dengan XP tertinggi belum tersedia. Pengembangan yang disarankan: leaderboard global dan per-kelas, dengan proteksi privasi (tampilkan inisial saja, bukan nama lengkap).
+
+#### 4.4.8 Sistem Gelar (Title)
+
+Sistem reward berupa gelar/title saat mahasiswa mencapai milestone tertentu (contoh: "Master C++" setelah 35 level C++ selesai) belum tersedia. Pengembangan yang disarankan: sistem title otomatis berdasarkan capaian, ditampilkan di profil.
+
+#### 4.4.9 Keterbatasan Teknis Lainnya
+
+Selain 8 area pengembangan di atas, terdapat keterbatasan teknis MVP saat ini:
+- AI provider: Groq free tier (30 req/menit, 14.400 req/hari)
+- Judge0: `ce.judge0.com` public instance (no SLA)
+- Code editor: plain text (belum ada syntax highlighting berwarna)
+- Rate limiting server-side: belum diimplementasi penuh
+- Uji coba lapangan skala besar (P6-004): belum dilakukan
 
 ---
 
@@ -211,17 +275,35 @@ Meskipun pencapaian teknis telah memenuhi target MVP, terdapat beberapa keterbat
 1. KODIRA berhasil dirancang dan diimplementasikan sebagai aplikasi mobile pembelajaran pemrograman C++ dan Java yang mengintegrasikan gamifikasi, AI mentor, dan kuis adaptif secara harmonis.
 2. Integrasi AI Adaptive Mentor melalui Supabase Edge Functions dan LLM berhasil menyediakan bantuan belajar bertahap yang mendidik dan aman dari kebocoran data pribadi (PII).
 3. Adaptive Quiz Engine sukses menerapkan formula mastery untuk menghitung skor penguasaan dan mengotomatisasi mekanisme kelulusan serta remedial.
-4. Kelayakan aplikasi terbukti secara empiris melalui 294 unit dan widget test (*PASS*), integrasi CI/CD GitHub Actions yang hijau, serta verifikasi *runtime* pada perangkat Android fisik.
+4. Kelayakan aplikasi terbukti secara empiris melalui 302 unit dan widget test (*PASS*), integrasi CI/CD GitHub Actions yang hijau, serta verifikasi *runtime* pada perangkat Android fisik.
 
 ### 5.2 Saran
 
-1. **Bagi Pengembangan Aplikasi:**
-   - Menambahkan pustaka *syntax highlighting* (seperti `flutter_code_editor`) pada editor kode manual.
-   - Mengimplementasikan mekanisme *rate limiting* sisi klien dan peladen yang lebih ketat pada Edge Functions.
-   - Melakukan uji coba lapangan (*field testing*) kepada minimal 20 mahasiswa JTIK semester 1 untuk mengukur peningkatan *learning gain* secara statistik.
-2. **Bagi Penelitian Lanjutan:**
-   - Mengembangkan modul analitik lanjutan bagi dosen untuk memantau kesulitan spesifik mahasiswa secara *real-time*.
-   - Mengeksplorasi integrasi model lokal (*on-device LLM*) untuk mereduksi ketergantungan pada koneksi internet eksternal.
+Berdasarkan hasil evaluasi dan masukan dari dosen pengampu, terdapat beberapa rekomendasi pengembangan yang dapat dijadikan acuan untuk iterasi selanjutnya:
+
+#### 5.2.1 Untuk Pengembangan Aplikasi
+
+1. **Pengelompokan Level**: Implementasi visual grouping level berdasarkan tingkat kesulitan (mudah/sedang/tinggi) agar progres belajar lebih terstruktur.
+2. **Dashboard Admin**: Membangun dashboard dosen untuk monitoring aktivitas mahasiswa (frekuensi aktif, progres penguasaan, topik sulit).
+3. **Klarifikasi Mastery UI**: Menampilkan breakdown formula mastery di profil agar mahasiswa memahami faktor penentu skor.
+4. **Fitur Lupa Password**: Menambahkan mekanisme reset password mandiri (email/kode verifikasi).
+5. **Halaman About**: Menyediakan halaman "Tentang" atau "Panduan" yang menjelaskan cara pakai aplikasi dan aturan naik level.
+6. **XP Bertingkat**: Mengganti XP flat (100) dengan XP bervariasi sesuai tingkat kesulitan level.
+7. **Leaderboard**: Fitur peringkat 1-3 mahasiswa dengan XP tertinggi (dengan proteksi privasi).
+8. **Sistem Gelar**: Reward title otomatis saat milestone tertentu (misal "Master C++" setelah 35 level C++ selesai).
+
+#### 5.2.2 Untuk Penelitian Lanjutan
+
+1. **Uji Coba Lapangan** (P6-004): Melakukan uji coba skala besar minimal 20 responden mahasiswa JTIK semester 1, dengan pengukuran *N-gain* dan SUS score.
+2. **Evaluasi Learning Gain**: Membandingkan pre-test dan post-test untuk mengukur efektivitas pembelajaran.
+3. **Perluasan Bahasa Pemrograman**: Mendukung Python, JavaScript, atau bahasa lain untuk memperluas jangkauan.
+4. **Analitik Dosen**: Mengembangkan fitur analitik untuk dosen (kesulitan spesifik mahasiswa, topik yang perlu penguatan).
+5. **On-Device LLM**: Eksplorasi model bahasa lokal untuk mengurangi ketergantungan pada koneksi internet eksternal.
+
+#### 5.2.3 Untuk Institusi
+
+1. **Integrasi LMS**: Integrasi dengan Moodle atau Google Classroom untuk sinkronisasi nilai dan materi.
+2. **Kurikulum Reusable**: Standarisasi konten materi antar mata kuliah serupa di JTIK.
 
 ---
 
@@ -243,6 +325,10 @@ Meskipun pencapaian teknis telah memenuhi target MVP, terdapat beberapa keterbat
 14. Tsai, F. H., et al. (2024). Applying the GAME gamification model to enhance learning motivation and self-efficacy in computer programming. *Computers & Education*, 210, 104960.
 15. Vygotsky, L. S. (1978). *Mind in society: The development of higher psychological processes*. Harvard University Press.
 16. Zhan, Z., et al. (2022). The effects of gamification on students' learning performance and motivation in programming courses: A meta-analysis. *Journal of Educational Technology & Society*, 25(3), 110-125.
+
+---
+
+**Catatan untuk penulis:** Beberapa referensi di atas merupakan template yang perlu diverifikasi keberadaannya di Google Scholar sebelum submit. Pastikan minimal 15 referensi final adalah karya nyata dan relevan dengan topik.
 
 ---
 
