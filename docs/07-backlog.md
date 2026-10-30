@@ -83,8 +83,8 @@ Gunakan bersama `docs/06-workflow.md` untuk kerja dengan opencode.
 | Phase 4 — MVP Development | 14     | 12     | 0     | 0      | 1      | 1     |
 | Phase 5 — AI Integration  | 8      | 4      | 0     | 1      | 3      | 0     |
 | Phase 6 — Testing         | 6      | 0      | 0     | 6      | 0      | 0     |
-| Phase 7 — Documentation   | 6      | 3      | 0     | 3      | 0      | 0     |
-| **Total**                 | **65** | **43** | **0** | **11** | **8**  | **3** |
+| Phase 7 — Documentation   | 6      | 3      | 0     | 1      | 2      | 0     |
+| **Total**                 | **65** | **43** | **0** | **9**  | **10** | **3** |
 
 ---
 
@@ -1291,7 +1291,7 @@ Dokumen akhir & presentasi.
 
 | Field      | Nilai  |
 | ---------- | ------ |
-| Status     | Todo   |
+| Status     | Review |
 | Priority   | P0     |
 | Token      | L      |
 | Agent      | build  |
@@ -1313,7 +1313,7 @@ Dokumen akhir & presentasi.
 
 | Field      | Nilai  |
 | ---------- | ------ |
-| Status     | Todo   |
+| Status     | Review |
 | Priority   | P0     |
 | Token      | M      |
 | Agent      | build  |

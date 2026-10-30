@@ -132,6 +132,40 @@ Pengembangan KODIRA menghasilkan aplikasi mobile Android yang berfungsi penuh de
 9. **Profil Komprehensif:** Tinjauan statistik belajar, grid badge, daftar achievement, dan grafik penguasaan per topik (*mastery per topic*).
 10. **Penanganan Error Tangguh:** Widget error standar (`KodiraErrorWidget`) dengan mekanisme *retry* saat terjadi gangguan koneksi.
 
+Antarmuka aplikasi KODIRA diwakili melalui delapan tangkapan layar berikut yang memperlihatkan alur utama pengguna mulai dari autentikasi hingga pemantauan progres.
+
+**Gambar 1. Halaman Login**
+![Login](docs/assets/screenshots/01-login.png)
+*Antarmuka login menggunakan NIM mahasiswa dan password yang terhubung ke Supabase Auth.*
+
+**Gambar 2. Halaman Home / Peta Level**
+![Home](docs/assets/screenshots/02-home.png)
+*Peta 50 level dengan status selesai, aktif, dan terkunci, dilengkapi XP bar, streak harian, dan jumlah badge.*
+
+**Gambar 3. Materi Pembelajaran**
+![Materi](docs/assets/screenshots/03-materi.png)
+*Tampilan materi per level berupa slide dengan code snippet bertipe monospaced JetBrains Mono.*
+
+**Gambar 4. Latihan Drag & Drop**
+![Latihan](docs/assets/screenshots/04-latihan.png)
+*Latihan menyusun token kode melalui area penampung token dan zona jatuh dengan validasi jawaban otomatis.*
+
+**Gambar 5. Kuis Pilihan Ganda**
+![Kuis](docs/assets/screenshots/05-kuis.png)
+*Kuis adaptif dengan timer 60 detik per soal dan empat opsi jawaban.*
+
+**Gambar 6. Feedback Benar/Salah**
+![Feedback](docs/assets/screenshots/06-feedback.png)
+*Penjelasan feedback setelah submit jawaban beserta tombol Minta Feedback AI.*
+
+**Gambar 7. Level Terkunci**
+![Locked](docs/assets/screenshots/07-locked.png)
+*Mekanisme penguncian level yang aktif setelah dua kali gagal atau mastery di bawah 40%.*
+
+**Gambar 8. Profil dan Progress**
+![Profil](docs/assets/screenshots/08-profile.png)
+*Enam bagian profil: statistik pengguna, grid badge, daftar achievement, mastery per topik, dan aktivitas terakhir.*
+
 ### 4.2 Hasil Pengujian dan Validasi
 
 Kualitas dan keandalan sistem divalidasi melalui eksekusi pengujian otomatis (*automated testing*) dan pengujian *runtime* pada perangkat keras fisik Android (Xiaomi / Android 13). Seluruh rangkaian pengujian berhasil diselesaikan dengan status **294 Unit & Widget Test PASS**.
