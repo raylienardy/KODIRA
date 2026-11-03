@@ -1,38 +1,55 @@
 # Fitur #2C — Admin Panel (MVP)
 
-## Konteks
-Pengembangan antarmuka utama Admin Web untuk mendukung fitur manajemen dosen, AI content generator, dan monitoring mahasiswa.
+## 1. Konteks
+Untuk mendukung manajemen pembelajaran yang dinamis, dosen membutuhkan antarmuka web khusus untuk mengelola konten dan memonitor perkembangan mahasiswa secara langsung tanpa perlu melakukan kueri database secara manual.
 
-## Scope
-Pembangunan penuh 6 modul MVP Admin Web dan integrasi database Supabase.
+## 2. Scope
+Pembangunan penuh 6 modul MVP Admin Web dan integrasi database Supabase untuk mendukung operasional dosen.
 
-## Spec Detail
-1. **Teacher Auth**: Register dengan email `@ub.ac.id` (auto-approve) atau antrean verifikasi NIDN/NIP (2 jam).
-2. **AI Material Parser**: Upload file (PDF/Word), memproses teks, dan mengekstrak materi serta soal secara otomatis (6 jam).
-3. **Level Preview & Edit**: Mengulas materi yang digenerate AI (5 slide materi, 5 drag&drop, 3 kuis), mengedit, dan mempublikasikan ke aplikasi mobile (4 jam).
-4. **Student Management**: Menampilkan daftar mahasiswa, membuat akun baru, dan fitur impor massal via file CSV (3 jam).
-5. **Dashboard Analytics**: Menampilkan statistik frekuensi login, tingkat penyelesaian level, dan daftar materi tersulit (4 jam).
-6. **Reset Password Student**: Fitur tombol untuk menyetel ulang kata sandi mahasiswa yang di-request (1 jam).
-- **Database & Deployment**: Skema migrasi database (2 jam), policy RLS leaderboard (1 jam), UI antrean verifikasi NIDN (2 jam), deployment & polishing (2 jam).
+## 3. Spec Detail & Spesifikasi Teknis
+1. **Teacher Auth (2 jam)**: Sistem autentikasi untuk dosen/guru. Menggunakan email `@ub.ac.id` untuk pendaftaran mandiri (auto-approve) atau sistem antrean verifikasi untuk NIDN/NIP melalui tabel `user_verification_queue`.
+2. **AI Material Parser (6 jam)**: Antarmuka unggah file PDF/Word. File diproses melalui Cloud Function Python yang memparsing teks dan mengekstraksi menjadi struktur JSON:
+   ```json
+   {
+     "level_id": 1,
+     "materials": [{"slide": 1, "content": "Pengantar C++", "code": "cout << \"Hello\";"}],
+     "exercises": [{"type": "drag_drop", "prompt": "Lengkapi sintaks output", "payload": "cout"}],
+     "quiz": [{"question": "Apa fungsi cout?", "options": ["Cetak", "Input"], "answer": 0}]
+   }
+   ```
+3. **Level Preview & Edit (4 jam)**: Modul untuk meninjau hasil parse AI. Dosen dapat mengedit konten slide, soal latihan, dan kuis sebelum diterbitkan ke aplikasi mobile.
+4. **Student Management (3 jam)**: Modul daftar mahasiswa. Fitur utama: membuat akun mahasiswa baru dan impor massal (bulk import) data mahasiswa menggunakan file CSV.
+   - Format CSV: `nim,name,password`.
+5. **Dashboard Analytics (4 jam)**: Visualisasi data menggunakan chart.js atau Recharts yang menampilkan:
+   - Frekuensi login mahasiswa.
+   - Tingkat penyelesaian level.
+   - Daftar materi atau soal yang paling banyak memicu remedial.
+6. **Reset Password Student (1 jam)**: Tombol aksi untuk menyetel ulang kata sandi mahasiswa jika mereka terkunci dari sistem.
 
-## File yang Disentuh
-- `admin/src/app/(dashboard)/...`
-- Migration SQL: `app/supabase/migrations/20261030000000_classes_and_roles.sql`
+- **Migrasi & Deployment (6 jam)**: Migrasi skema database (`classes`, `class_teachers`, `class_students`), implementasi RLS (Row Level Security) untuk akses data, dan deployment ke Vercel.
 
-## Test Cases
-- Verify pembacaan dan ekstraksi file PDF materi menjadi slide.
-- Verify fungsi impor bulk student via CSV.
-- Verify reset password mahasiswa bekerja dan dapat digunakan untuk login kembali.
+## 4. File yang Disentuh
+- `admin/src/app/(dashboard)/classes/page.tsx`
+- `admin/src/app/(dashboard)/students/page.tsx`
+- `admin/src/app/(dashboard)/materials/page.tsx`
+- **Migration SQL**: 
+  - `app/supabase/migrations/20261030000000_classes_and_roles.sql` (Migrasi skema lengkap).
 
-## Definition of Done
-- Seluruh 6 modul MVP beroperasi sempurna pada peramban web.
-- Dosen dapat mengunggah materi baru yang langsung muncul di aplikasi mobile secara terstruktur.
+## 5. Test Cases & Skenario Pengujian
+- **Test AI Parser**: Mengunggah file PDF standar pemrograman dan memverifikasi output JSON sesuai dengan struktur yang diharapkan.
+- **Test Import Student**: Membaca file CSV dengan 10 baris dan memverifikasi bahwa 10 akun baru terbuat di database.
+- **Test Reset Password**: Menyetel ulang password mahasiswa dan memverifikasi mahasiswa tersebut dapat login dengan password baru.
 
-## Blocker / Dependency
-- Memerlukan migrasi skema tabel `classes`, `class_teachers`, `class_students`.
+## 6. Definition of Done (DoD)
+- Seluruh 6 modul MVP beroperasi stabil di peramban web.
+- Dosen dapat mengunggah materi baru yang langsung tersedia di aplikasi mobile secara otomatis.
 
-## Effort Estimate
+## 7. Blocker & Dependency
+- Bergantung pada keberhasilan migrasi tabel `classes`, `class_teachers`, `class_students`.
+
+## 8. Effort Estimate
 - 27 jam total.
 
-## Risk
-- Kegagalan ekstraksi AI pada format PDF yang kompleks. Mitigasi: menyediakan fallback antarmuka pengeditan manual yang komprehensif bagi dosen.
+## 9. Risk & Mitigasi
+- **Risk**: Kegagalan ekstraksi AI pada format PDF yang memiliki layout kompleks.
+- **Mitigasi**: Menyediakan antarmuka editor manual yang intuitif bagi dosen untuk memperbaiki hasil ekstraksi AI sebelum dipublikasikan.

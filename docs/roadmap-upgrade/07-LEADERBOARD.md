@@ -1,44 +1,74 @@
-# Fitur #7 — Leaderboard Kelas
+# Fitur #7 — Leaderboard Kelas & Global
 
-## Konteks
-Kompetisi sehat memotivasi mahasiswa belajar. Leaderboard menampilkan peringkat mahasiswa berdasarkan total XP yang dikumpulkan.
+## 1. Konteks
+Kompetisi sehat terbukti meningkatkan motivasi belajar mahasiswa dalam menguasai konsep pemrograman C++ dan Java. Fitur leaderboard menyajikan peringkat mahasiswa berdasarkan akumulasi total XP yang diperoleh dari penyelesaian level.
 
-## Scope
-Penyediaan halaman Leaderboard global (Fase 2) dan leaderboard berbasis kelas (Fase 3B).
+## 2. Scope
+Penyediaan halaman Leaderboard global pada aplikasi mobile (Fase 2) dan penyaringan leaderboard berbasis kelas perkuliahan (Fase 3B).
 
-## Spec Detail
-- **Tampilan Utama**:
-  - Peringkat 1 s/d 10 (dengan sorotan khusus Top 3: Emas, Perak, Perunggu).
-  - Posisi pengguna saat ini (Contoh: "Peringkat Anda: #12 • 1450 XP").
-- **Kueri Data**:
-  - `SELECT u.id, u.name, u.nim, SUM(up.xp_earned) AS total_xp FROM users u JOIN user_progress up ON u.id = up.user_id GROUP BY u.id ORDER BY total_xp DESC LIMIT 10`
-- **RLS Policy Baru (T1 Confirmed)**:
-  - Mengizinkan akses baca data agregat `xp_earned` untuk pengguna terautentikasi tanpa mengekspos data sensitif (PII).
+## 3. Spec Detail & Spesifikasi Teknis
+- **Tampilan Antarmuka**:
+  - Daftar peringkat 1 s/d 10 dengan sorotan khusus untuk **Top 3** (Medali Emas, Perak, Perunggu).
+  - Kartu posisi pengguna aktif di bagian bawah atau atas (Contoh: *"Peringkat Anda: #12 • 1450 XP"*).
+- **Kueri Agregasi Peringkat (SQL)**:
   ```sql
-  CREATE POLICY select_leaderboard ON user_progress
+  SELECT u.id, u.name, u.nim, SUM(up.xp_earned) AS total_xp 
+  FROM public.users u 
+  JOIN public.user_progress up ON u.id = up.user_id 
+  GROUP BY u.id, u.name, u.nim 
+  ORDER BY total_xp DESC 
+  LIMIT 10;
+  ```
+- **Kueri Pencarian Peringkat Personal**:
+  ```sql
+  WITH ranked AS (
+    SELECT u.id, u.name, u.nim, SUM(up.xp_earned) AS total_xp,
+           RANK() OVER (ORDER BY SUM(up.xp_earned) DESC) AS rank
+    FROM public.users u 
+    JOIN public.user_progress up ON u.id = up.user_id
+    GROUP BY u.id, u.name, u.nim
+  )
+  SELECT * FROM ranked WHERE id = $1;
+  ```
+- **Kebijakan Keamanan RLS (T1 Confirmed)**:
+  Untuk menjaga privasi, data yang terekspos dibatasi hanya mencakup identitas publik (`user_id`, `name`, `nim`) dan total perolehan XP. Policy akses dibaca oleh pengguna terautentikasi:
+  ```sql
+  CREATE POLICY select_leaderboard ON public.user_progress
   FOR SELECT TO authenticated
   USING (true);
   ```
 
-## File yang Disentuh
-- `app/lib/features/leaderboard/screens/leaderboard_screen.dart` (BARU).
-- `app/lib/features/leaderboard/providers/leaderboard_provider.dart` (BARU).
-- `app/supabase/migrations/20261030000001_leaderboard_rls.sql` (BARU).
+## 4. File yang Disentuh (File:Line & Arsitektur)
+- **`app/lib/features/leaderboard/screens/leaderboard_screen.dart` (BARU)**
+  - Tampilan halaman leaderboard dengan tab global dan per-kelas.
+- **`app/lib/features/leaderboard/providers/leaderboard_provider.dart` (BARU)**
+  - State management menggunakan Riverpod FutureProvider untuk mengambil data ranking dari repository.
+- **`app/lib/data/repositories/leaderboard_repository.dart` (BARU)**
+  - Eksekusi kueri Supabase untuk pemanggilan data top ranking dan own rank.
+- **`app/supabase/migrations/20261030000001_leaderboard_rls.sql` (BARU)**
+  - Skema migrasi SQL penambahan policy RLS leaderboard.
 
-## Test Cases
-- Verify kueri pengurutan XP menghasilkan urutan menurun (DESC).
-- Verify highlight top 3 memberikan lencana visual yang benar.
-- Verify posisi mahasiswa yang tidak masuk top 10 tetap menampilkan ranking personal.
+## 5. Test Cases & Skenario Pengujian
+- **File Test Baru**: `app/test/features/leaderboard/leaderboard_test.dart` (5 kasus uji):
+  1. `Top10QueryExecution`: Memastikan data yang ditarik tepat 10 entri teratas urutan menurun.
+  2. `Top3BadgeAssignment`: Memastikan peringkat 1 mendapat medali emas, 2 perak, 3 perunggu.
+  3. `PersonalRankFallback`: Memastikan mahasiswa di luar peringkat 10 tetap dapat melihat posisi rank mereka secara akurat.
+  4. `EmptyLeaderboardState`: Penanganan tampilan kosong ketika belum ada mahasiswa yang menyelesaikan kuis.
+  5. `DataPrivacyPolicy`: Memastikan kolom sensitif (seperti password atau token auth) tidak ikut terekspos.
 
-## Definition of Done
-- Mahasiswa dapat melihat peringkat mereka di antara rekan sekelas.
-- Kebijakan RLS database tervalidasi aman dan tidak membocorkan informasi privat.
+## 6. Definition of Done (DoD)
+- Mahasiswa dapat melihat perbandingan skor XP mereka dengan rekan sekelas secara realtime.
+- Kebijakan RLS tervalidasi aman tanpa kebocoran data privasi.
 
-## Blocker / Dependency
-- Memerlukan tabel relasi kelas untuk filter per kelas pada Fase 3B.
+## 7. Blocker & Dependency
+- Bergantung pada penyelesaian migrasi tabel kelas (Fitur #2C) untuk mendukung filter leaderboard berbasis kelas perkuliahan.
 
-## Effort Estimate
-- 4 jam.
+## 8. Effort Estimate
+- 4 jam pengerjaan (Repository, Provider, UI Screen, dan RLS Migration).
 
-## Risk
-- Masalah performa kueri agregat `SUM` pada tabel besar. Mitigasi: penambahan indeks database pada kolom `user_id` dan `xp_earned` di tabel `user_progress`.
+## 9. Risk & Mitigasi
+- **Risk**: Penurunan performa kueri agregat `SUM` pada tabel `user_progress` saat jumlah baris data meningkat drastis.
+- **Mitigasi**: Pembuatan indeks komposit pada database:
+  ```sql
+  CREATE INDEX idx_user_progress_user_xp ON public.user_progress(user_id, xp_earned);
+  ```

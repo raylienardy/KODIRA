@@ -1,37 +1,61 @@
-# Fitur #2A — Admin Panel (Konsep)
+# Fitur #2A — Admin Panel (Konsep & Arsitektur Sistem)
 
-## Konteks
-KODIRA membutuhkan backend admin untuk mendukung manajemen materi pembelajaran yang dinamis, memantau kemajuan mahasiswa secara real-time, dan mempermudah operasional guru/dosen.
+## 1. Konteks
+KODIRA memerlukan platform web admin yang terintegrasi dengan backend Supabase yang sama untuk memudahkan pengelolaan data kelas, pengunggahan materi berbasis AI, dan pemantauan analitik perkembangan belajar mahasiswa secara real-time.
 
-## Scope
-Definisi arsitektur, pemilihan teknologi, dan pemetaan fitur utama untuk implementasi web-based admin panel.
+## 2. Scope
+Definisi lengkap arsitektur sistem, pemilihan tech stack, pemetaan modul fungsional, dan alur kerja (workflow) operasional untuk Admin Web Panel.
 
-## Spec Detail
-- **Teknologi**: Next.js 15, React 19, TypeScript, Tailwind CSS 4, Supabase (reuse existing DB).
-- **Struktur Folder**: Monorepo dengan folder `/admin` di root repository KODIRA.
-- **Fitur Utama**:
-  - **Auth**: Email domain `@ub.ac.id` (auto-approve) atau NIDN (manual review).
-  - **Manajemen Kelas**: Create, Read, Update, Delete (CRUD) kelas, assign dosen & mahasiswa.
-  - **AI Content Engine**: Upload dokumen (PDF/Word), parsing otomatis via Edge Functions, preview level (materi, drag&drop, kuis), approve/regenerate.
-  - **Monitoring Dashboard**: Visualisasi aktivitas mahasiswa (login, level completion, topik tersulit).
-  - **User Management**: Bulk CSV import, reset password mahasiswa.
+## 3. Spec Detail & Arsitektur Sistem
+- **Tech Stack**: Next.js 15 (App Router), React 19, TypeScript, Tailwind CSS 4, shadcn/ui, dan Supabase JS Client v2.
+- **Monorepo Structure**: Ditempatkan dalam folder `/admin` di root repositori utama KODIRA.
+- **Arsitektur Hubungan (Diagram Text-based)**:
+  ```
+  ┌──────────────┐       ┌─────────────┐       ┌──────────────┐
+  │ Next.js 15   │──────▶│ Supabase    │──────▶│ Edge Function│
+  │ (Admin Panel)│       │ Auth + DB   │       │ (AI Parser)  │
+  └──────────────┘       └─────────────┘       └──────────────┘
+         │                      │                     │
+         │                      │                     ▼
+         │                      │              ┌──────────────┐
+         │                      └─────────────▶│ Groq API     │
+         ▼                                     └──────────────┘
+  ┌──────────────┐
+  │ Flutter App  │ (Consume same Supabase PostgreSQL via RLS)
+  └──────────────┘
+  ```
 
-## File yang Disentuh (Konsep)
-- `admin/` (folder baru).
-- CI workflow (`.github/workflows/ci.yml`).
+- **Modul Fungsional Utama**:
+  1. **Teacher Authentication**: Login & register dosen dengan verifikasi domain email `@ub.ac.id` (auto-approve) atau antrean NIDN manual review.
+  2. **Class Management**: CRUD kelas perkuliahan, kode join 6-karakter alfanumerik, dan assignment dosen/mahasiswa.
+  3. **AI Content Generator**: Unggah dokumen materi (PDF/Word), parsing otomatis menjadi slide, latihan, dan kuis interaktif.
+  4. **Student Analytics**: Dashboard pemantauan aktivitas login, tingkat penyelesaian level, dan identifikasi topik tersulit.
+  5. **User Administration**: Manajemen akun mahasiswa termasuk impor massal via CSV dan reset password.
 
-## Test Cases
-- Tidak berlaku untuk konsep (dijawab pada dokumen `02B-ADMIN-SKELETON.md`).
+- **API Contract & Flow**:
+  - Dosen mengunggah PDF materi ke Supabase Storage (`materials` bucket).
+  - Trigger webhook memanggil Edge Function untuk memparsing teks via LLM.
+  - Hasil parse disimpan di tabel staging level, siap direview dan dipublikasikan oleh dosen ke aplikasi Flutter mahasiswa.
 
-## Definition of Done
-- Dokumen desain arsitektur final disetujui.
-- Rencana migration database untuk mendukung multi-class dan role management disetujui.
+## 4. File yang Disentuh (Konsep & Arsitektur)
+- `admin/` (Direktori root modul Next.js).
+- `.github/workflows/ci.yml` (Penambahan job testing dan linting admin).
+- `app/supabase/migrations/` (Kumpulan file migrasi SQL pendukung kelas).
 
-## Blocker / Dependency
-- Memerlukan fitur kelas & roles (#2C).
+## 5. Test Cases & Skenario Pengujian
+- Desain arsitektur diuji melalui review code dan validasi kesesuaian skema database Supabase existing.
+- Uji simulasi alur end-to-end dari unggah dokumen PDF hingga terbitnya level baru di aplikasi mobile.
 
-## Effort Estimate
-- 4 jam (untuk perancangan dokumen dan persetujuan).
+## 6. Definition of Done (DoD)
+- Dokumen desain arsitektur disetujui dan seluruh spesifikasi modul didefinisikan secara konkrit tanpa ambiguitas.
+- Rencana migrasi skema database disetujui oleh tim.
 
-## Risk
-- Kompleksitas monorepo dengan project Flutter. Mitigasi: pemisahan CI pipeline secara ketat antara `flutter` dan `node`.
+## 7. Blocker & Dependency
+- Memerlukan kesiapan tabel migrasi multi-kelas (Fitur #2C).
+
+## 8. Effort Estimate
+- 4 jam perancangan dan validasi dokumen.
+
+## 9. Risk & Mitigasi
+- **Risk**: Kompleksitas pengelolaan monorepo (Flutter + Next.js dalam satu repo git).
+- **Mitigasi**: Memisahkan direktori secara ketat dan menggunakan CI workflow matrix terpisah untuk linting masing-masing project.

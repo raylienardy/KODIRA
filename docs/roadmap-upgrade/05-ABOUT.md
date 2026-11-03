@@ -1,40 +1,118 @@
 # Fitur #5 — About & Panduan Statis
 
-## Konteks
-Aplikasi membutuhkan dokumentasi internal yang dapat diakses mahasiswa kapan saja untuk memahami aturan main (gamifikasi) dan sistem penilaian di KODIRA.
+## 1. Konteks
+Aplikasi KODIRA membutuhkan dokumentasi internal yang dapat diakses mahasiswa kapan saja untuk memahami mekanisme gamifikasi, sistem penilaian, dan aturan belajar tanpa harus keluar dari aplikasi.
 
-## Scope
-Halaman informasi statis di aplikasi mobile yang memuat panduan belajar.
+## 2. Scope
+Halaman informasi statis (`AboutScreen`) di aplikasi mobile dengan konten markdown yang dibaca dari aset lokal.
 
-## Spec Detail
-- **Routing**: `/about` diakses melalui menu sidebar drawer.
-- **Implementasi**: Widget `AboutScreen` yang membaca file aset markdown.
+## 3. Spec Detail & Spesifikasi Teknis
+- **Routing**: Menambahkan route `/about` di `router.dart` dan masukkan ke dalam menu *Sidebar Drawer*.
+- **Implementasi**: `AboutScreen` membaca file `app/assets/content/about.md` dan merendernya menggunakan `flutter_markdown`.
 - **Konten (6 Sections)**:
-  1. **Cara Naik Level**: Alur belajar (materi -> latihan -> kuis) dengan ambang kelulusan 70%.
-  2. **Sistem XP**: Penjelasan perolehan XP Mudah (50), Sedang (100), Tinggi (150) serta streak multiplier.
-  3. **Cara Hitung Mastery**: Penjelasan sederhana tentang akurasi, waktu, dan konsistensi.
-  4. **Streak & Badge**: Panduan mendapatkan lencana dan menjaga streak harian.
-  5. **Tips Belajar**: Rekomendasi penggunaan AI hint dan pengulangan kuis untuk perbaikan nilai.
-  6. **FAQ**: Pertanyaan umum sepert "Bagaimana jika kuis saya gagal?" atau "Kenapa mastery saya belum 100%?".
 
-## File yang Disentuh
-- `app/lib/features/profile/screens/about_screen.dart` (BARU).
-- `app/assets/content/about.md` (Aset konten markdown).
-- `app/lib/app/router.dart` (Registrasi route `/about`).
+### Section 1: Cara Naik Level
+```markdown
+Setiap level di KODIRA mengikuti alur belajar yang konsisten:
+1. Baca Materi — 5 slide materi interaktif yang menjelaskan konsep pemrograman dengan contoh kode.
+2. Latihan (Exercise) — 5 soal drag & drop untuk menguji pemahaman sintaks dan logika.
+3. Kuis (Quiz) — 3 soal pilihan ganda dengan timer 60 detik per soal.
 
-## Test Cases
-- Verify halaman About terbuka melalui menu drawer.
-- Verify seluruh 6 section konten tampil lengkap sesuai dengan file aset.
-- Verify tautan atau navigasi kembali ke home berfungsi.
+Syarat Lulus: Skor kuis ≥ 70% untuk membuka level berikutnya.
+- Skor 40–69% → Remedial (ulangi kuis dengan soal baru dari AI).
+- Skor < 40% → Gagal (wajib pelajari ulang materi dari awal).
 
-## Definition of Done
+Kalau Anda mengerjakan kuis dengan skor < 70%, jangan khawatir — gunakan tombol 'Minta Hint AI' untuk pemahaman lebih dalam, lalu coba ulangi kuis.
+```
+
+### Section 2: Sistem XP
+```markdown
+XP (Experience Points) adalah indikator progres belajar Anda.
+- Level Mudah (1-15): 50 XP (Lulus), 25 XP (Remedial).
+- Level Sedang (16-35): 100 XP (Lulus), 50 XP (Remedial).
+- Level Tinggi (36-50): 150 XP (Lulus), 75 XP (Remedial).
+
+Streak Multiplier (Bonus konsistensi harian):
+- 7 hari berturut-turut: ×1.5
+- 30 hari berturut-turut: ×2.0
+- 60+ hari berturut-turut: ×2.5
+
+Bonus streak diterapkan otomatis saat Anda menyelesaikan kuis.
+```
+
+### Section 3: Cara Hitung Mastery
+```markdown
+Skor Mastery (0–100%) dihitung dari 4 komponen:
+M = 0.45×A + 0.25×C + 0.20×(1−E) + 0.10×(1−Tn)
+
+- A (Akurasi): Persentase jawaban benar (0–1).
+- C (Konsistensi): Skor mastery tertinggi sebelumnya (0–1).
+- E (Error Rate): 1 − A (semakin sedikit kesalahan, semakin tinggi skor).
+- Tn (Time Normalized): Rata-rata waktu per soal dibagi batas waktu (semakin cepat, semakin tinggi skor).
+
+Tips mencapai 100%:
+- Jawab soal dengan benar (maksimalkan A).
+- Kerjakan kuis lebih cepat tanpa menurunkan akurasi (minimalkan Tn).
+- Lakukan kuis ulangan (mengisi C dari riwayat sebelumnya).
+```
+
+### Section 4: Streak & Badge
+```markdown
+Streak: Hari aktif berturut-turut (minimal 1 kuis selesai).
+- Streak putus jika tidak ada aktivitas > 24 jam.
+- Badge Streak: 3 hari, 7 hari, 30 hari, 60 hari.
+
+Badge Level: Disemat saat menyelesaikan level ke-5, 10, 25, 50.
+Badge XP: Disemat saat total XP mencapai 100, 500, 1000, 2500.
+```
+
+### Section 5: Tips Belajar
+```markdown
+1. Gunakan Hint AI — Bantu memahami logika soal tanpa memberi jawaban langsung.
+2. Ulangi Kuis Remedial — Soal baru dari AI, peluang naikkan mastery.
+3. Jaga Streak — Setidaknya 1 kuis per hari untuk bonus XP.
+4. Fokus Mastery, bukan Hanya Lulus — Mastery tinggi = fondasi kuat untuk level lanjutan.
+```
+
+### Section 6: FAQ
+```markdown
+Q: Lupa password, gimana?
+A: Hubungi dosen pengampu untuk reset password via panel admin web.
+
+Q: Kenapa mastery saya 85% padahal jawaban 100% benar?
+A: Mastery dihitung dari Akurasi + Waktu + Konsistensi. Cepat & konsisten = 100%.
+
+Q: Bisa pindah bahasa (C++ ↔ Java) di tengah jalan?
+A: Bisa. Progress per bahasa terpisah. Pilih bahasa di awal level.
+```
+
+## 4. File yang Disentuh (File:Line & Snippet)
+- **`app/lib/features/profile/screens/about_screen.dart` (BARU)**
+- **`app/assets/content/about.md` (Aset markdown lengkap)**
+- **`app/lib/app/router.dart:70`**
+  - Registrasi route baru:
+    ```dart
+    GoRoute(
+      path: '/about',
+      builder: (context, state) => const AboutScreen(),
+    ),
+    ```
+
+## 5. Test Cases & Skenario Pengujian
+- **File Test Baru**: `app/test/features/profile/about_screen_test.dart` (3 kasus):
+  1. `RouteAccessible`: Navigasi `/about` dari drawer berhasil.
+  2. `AllSectionsRender`: 6 section markdown tampil utuh.
+  3. `ContentMatch`: Konten sesuai dengan file aset `about.md`.
+
+## 6. Definition of Done (DoD)
 - Mahasiswa memiliki panduan tertulis lengkap di dalam aplikasi tanpa harus bertanya ke dosen.
 
-## Blocker / Dependency
+## 7. Blocker & Dependency
 - Tidak ada.
 
-## Effort Estimate
-- 3 jam (Termasuk penulisan konten markdown).
+## 8. Effort Estimate
+- 3 jam (termasuk penulisan konten markdown).
 
-## Risk
-- Ukuran paket aplikasi meningkat karena file aset. Mitigasi: menggunakan file markdown teks yang ukurannya sangat kecil dibandingkan gambar.
+## 9. Risk & Mitigasi
+- **Risk**: Ukuran paket aplikasi meningkat.
+- **Mitigasi**: File markdown teks sangat ringan (< 10 KB) dibandingkan aset gambar.
