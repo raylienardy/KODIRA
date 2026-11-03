@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../app/theme.dart';
+import '../../../data/logic/xp_logic.dart';
 
 /// Tingkat hasil kuis yang menentukan judul, pesan, dan tombol dialog.
 enum ResultTier { fail, remedial, pass }
@@ -82,6 +83,22 @@ class ResultLogic {
       return 'XP sudah maksimal ($xpEarned). Percobaan ke-$attempts.';
     }
     return 'Percobaan ke-$attempts.';
+  }
+
+  /// Pesan XP berbasis [XpResult] untuk dialog hasil.
+  ///
+  /// Tiga keadaan yang ditampilkan:
+  /// - percobaan ini menaikkan XP terbaik;
+  /// - XP tidak naik karena sudah maksimal;
+  /// - percobaan gagal sehingga tidak ada XP.
+  static String xpMessageForResult(XpResult xpResult) {
+    if (xpResult.isImprovement) {
+      return 'Kamu mendapat ${xpResult.attemptXp} XP';
+    }
+    if (xpResult.finalXp > 0) {
+      return 'XP kamu sudah maksimal (${xpResult.finalXp})';
+    }
+    return 'Belum dapat XP — coba remedial';
   }
 
   /// Warna aksen mastery bar dan skor sesuai tingkat hasil.

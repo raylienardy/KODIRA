@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../app/theme.dart';
+import '../../../data/logic/xp_logic.dart';
 import '../../adaptive/models/mastery_breakdown.dart';
 import 'level_up_animation.dart';
 import 'mastery_bar.dart';
@@ -19,6 +20,12 @@ class ResultDialog extends StatefulWidget {
   final int xpThisAttempt;
   final double mastery;
   final MasteryBreakdown? breakdown;
+
+  /// Hasil XP berbasis tier dan streak dari `XpLogic`.
+  ///
+  /// Bila null, dialog memakai pesan XP lama dari [ResultLogic.xpMessageFor]
+  /// sebagai fallback kompatibilitas.
+  final XpResult? xpResult;
   final int levelId;
   final int attempts;
   final bool isFirstCompletion;
@@ -34,6 +41,7 @@ class ResultDialog extends StatefulWidget {
     required this.xpThisAttempt,
     required this.mastery,
     this.breakdown,
+    this.xpResult,
     required this.levelId,
     required this.attempts,
     required this.isFirstCompletion,
@@ -90,12 +98,15 @@ class _ResultDialogState extends State<ResultDialog> {
       tier: tier,
       isLastLevel: widget.isLastLevel,
     );
-    final String xpMessage = ResultLogic.xpMessageFor(
-      xpEarned: widget.xpEarned,
-      xpThisAttempt: widget.xpThisAttempt,
-      isFirstCompletion: widget.isFirstCompletion,
-      attempts: widget.attempts,
-    );
+    final XpResult? xpResult = widget.xpResult;
+    final String xpMessage = xpResult != null
+        ? ResultLogic.xpMessageForResult(xpResult)
+        : ResultLogic.xpMessageFor(
+            xpEarned: widget.xpEarned,
+            xpThisAttempt: widget.xpThisAttempt,
+            isFirstCompletion: widget.isFirstCompletion,
+            attempts: widget.attempts,
+          );
     final Color accent = ResultLogic.masteryColorFor(tier);
 
     return Dialog(
@@ -151,32 +162,41 @@ class _ResultDialogState extends State<ResultDialog> {
             const SizedBox(height: 16),
             _buildMasteryBar(accent),
             const SizedBox(height: 16),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              decoration: BoxDecoration(
-                color: KodiraColors.reward100,
-                borderRadius: BorderRadius.circular(KodiraRadius.md),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(
-                    Icons.bolt,
-                    color: KodiraColors.reward700,
-                    size: 20,
-                  ),
-                  const SizedBox(width: 8),
-                  Flexible(
-                    child: Text(
-                      xpMessage,
-                      style: KodiraTextStyles.body.copyWith(
-                        color: KodiraColors.reward700,
-                        fontWeight: FontWeight.w600,
-                      ),
-                      textAlign: TextAlign.center,
+            Semantics(
+              container: true,
+              liveRegion: true,
+              label: xpMessage,
+              excludeSemantics: true,
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
+                decoration: BoxDecoration(
+                  color: KodiraColors.reward100,
+                  borderRadius: BorderRadius.circular(KodiraRadius.md),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(
+                      Icons.bolt,
+                      color: KodiraColors.reward700,
+                      size: 20,
                     ),
-                  ),
-                ],
+                    const SizedBox(width: 8),
+                    Flexible(
+                      child: Text(
+                        xpMessage,
+                        style: KodiraTextStyles.body.copyWith(
+                          color: KodiraColors.reward700,
+                          fontWeight: FontWeight.w600,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
             const SizedBox(height: 24),

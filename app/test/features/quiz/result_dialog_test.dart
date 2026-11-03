@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:kodira/data/logic/xp_logic.dart';
 import 'package:kodira/features/adaptive/models/mastery_breakdown.dart';
 import 'package:kodira/features/quiz/widgets/result_dialog.dart';
 
@@ -15,6 +16,7 @@ ResultDialog _dialog({
   bool isFirstCompletion = false,
   bool isLastLevel = false,
   MasteryBreakdown? breakdown,
+  XpResult? xpResult,
   VoidCallback? onPrimary,
   VoidCallback? onSecondary,
 }) {
@@ -29,6 +31,7 @@ ResultDialog _dialog({
     isFirstCompletion: isFirstCompletion,
     isLastLevel: isLastLevel,
     breakdown: breakdown,
+    xpResult: xpResult,
     onPrimary: onPrimary ?? () {},
     onSecondary: onSecondary,
   );
@@ -195,5 +198,89 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Breakdown Mastery'), findsNothing);
+  });
+
+  testWidgets('xpResult perbaikan menampilkan XP percobaan', (
+    WidgetTester tester,
+  ) async {
+    tester.view.physicalSize = const Size(1000, 1200);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.reset);
+
+    const XpResult xpResult = XpResult(
+      baseXp: 100,
+      multiplier: 1.5,
+      attemptXp: 150,
+      previousXp: 50,
+      finalXp: 150,
+      isPass: true,
+      isRemedial: false,
+      isFail: false,
+    );
+
+    await tester.pumpWidget(_wrap(_dialog(xpResult: xpResult)));
+
+    expect(find.text('Kamu mendapat 150 XP'), findsOneWidget);
+  });
+
+  testWidgets('xpResult tanpa perbaikan menampilkan XP maksimal', (
+    WidgetTester tester,
+  ) async {
+    tester.view.physicalSize = const Size(1000, 1200);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.reset);
+
+    const XpResult xpResult = XpResult(
+      baseXp: 50,
+      multiplier: 1.0,
+      attemptXp: 50,
+      previousXp: 200,
+      finalXp: 200,
+      isPass: true,
+      isRemedial: false,
+      isFail: false,
+    );
+
+    await tester.pumpWidget(_wrap(_dialog(xpResult: xpResult)));
+
+    expect(find.text('XP kamu sudah maksimal (200)'), findsOneWidget);
+  });
+
+  testWidgets('xpResult gagal menampilkan pesan remedial', (
+    WidgetTester tester,
+  ) async {
+    tester.view.physicalSize = const Size(1000, 1200);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.reset);
+
+    const XpResult xpResult = XpResult(
+      baseXp: 0,
+      multiplier: 1.0,
+      attemptXp: 0,
+      previousXp: 0,
+      finalXp: 0,
+      isPass: false,
+      isRemedial: false,
+      isFail: true,
+    );
+
+    await tester.pumpWidget(_wrap(_dialog(xpResult: xpResult)));
+
+    expect(find.text('Belum dapat XP — coba remedial'), findsOneWidget);
+  });
+
+  testWidgets('xpResult null memakai pesan XP lama sebagai fallback', (
+    WidgetTester tester,
+  ) async {
+    tester.view.physicalSize = const Size(1000, 1200);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.reset);
+
+    await tester.pumpWidget(_wrap(_dialog()));
+
+    expect(
+      find.text('XP sudah maksimal (100). Percobaan ke-1.'),
+      findsOneWidget,
+    );
   });
 }

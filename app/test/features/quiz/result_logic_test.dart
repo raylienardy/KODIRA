@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kodira/app/theme.dart';
+import 'package:kodira/data/logic/xp_logic.dart';
 import 'package:kodira/features/quiz/widgets/result_logic.dart';
 
 void main() {
@@ -186,6 +187,77 @@ void main() {
       );
 
       expect(message, 'Percobaan ke-2.');
+    });
+  });
+
+  group('ResultLogic.xpMessageForResult', () {
+    test('perbaikan XP menampilkan XP percobaan', () {
+      const XpResult result = XpResult(
+        baseXp: 100,
+        multiplier: 1.5,
+        attemptXp: 150,
+        previousXp: 50,
+        finalXp: 150,
+        isPass: true,
+        isRemedial: false,
+        isFail: false,
+      );
+
+      expect(ResultLogic.xpMessageForResult(result), 'Kamu mendapat 150 XP');
+    });
+
+    test('tanpa perbaikan menampilkan XP maksimal', () {
+      const XpResult result = XpResult(
+        baseXp: 50,
+        multiplier: 1.0,
+        attemptXp: 50,
+        previousXp: 200,
+        finalXp: 200,
+        isPass: true,
+        isRemedial: false,
+        isFail: false,
+      );
+
+      expect(
+        ResultLogic.xpMessageForResult(result),
+        'XP kamu sudah maksimal (200)',
+      );
+    });
+
+    test('gagal tanpa XP menyarankan remedial', () {
+      const XpResult result = XpResult(
+        baseXp: 0,
+        multiplier: 2.5,
+        attemptXp: 0,
+        previousXp: 0,
+        finalXp: 0,
+        isPass: false,
+        isRemedial: false,
+        isFail: true,
+      );
+
+      expect(
+        ResultLogic.xpMessageForResult(result),
+        'Belum dapat XP — coba remedial',
+      );
+    });
+
+    test('gagal dengan XP lama tetap menampilkan XP maksimal', () {
+      const XpResult result = XpResult(
+        baseXp: 0,
+        multiplier: 1.0,
+        attemptXp: 0,
+        previousXp: 120,
+        finalXp: 120,
+        isPass: false,
+        isRemedial: false,
+        isFail: true,
+      );
+
+      expect(
+        ResultLogic.xpMessageForResult(result),
+        'XP kamu sudah maksimal (120)',
+      );
     });
   });
 

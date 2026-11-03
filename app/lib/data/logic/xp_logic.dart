@@ -63,6 +63,9 @@ class XpResult {
   /// Apakah percobaan ini gagal (mastery < 0.40).
   final bool isFail;
 
+  /// **Peringatan:** konstruktor ini tidak melakukan clamping. Untuk produksi
+  /// gunakan [XpLogic.computeAttemptXp] yang menjamin seluruh nilai XP >= 0.
+  /// Konstruktor langsung hanya untuk test atau data yang sudah tervalidasi.
   const XpResult({
     required this.baseXp,
     required this.multiplier,

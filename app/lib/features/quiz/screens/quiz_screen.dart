@@ -8,6 +8,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../app/theme.dart';
 import '../../../core/errors/error_type.dart';
+import '../../../data/logic/xp_logic.dart';
 import '../../../data/models/exercise_model.dart';
 import '../../../shared/widgets/empty_widget.dart';
 import '../../../shared/widgets/error_widget.dart';
@@ -64,12 +65,50 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
   bool _isFinished = false;
   String? _error;
 
+  /// Tier level yang di-cache saat layar dibuka.
+  ///
+  /// Null berarti tier belum berhasil dimuat; `_saveProgress` memakai
+  /// fallback [LevelTier.mudah] agar kuis tidak gagal disimpan.
+  LevelTier? _cachedTier;
+
   Timer? _timer;
 
   @override
   void initState() {
     super.initState();
     _loadQuestions();
+    unawaited(_initTier());
+  }
+
+  /// Muat nomor level lalu cache tier-nya untuk perhitungan XP.
+  ///
+  /// Kegagalan provider tidak boleh menghentikan kuis; tier dibiarkan null
+  /// dan `_saveProgress` memakai fallback yang aman.
+  Future<void> _initTier() async {
+    try {
+      final levels = await ref.read(allLevelsProvider.future);
+      for (final level in levels) {
+        if (level.id == widget.levelId) {
+          final LevelTier tier = LevelTier.fromLevelNumber(level.levelNumber);
+          if (!mounted) return;
+          setState(() => _cachedTier = tier);
+          return;
+        }
+      }
+      if (kDebugMode) {
+        debugPrint(
+          'QuizScreen: level ${widget.levelId} tidak ditemukan di '
+          'allLevelsProvider; tier fallback ke Mudah.',
+        );
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint(
+          'QuizScreen: gagal memuat tier untuk level ${widget.levelId}; '
+          'fallback ke Mudah. Error: $e',
+        );
+      }
+    }
   }
 
   @override
@@ -230,6 +269,7 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
       MasteryBreakdown? breakdown,
       int attempts,
       bool isFirstCompletion,
+      XpResult? xpResult,
     })
   >
   _saveProgress(int score, int total) async {
@@ -241,6 +281,7 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
         breakdown: null,
         attempts: 0,
         isFirstCompletion: false,
+        xpResult: null,
       );
     }
 
@@ -264,6 +305,7 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
         breakdown: null,
         attempts: 0,
         isFirstCompletion: false,
+        xpResult: null,
       );
     }
 
@@ -284,26 +326,43 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
       );
       final double adaptiveMastery = breakdown.total;
 
-      final String status;
-      final int xpThisAttempt;
-      if (adaptiveMastery >= AdaptiveEngine.masteryPass) {
-        status = 'completed';
-        xpThisAttempt = 100;
-      } else if (adaptiveMastery >= AdaptiveEngine.masteryRemedialMin) {
-        status = 'active';
-        xpThisAttempt = 50;
-      } else {
-        status = 'active';
-        xpThisAttempt = 0;
+      // XP dihitung dari tier level dan multiplier streak. Bila tier belum
+      // berhasil dimuat, fallback ke tier Mudah agar kuis tetap bisa disimpan.
+      final LevelTier tier = _cachedTier ?? LevelTier.mudah;
+      if (_cachedTier == null && kDebugMode) {
+        debugPrint(
+          'QuizScreen: tier level ${widget.levelId} belum tersedia; '
+          'memakai fallback ${tier.label}.',
+        );
+      }
+
+      int currentStreak = 0;
+      try {
+        final streak = await ref.read(currentStreakProvider.future);
+        currentStreak = streak?.currentStreak ?? 0;
+      } catch (e) {
+        if (kDebugMode) {
+          debugPrint(
+            'QuizScreen: gagal membaca streak; multiplier memakai 0 hari. '
+            'Error: $e',
+          );
+        }
       }
 
       // Deteksi penyelesaian pertama dan hitung XP efektif
       final bool isFirstCompletion =
           existing == null || existing.status != 'completed';
       final int previousXp = existing?.xpEarned ?? 0;
-      final int effectiveXp = xpThisAttempt > previousXp
-          ? xpThisAttempt
-          : previousXp;
+      final XpResult xpResult = XpLogic.computeAttemptXp(
+        adaptiveMastery: adaptiveMastery,
+        tier: tier,
+        currentStreak: currentStreak,
+        previousXp: previousXp,
+      );
+
+      final String status = xpResult.isPass ? 'completed' : 'active';
+      final int xpThisAttempt = xpResult.attemptXp;
+      final int effectiveXp = xpResult.finalXp;
       final int attempts = (existing?.attempts ?? 0) + 1;
 
       // Simpan nilai masteryScore dengan M formula adaptif, bukan sekadar rasio jawaban
@@ -342,6 +401,7 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
         breakdown: breakdown,
         attempts: attempts,
         isFirstCompletion: isFirstCompletion,
+        xpResult: xpResult,
       );
     } catch (e) {
       if (kDebugMode) {
@@ -355,6 +415,7 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
         breakdown: null,
         attempts: 1,
         isFirstCompletion: false,
+        xpResult: null,
       );
     }
   }
@@ -394,6 +455,7 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
           total: total,
           xpEarned: result.xpEarned,
           xpThisAttempt: result.xpThisAttempt,
+          xpResult: result.xpResult,
           mastery: result.mastery,
           breakdown: result.breakdown,
           levelId: widget.levelId,
