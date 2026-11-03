@@ -42,6 +42,8 @@ Definisi lengkap arsitektur sistem, pemilihan tech stack, pemetaan modul fungsio
 - `.github/workflows/ci.yml` (Penambahan job testing dan linting admin).
 - `app/supabase/migrations/` (Kumpulan file migrasi SQL pendukung kelas).
 
+> **Penting**: Spesifikasi detail desain visual untuk panel ini diatur dalam `docs/roadmap-upgrade/02D-ADMIN-DESIGN-SYSTEM.md`. Alur kerja pengguna (user flow) dan inventori layar didefinisikan dalam `docs/roadmap-upgrade/02E-ADMIN-USER-FLOW.md`.
+
 ## 5. Test Cases & Skenario Pengujian
 - Desain arsitektur diuji melalui review code dan validasi kesesuaian skema database Supabase existing.
 - Uji simulasi alur end-to-end dari unggah dokumen PDF hingga terbitnya level baru di aplikasi mobile.

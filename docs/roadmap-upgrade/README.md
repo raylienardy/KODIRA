@@ -26,6 +26,8 @@ Dokumen ini berisi roadmap teknis dan fungsional untuk 8 fitur upgrade utama pad
 - [`02A-ADMIN-CONCEPT.md`](./02A-ADMIN-CONCEPT.md) — Konsep arsitektur Admin Panel Web (Next.js 15 + Supabase) di monorepo `admin/`.
 - [`02B-ADMIN-SKELETON.md`](./02B-ADMIN-SKELETON.md) — Setup awal Next.js skeleton, Tailwind 4, shadcn/ui, dan konfigurasi CI workflow.
 - [`02C-ADMIN-MVP.md`](./02C-ADMIN-MVP.md) — Implementasi penuh 6 modul Admin MVP (AI parser materi, student management, monitoring).
+- [`02D-ADMIN-DESIGN-SYSTEM.md`](./02D-ADMIN-DESIGN-SYSTEM.md) — Spesifikasi desain visual admin panel (palet warna KODIRA, tipografi Inter, ritme spasial, dan komponen premium).
+- [`02E-ADMIN-USER-FLOW.md`](./02E-ADMIN-USER-FLOW.md) — Detail alur pengguna pengajar dan mahasiswa, pipa produksi materi AI, serta inventori layar admin.
 - [`03-MASTERY-UI.md`](./03-MASTERY-UI.md) — Breakdown detail komponen mastery (A, C, E, Tn) saat tap mastery bar di profil.
 - [`04-PASSWORD.md`](./04-PASSWORD.md) — Ganti password di aplikasi mobile (dengan strength meter) & reset password oleh guru di web.
 - [`05-ABOUT.md`](./05-ABOUT.md) — Halaman statis informasi panduan aplikasi, sistem XP, dan FAQ dalam 6 section.
