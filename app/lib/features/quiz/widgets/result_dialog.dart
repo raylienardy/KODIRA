@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 
 import '../../../app/theme.dart';
+import '../../adaptive/models/mastery_breakdown.dart';
 import 'level_up_animation.dart';
 import 'mastery_bar.dart';
+import 'mastery_breakdown_sheet.dart';
 import 'result_logic.dart';
 
 /// Dialog hasil kuis: tier (<40% / 40–69% / ≥70%), skor detail, mastery bar,
@@ -16,6 +18,7 @@ class ResultDialog extends StatefulWidget {
   final int xpEarned;
   final int xpThisAttempt;
   final double mastery;
+  final MasteryBreakdown? breakdown;
   final int levelId;
   final int attempts;
   final bool isFirstCompletion;
@@ -30,6 +33,7 @@ class ResultDialog extends StatefulWidget {
     required this.xpEarned,
     required this.xpThisAttempt,
     required this.mastery,
+    this.breakdown,
     required this.levelId,
     required this.attempts,
     required this.isFirstCompletion,
@@ -145,7 +149,7 @@ class _ResultDialogState extends State<ResultDialog> {
               ),
             ),
             const SizedBox(height: 16),
-            MasteryBar(mastery: widget.mastery, color: accent),
+            _buildMasteryBar(accent),
             const SizedBox(height: 16),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -216,6 +220,34 @@ class _ResultDialogState extends State<ResultDialog> {
               ),
             ],
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMasteryBar(Color accent) {
+    final MasteryBar bar = MasteryBar(mastery: widget.mastery, color: accent);
+    final MasteryBreakdown? breakdown = widget.breakdown;
+    if (breakdown == null) return bar;
+
+    void openBreakdown() {
+      showModalBottomSheet<void>(
+        context: context,
+        builder: (_) => MasteryBreakdownSheet(breakdown: breakdown),
+      );
+    }
+
+    return Semantics(
+      button: true,
+      label: 'Lihat breakdown mastery',
+      onTap: openBreakdown,
+      child: InkWell(
+        excludeFromSemantics: true,
+        onTap: openBreakdown,
+        borderRadius: BorderRadius.circular(KodiraRadius.md),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 4),
+          child: bar,
         ),
       ),
     );

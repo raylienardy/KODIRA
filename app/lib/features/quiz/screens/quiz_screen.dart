@@ -12,6 +12,7 @@ import '../../../data/models/exercise_model.dart';
 import '../../../shared/widgets/empty_widget.dart';
 import '../../../shared/widgets/error_widget.dart';
 import '../../../shared/widgets/loading_widget.dart';
+import '../../adaptive/models/mastery_breakdown.dart';
 import '../../adaptive/services/adaptive_engine.dart';
 import '../../adaptive/widgets/remedial_dialog.dart';
 import '../../ai_mentor/widgets/feedback_bottom_sheet.dart';
@@ -226,6 +227,7 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
       int xpEarned,
       int xpThisAttempt,
       double mastery,
+      MasteryBreakdown? breakdown,
       int attempts,
       bool isFirstCompletion,
     })
@@ -236,6 +238,7 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
         xpEarned: 0,
         xpThisAttempt: 0,
         mastery: 0.0,
+        breakdown: null,
         attempts: 0,
         isFirstCompletion: false,
       );
@@ -258,6 +261,7 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
         xpEarned: 0,
         xpThisAttempt: 0,
         mastery: 0.0,
+        breakdown: null,
         attempts: 0,
         isFirstCompletion: false,
       );
@@ -269,14 +273,16 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
       final existing = await repo.getForLevel(user.id, widget.levelId);
       final double previousMastery = existing?.masteryScore ?? 0.0;
 
-      // Hitung nilai mastery adaptif sesungguhnya berdasarkan formula PRD & Arsitektur
-      final double adaptiveMastery = AdaptiveEngine.computeMastery(
+      // Hitung breakdown mastery sesungguhnya berdasarkan formula PRD & Arsitektur.
+      // Breakdown hanya hidup di memori dan ditampilkan di result dialog.
+      final MasteryBreakdown breakdown = AdaptiveEngine.computeMasteryBreakdown(
         correct: score,
         total: total,
         secondsUsed: _totalSecondsUsed,
         timeLimitPerQuestion: kQuizSecondsPerQuestion,
         previousMastery: previousMastery,
       );
+      final double adaptiveMastery = breakdown.total;
 
       final String status;
       final int xpThisAttempt;
@@ -333,6 +339,7 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
         xpEarned: effectiveXp,
         xpThisAttempt: xpThisAttempt,
         mastery: adaptiveMastery,
+        breakdown: breakdown,
         attempts: attempts,
         isFirstCompletion: isFirstCompletion,
       );
@@ -345,6 +352,7 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
         xpEarned: 0,
         xpThisAttempt: 0,
         mastery: fallbackMastery,
+        breakdown: null,
         attempts: 1,
         isFirstCompletion: false,
       );
@@ -387,6 +395,7 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
           xpEarned: result.xpEarned,
           xpThisAttempt: result.xpThisAttempt,
           mastery: result.mastery,
+          breakdown: result.breakdown,
           levelId: widget.levelId,
           attempts: result.attempts,
           isFirstCompletion: result.isFirstCompletion,

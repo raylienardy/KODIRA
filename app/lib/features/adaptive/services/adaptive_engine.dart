@@ -1,3 +1,5 @@
+import '../models/mastery_breakdown.dart';
+
 /// Tingkat pencapaian mastery hasil evaluasi adaptif.
 enum AdaptiveTier { pass, remedial, fail }
 
@@ -26,15 +28,25 @@ class AdaptiveEngine {
   /// Ambang batas minimum remedial (M >= 40%). Nilai di bawah ini memicu remedial kuis AI.
   static const double masteryRemedialMin = 0.40;
 
-  /// Hitung skor mastery komprehensif dari performa pengerjaan kuis.
-  static double computeMastery({
+  /// Hitung breakdown mastery lengkap dari performa pengerjaan kuis.
+  ///
+  /// Komponen yang dikembalikan memakai formula yang sama dengan
+  /// [computeMastery]; nilai [MasteryBreakdown.total] adalah hasil akhirnya.
+  static MasteryBreakdown computeMasteryBreakdown({
     required int correct,
     required int total,
     required int secondsUsed,
     required int timeLimitPerQuestion,
     double previousMastery = 0.0,
   }) {
-    if (total <= 0) return 0.0;
+    if (total <= 0) {
+      return MasteryBreakdown(
+        accuracy: 0.0,
+        consistency: previousMastery.clamp(0.0, 1.0),
+        timeNorm: 0.0,
+        total: 0.0,
+      );
+    }
 
     final int effectiveLimit = timeLimitPerQuestion > 0
         ? timeLimitPerQuestion
@@ -61,8 +73,30 @@ class AdaptiveEngine {
         0.20 * (1.0 - errorRate) +
         0.10 * (1.0 - timeNorm);
 
-    return mastery.clamp(0.0, 1.0);
+    return MasteryBreakdown(
+      accuracy: accuracy,
+      consistency: consistency,
+      timeNorm: timeNorm,
+      total: mastery.clamp(0.0, 1.0),
+    );
   }
+
+  /// Hitung skor mastery komprehensif dari performa pengerjaan kuis.
+  ///
+  /// Wrapper tipis agar pemanggil lama tetap menerima nilai `double`.
+  static double computeMastery({
+    required int correct,
+    required int total,
+    required int secondsUsed,
+    required int timeLimitPerQuestion,
+    double previousMastery = 0.0,
+  }) => computeMasteryBreakdown(
+    correct: correct,
+    total: total,
+    secondsUsed: secondsUsed,
+    timeLimitPerQuestion: timeLimitPerQuestion,
+    previousMastery: previousMastery,
+  ).total;
 
   /// Klasifikasikan tingkat adaptif berdasarkan nilai mastery.
   static AdaptiveTier classify(double mastery) {

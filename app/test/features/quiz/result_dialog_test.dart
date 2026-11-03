@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:kodira/features/adaptive/models/mastery_breakdown.dart';
 import 'package:kodira/features/quiz/widgets/result_dialog.dart';
 
 Widget _wrap(Widget child) => MaterialApp(home: Scaffold(body: child));
@@ -13,6 +14,7 @@ ResultDialog _dialog({
   int xpThisAttempt = 100,
   bool isFirstCompletion = false,
   bool isLastLevel = false,
+  MasteryBreakdown? breakdown,
   VoidCallback? onPrimary,
   VoidCallback? onSecondary,
 }) {
@@ -26,6 +28,7 @@ ResultDialog _dialog({
     attempts: attempts,
     isFirstCompletion: isFirstCompletion,
     isLastLevel: isLastLevel,
+    breakdown: breakdown,
     onPrimary: onPrimary ?? () {},
     onSecondary: onSecondary,
   );
@@ -157,5 +160,40 @@ void main() {
 
     expect(find.text('Level 3 terbuka!'), findsNothing);
     expect(find.text('Lulus!'), findsOneWidget);
+  });
+
+  testWidgets('tap mastery bar membuka breakdown sheet saat data tersedia', (
+    WidgetTester tester,
+  ) async {
+    tester.view.physicalSize = const Size(1000, 1200);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.reset);
+
+    final breakdown = MasteryBreakdown(
+      accuracy: 1.0,
+      consistency: 0.5,
+      timeNorm: 0.0,
+      total: 0.875,
+    );
+
+    await tester.pumpWidget(_wrap(_dialog(breakdown: breakdown)));
+    await tester.tap(find.text('Mastery'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Breakdown Mastery'), findsOneWidget);
+  });
+
+  testWidgets('mastery bar tidak tappable saat breakdown null', (
+    WidgetTester tester,
+  ) async {
+    tester.view.physicalSize = const Size(1000, 1200);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.reset);
+
+    await tester.pumpWidget(_wrap(_dialog()));
+    await tester.tap(find.text('Mastery'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Breakdown Mastery'), findsNothing);
   });
 }

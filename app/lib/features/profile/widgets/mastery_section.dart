@@ -7,6 +7,7 @@ import '../../../shared/widgets/empty_widget.dart';
 import '../../../shared/widgets/error_widget.dart';
 import '../../../shared/widgets/loading_widget.dart';
 import '../providers/profile_provider.dart';
+import 'mastery_concept_sheet.dart';
 
 /// Rata-rata mastery per topik dengan progress bar.
 class MasterySection extends ConsumerWidget {
@@ -42,7 +43,16 @@ class MasterySection extends ConsumerWidget {
             for (final MapEntry<String, double> entry in entries)
               Padding(
                 padding: const EdgeInsets.only(bottom: 14),
-                child: _MasteryRow(topic: entry.key, value: entry.value),
+                child: _MasteryRow(
+                  topic: entry.key,
+                  value: entry.value,
+                  onTap: entry.value > 0
+                      ? () => showModalBottomSheet<void>(
+                          context: context,
+                          builder: (_) => const MasteryConceptSheet(),
+                        )
+                      : null,
+                ),
               ),
           ],
         );
@@ -54,57 +64,71 @@ class MasterySection extends ConsumerWidget {
 class _MasteryRow extends StatelessWidget {
   final String topic;
   final double value;
+  final VoidCallback? onTap;
 
-  const _MasteryRow({required this.topic, required this.value});
+  const _MasteryRow({required this.topic, required this.value, this.onTap});
 
   @override
   Widget build(BuildContext context) {
     final double clamped = value.clamp(0.0, 1.0);
     final int percent = (clamped * 100).round();
 
-    return Semantics(
-      label: '$topic: $percent% mastery',
-      child: ExcludeSemantics(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    topic,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: KodiraTextStyles.body.copyWith(
-                      color: KodiraColors.neutral900,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  '$percent%',
-                  style: KodiraTextStyles.bodySm.copyWith(
-                    color: KodiraColors.neutral700,
+    final Widget content = ExcludeSemantics(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  topic,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: KodiraTextStyles.body.copyWith(
+                    color: KodiraColors.neutral900,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-              ],
-            ),
-            const SizedBox(height: 6),
-            ClipRRect(
-              borderRadius: BorderRadius.circular(KodiraRadius.full),
-              child: LinearProgressIndicator(
-                value: clamped,
-                minHeight: 8,
-                backgroundColor: KodiraColors.neutral200,
-                valueColor: const AlwaysStoppedAnimation<Color>(
-                  KodiraColors.primary700,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                '$percent%',
+                style: KodiraTextStyles.bodySm.copyWith(
+                  color: KodiraColors.neutral700,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(KodiraRadius.full),
+            child: LinearProgressIndicator(
+              value: clamped,
+              minHeight: 8,
+              backgroundColor: KodiraColors.neutral200,
+              valueColor: const AlwaysStoppedAnimation<Color>(
+                KodiraColors.primary700,
+              ),
             ),
-          ],
-        ),
+          ),
+        ],
+      ),
+    );
+
+    if (onTap == null) {
+      return Semantics(label: '$topic: $percent% mastery', child: content);
+    }
+
+    return Semantics(
+      button: true,
+      label: 'Buka info mastery untuk topik $topic',
+      onTap: onTap,
+      child: InkWell(
+        excludeFromSemantics: true,
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(KodiraRadius.md),
+        child: content,
       ),
     );
   }
