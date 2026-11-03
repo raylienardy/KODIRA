@@ -17,7 +17,7 @@ Admin panel ini menggunakan palet warna yang diekstraksi langsung dari `KodiraCo
 | **Primary** | `primary-700` | `#5B4FE9` | Brand color, main CTA, active states, focus rings. |
 | | `primary-900` | `#3D33B8` | Hover state untuk primary buttons, deep accents. |
 | | `primary-100` | `#EEF0F7` | Background menu aktif, subtle highlights. |
-| **Success** | `success-500` | `#00C2A8`, `#10B981` | Indikator kelulusan, penyelesaian level, status aktif. |
+| **Success** | `success-500` | `#00C2A8` | Indikator kelulusan, penyelesaian level, status aktif. |
 | **Alert** | `alert-500` | `#FF6B6B` | Status terkunci, error kritis, tombol destruktif. |
 | | `alert-700` | `#D94A4A` | Hover state untuk elemen destruktif. |
 | **Warning** | `warning-500` | `#FBBF24` | Status remedial, perhatian sedang, pending review. |
@@ -27,6 +27,7 @@ Admin panel ini menggunakan palet warna yang diekstraksi langsung dari `KodiraCo
 | | `neutral-200` | `#E5E7EB` | Dividers, borders, subtle grids. |
 | | `neutral-100` | `#F7F8FC` | App background, card surface hover. |
 | | `neutral-0` | `#FFFFFF` | Card surface, modal background, topbar. |
+| | `code-bg` | `#1A1D2B` | Background code block, preview materi (sama dengan neutral-900) |
 
 ### 2.2 Tipografi (Hierarchy of Information)
 
