@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/theme.dart';
+import '../../../shared/widgets/app_drawer.dart';
 import '../../home/providers/level_provider.dart';
 import '../providers/profile_provider.dart';
 import '../widgets/achievement_list.dart';
@@ -23,12 +24,20 @@ class ProfileScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       backgroundColor: KodiraColors.neutral0,
+      drawer: const AppDrawer(),
       appBar: AppBar(
         backgroundColor: KodiraColors.neutral0,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         scrolledUnderElevation: 0,
         foregroundColor: KodiraColors.neutral900,
+        leading: Builder(
+          builder: (context) => IconButton(
+            tooltip: 'Buka menu',
+            onPressed: () => Scaffold.of(context).openDrawer(),
+            icon: const Icon(Icons.menu),
+          ),
+        ),
         title: Text(
           'Profil',
           style: KodiraTextStyles.h2.copyWith(color: KodiraColors.neutral900),

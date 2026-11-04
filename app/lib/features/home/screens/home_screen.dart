@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:kodira/features/lesson/screens/material_screen.dart';
 
 import '../../../app/theme.dart';
@@ -10,6 +9,7 @@ import '../../../data/models/user_model.dart';
 import '../../../data/models/level_model.dart';
 import '../../../data/models/user_progress_model.dart';
 import '../../../core/errors/error_type.dart';
+import '../../../shared/widgets/app_drawer.dart';
 import '../../../shared/widgets/empty_widget.dart';
 import '../../../shared/widgets/error_widget.dart';
 import '../../../shared/widgets/loading_widget.dart';
@@ -26,6 +26,7 @@ class HomeScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: KodiraColors.neutral0,
+      drawer: const AppDrawer(),
       body: SafeArea(
         child: Column(
           children: [
@@ -231,101 +232,59 @@ class _HeaderWidget extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    displayName,
-                    style: KodiraTextStyles.h2.copyWith(
-                      color: KodiraColors.neutral900,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    'Level $currentLevel — $topic',
-                    style: KodiraTextStyles.bodySm.copyWith(
-                      color: KodiraColors.neutral500,
-                    ),
-                  ),
-                ],
-              ),
-              // Avatar + menu akun
-              PopupMenuButton<String>(
-                tooltip: 'Menu akun',
-                position: PopupMenuPosition.under,
-                onSelected: (value) async {
-                  if (value == 'profile') {
-                    context.push('/profile');
-                    return;
-                  }
-                  if (value == 'logout') {
-                    await _confirmLogout(context, ref);
-                  }
-                },
-                itemBuilder: (context) => [
-                  PopupMenuItem<String>(
-                    value: 'profile',
-                    child: Row(
-                      children: [
-                        const Icon(
-                          Icons.person_outline,
-                          size: 20,
-                          color: KodiraColors.neutral700,
-                        ),
-                        const SizedBox(width: 12),
-                        Text(
-                          'Profil',
-                          style: KodiraTextStyles.body.copyWith(
-                            color: KodiraColors.neutral900,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  PopupMenuItem<String>(
-                    value: 'logout',
-                    child: Row(
-                      children: [
-                        const Icon(
-                          Icons.logout,
-                          size: 20,
-                          color: KodiraColors.alert700,
-                        ),
-                        const SizedBox(width: 12),
-                        Text(
-                          'Logout',
-                          style: KodiraTextStyles.body.copyWith(
-                            color: KodiraColors.neutral900,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-                child: SizedBox(
-                  width: 48,
-                  height: 48,
-                  child: Center(
-                    child: Container(
-                      width: 38,
-                      height: 38,
-                      decoration: const BoxDecoration(
-                        shape: BoxShape.circle,
-                        gradient: LinearGradient(
-                          colors: [
-                            KodiraColors.primary700,
-                            KodiraColors.success500,
-                          ],
-                        ),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      displayName,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: KodiraTextStyles.h2.copyWith(
+                        color: KodiraColors.neutral900,
                       ),
-                      alignment: Alignment.center,
-                      child: Text(
-                        (user?.name ?? 'M').substring(0, 1).toUpperCase(),
-                        style: KodiraTextStyles.bodyLg.copyWith(
-                          color: Colors.white,
-                        ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Level $currentLevel — $topic',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: KodiraTextStyles.bodySm.copyWith(
+                        color: KodiraColors.neutral500,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              IconButton(
+                tooltip: 'Buka menu',
+                onPressed: () => Scaffold.of(context).openDrawer(),
+                icon: const Icon(Icons.menu, color: KodiraColors.neutral900),
+              ),
+              const SizedBox(width: 4),
+              // Avatar pengguna (dekoratif; navigasi lewat drawer).
+              SizedBox(
+                width: 48,
+                height: 48,
+                child: Center(
+                  child: Container(
+                    width: 38,
+                    height: 38,
+                    decoration: const BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: LinearGradient(
+                        colors: [
+                          KodiraColors.primary700,
+                          KodiraColors.success500,
+                        ],
+                      ),
+                    ),
+                    alignment: Alignment.center,
+                    child: Text(
+                      (user?.name ?? 'M').substring(0, 1).toUpperCase(),
+                      style: KodiraTextStyles.bodyLg.copyWith(
+                        color: Colors.white,
                       ),
                     ),
                   ),
@@ -404,38 +363,6 @@ class _HeaderWidget extends ConsumerWidget {
         ],
       ),
     );
-  }
-
-  Future<void> _confirmLogout(BuildContext context, WidgetRef ref) async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: const Text('Logout'),
-        content: const Text('Yakin ingin keluar dari akun?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(false),
-            child: const Text('Batal'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(true),
-            style: TextButton.styleFrom(foregroundColor: KodiraColors.alert700),
-            child: const Text('Logout'),
-          ),
-        ],
-      ),
-    );
-
-    if (confirmed != true) return;
-
-    try {
-      await ref.read(authStateProvider.notifier).logout();
-    } catch (_) {
-      if (!context.mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Gagal logout. Coba lagi.')));
-    }
   }
 }
 
