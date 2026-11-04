@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
-import 'package:kodira/app/router.dart';
 import 'package:kodira/data/models/user_model.dart';
 import 'package:kodira/data/repositories/i_auth_repository.dart';
 import 'package:kodira/features/auth/providers/auth_provider.dart';
+import 'package:kodira/features/profile/screens/change_password_placeholder_screen.dart';
 import 'package:kodira/shared/widgets/app_drawer.dart';
 
 class _FakeAuthRepository implements IAuthRepository {
@@ -55,8 +55,21 @@ Future<GoRouter> _pumpDrawer(
       GoRoute(path: '/home', builder: (context, state) => const _DrawerHome()),
       GoRoute(
         path: '/profile',
-        builder: (context, state) =>
-            const Scaffold(body: Center(child: Text('Profile Page'))),
+        builder: (context, state) => Scaffold(
+          appBar: AppBar(
+            automaticallyImplyLeading: false,
+            actions: [
+              Builder(
+                builder: (context) => IconButton(
+                  icon: const Icon(Icons.menu),
+                  onPressed: () => Scaffold.of(context).openDrawer(),
+                ),
+              ),
+            ],
+          ),
+          drawer: const AppDrawer(),
+          body: const Center(child: Text('Profile Page')),
+        ),
       ),
       GoRoute(
         path: '/change-password',
@@ -86,7 +99,12 @@ Future<GoRouter> _pumpDrawer(
 }
 
 Future<void> _openDrawer(WidgetTester tester) async {
-  await tester.tap(find.byIcon(Icons.menu));
+  await tester.tap(
+    find.descendant(
+      of: find.byType(AppBar).last,
+      matching: find.byIcon(Icons.menu),
+    ),
+  );
   await tester.pumpAndSettle();
 }
 
@@ -192,5 +210,25 @@ void main() {
     await tester.pump(const Duration(milliseconds: 300));
 
     expect(find.text('Segera hadir'), findsOneWidget);
+  });
+
+  testWidgets('duplicateRoutePushDoesNotPushMultipleTimes', (tester) async {
+    final _FakeAuthRepository repo = _FakeAuthRepository(user);
+    await _pumpDrawer(tester, repo);
+
+    // Navigate to profile first via drawer
+    await _openDrawer(tester);
+    await tester.tap(find.text('Profil'));
+    await tester.pumpAndSettle();
+    expect(find.text('Profile Page'), findsOneWidget);
+
+    // Open drawer from profile page and tap Profil again (already on /profile)
+    await _openDrawer(tester);
+    await tester.tap(find.text('Profil'));
+    await tester.pumpAndSettle();
+
+    // Should still be on profile page without exception or duplicate push
+    expect(find.text('Profile Page'), findsOneWidget);
+    expect(find.text('Home Page'), findsNothing);
   });
 }

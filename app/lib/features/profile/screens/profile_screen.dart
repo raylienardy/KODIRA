@@ -31,17 +31,19 @@ class ProfileScreen extends ConsumerWidget {
         elevation: 0,
         scrolledUnderElevation: 0,
         foregroundColor: KodiraColors.neutral900,
-        leading: Builder(
-          builder: (context) => IconButton(
-            tooltip: 'Buka menu',
-            onPressed: () => Scaffold.of(context).openDrawer(),
-            icon: const Icon(Icons.menu),
-          ),
-        ),
         title: Text(
           'Profil',
           style: KodiraTextStyles.h2.copyWith(color: KodiraColors.neutral900),
         ),
+        actions: [
+          Builder(
+            builder: (context) => IconButton(
+              tooltip: 'Buka menu',
+              onPressed: () => Scaffold.of(context).openDrawer(),
+              icon: const Icon(Icons.menu),
+            ),
+          ),
+        ],
       ),
       body: RefreshIndicator(
         color: KodiraColors.primary700,

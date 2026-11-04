@@ -60,10 +60,12 @@ class AppDrawer extends ConsumerWidget {
     );
   }
 
-  /// Tutup drawer lalu buka [route] di atas halaman saat ini.
+  /// Tutup drawer lalu buka [route] jika belum berada di route tersebut.
   void _navigate(BuildContext context, String route) {
     final GoRouter router = GoRouter.of(context);
+    final String current = router.routerDelegate.currentConfiguration.uri.path;
     Navigator.of(context).pop();
+    if (current == route) return;
     router.push(route);
   }
 
