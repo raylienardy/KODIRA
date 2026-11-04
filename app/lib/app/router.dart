@@ -6,7 +6,7 @@ import '../features/auth/providers/auth_provider.dart';
 import '../features/auth/screens/login_screen.dart';
 import '../features/auth/screens/splash_screen.dart';
 import '../features/home/screens/home_screen.dart';
-import '../features/profile/screens/change_password_placeholder_screen.dart';
+import '../features/profile/screens/change_password_screen.dart';
 import '../features/profile/screens/profile_screen.dart';
 
 /// Listenable adapter for GoRouter.
@@ -72,10 +72,10 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         path: '/profile',
         builder: (context, state) => const ProfileScreen(),
       ),
-      // Placeholder sementara sampai fitur #4a (Ganti Password) di-BUILD.
+      // Route ganti password.
       GoRoute(
         path: '/change-password',
-        builder: (context, state) => const ChangePasswordPlaceholderScreen(),
+        builder: (context, state) => const ChangePasswordScreen(),
       ),
     ],
   );

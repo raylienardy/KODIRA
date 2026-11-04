@@ -1,6 +1,7 @@
 import 'package:supabase_flutter/supabase_flutter.dart' as supa;
 import '../models/user_model.dart';
 import '../../core/errors/auth_exception.dart';
+import '../../features/profile/logic/password_update_logic.dart';
 import 'auth_logic.dart';
 import 'i_auth_repository.dart';
 
@@ -114,9 +115,7 @@ class AuthRepository implements IAuthRepository {
     try {
       await _client.auth.updateUser(supa.UserAttributes(password: newPassword));
     } on supa.AuthException catch (e) {
-      final String msg = e.message.toLowerCase();
-      if (msg.contains('reauthentication') ||
-          msg.contains('current password')) {
+      if (PasswordUpdateLogic.shouldRetryWithCurrentPassword(e.message)) {
         await _client.auth.updateUser(
           supa.UserAttributes(
             password: newPassword,

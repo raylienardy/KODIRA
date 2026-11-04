@@ -5,7 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:kodira/data/models/user_model.dart';
 import 'package:kodira/data/repositories/i_auth_repository.dart';
 import 'package:kodira/features/auth/providers/auth_provider.dart';
-import 'package:kodira/features/profile/screens/change_password_placeholder_screen.dart';
+import 'package:kodira/features/profile/screens/change_password_screen.dart';
 import 'package:kodira/shared/widgets/app_drawer.dart';
 
 class _FakeAuthRepository implements IAuthRepository {
@@ -82,7 +82,7 @@ Future<GoRouter> _pumpDrawer(
       ),
       GoRoute(
         path: '/change-password',
-        builder: (context, state) => const ChangePasswordPlaceholderScreen(),
+        builder: (context, state) => const ChangePasswordScreen(),
       ),
     ],
   );
@@ -205,20 +205,7 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 350));
 
-    expect(
-      find.text('Fitur Ganti Password akan segera hadir.'),
-      findsOneWidget,
-    );
-  });
-
-  testWidgets('placeholderShowsSnackBar', (tester) async {
-    await tester.pumpWidget(
-      const MaterialApp(home: ChangePasswordPlaceholderScreen()),
-    );
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 300));
-
-    expect(find.text('Segera hadir'), findsOneWidget);
+    expect(find.text('Ganti Password'), findsOneWidget);
   });
 
   testWidgets('duplicateRoutePushDoesNotPushMultipleTimes', (tester) async {
