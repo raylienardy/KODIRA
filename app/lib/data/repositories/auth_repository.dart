@@ -90,4 +90,42 @@ class AuthRepository implements IAuthRepository {
   Stream<bool> authStateChanges() {
     return _client.auth.onAuthStateChange.map((data) => data.session != null);
   }
+
+  /// Update password user. Verifikasi [oldPassword] dulu, lalu ganti ke
+  /// [newPassword]. Throw `AuthException` jika verifikasi gagal.
+  ///
+  /// Step 1: verifikasi password lama lewat `signInWithPassword`. Ini juga
+  /// refresh session aktif.
+  /// Step 2: update password. Fallback ke `currentPassword` jika server
+  /// require reauth (`secure_password_change = true`).
+  @override
+  Future<void> updatePassword({
+    required String nim,
+    required String oldPassword,
+    required String newPassword,
+  }) async {
+    final String email = AuthLogic.nimToEmail(nim);
+
+    // Step 1: verifikasi password lama. Ini juga refresh session aktif.
+    await _client.auth.signInWithPassword(email: email, password: oldPassword);
+
+    // Step 2: update password. Fallback ke currentPassword jika server
+    // require reauth (secure_password_change = true).
+    try {
+      await _client.auth.updateUser(supa.UserAttributes(password: newPassword));
+    } on supa.AuthException catch (e) {
+      final String msg = e.message.toLowerCase();
+      if (msg.contains('reauthentication') ||
+          msg.contains('current password')) {
+        await _client.auth.updateUser(
+          supa.UserAttributes(
+            password: newPassword,
+            currentPassword: oldPassword,
+          ),
+        );
+      } else {
+        rethrow;
+      }
+    }
+  }
 }

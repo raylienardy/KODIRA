@@ -166,4 +166,13 @@ class _FakeAuthRepository implements IAuthRepository {
 
   @override
   Stream<bool> authStateChanges() => const Stream<bool>.empty();
+
+  @override
+  Future<void> updatePassword({
+    required String nim,
+    required String oldPassword,
+    required String newPassword,
+  }) async {
+    throw UnimplementedError();
+  }
 }

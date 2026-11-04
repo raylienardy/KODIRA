@@ -20,4 +20,12 @@ abstract class IAuthRepository {
 
   /// Stream perubahan status auth (true = logged in).
   Stream<bool> authStateChanges();
+
+  /// Update password user. Verifikasi [oldPassword] dulu, lalu ganti ke
+  /// [newPassword]. Throw `AuthException` jika verifikasi gagal.
+  Future<void> updatePassword({
+    required String nim,
+    required String oldPassword,
+    required String newPassword,
+  });
 }
