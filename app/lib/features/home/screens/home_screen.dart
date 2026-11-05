@@ -13,6 +13,9 @@ import '../../../shared/widgets/app_drawer.dart';
 import '../../../shared/widgets/empty_widget.dart';
 import '../../../shared/widgets/error_widget.dart';
 import '../../../shared/widgets/loading_widget.dart';
+import '../widgets/level_section.dart';
+import '../../../data/logic/xp_logic.dart';
+import '../../../data/logic/title_logic.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -90,26 +93,48 @@ class HomeScreen extends ConsumerWidget {
     // peta nomor level ke id level supaya pengecekan level sebelumnya tidak
     // bergantung pada urutan id di database
     final levelIdByNumber = {for (final l in levels) l.levelNumber: l.id};
-    return ListView.builder(
+    return _buildSectionedMap(levels, progressMap, levelIdByNumber);
+  }
+
+  Widget _buildSectionedMap(
+    List<LevelModel> levels,
+    Map<int, UserProgressModel> progressMap,
+    Map<int, int> levelIdByNumber,
+  ) {
+    final grouped = <LevelTier, List<LevelModel>>{
+      LevelTier.mudah: [],
+      LevelTier.sedang: [],
+      LevelTier.tinggi: [],
+    };
+    for (final level in levels) {
+      final tier = LevelTier.fromLevelNumber(level.levelNumber);
+      grouped[tier]!.add(level);
+    }
+
+    return ListView(
       padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
-      itemCount: levels.length,
-      itemBuilder: (context, index) {
-        final level = levels[index];
-        final progress = progressMap[level.id];
-        return Padding(
-          padding: const EdgeInsets.only(bottom: 12),
-          child: _LevelCard(
-            level: level,
-            state: _resolveLevelState(
-              level: level,
-              progress: progress,
-              progressMap: progressMap,
-              levelIdByNumber: levelIdByNumber,
+      children: [
+        for (final tier in LevelTier.values)
+          if (grouped[tier]!.isNotEmpty)
+            LevelSection(
+              tier: tier,
+              levels: grouped[tier]!,
+              levelBuilder: (level) {
+                final progress = progressMap[level.id];
+                return _LevelCard(
+                  level: level,
+                  state: _resolveLevelState(
+                    level: level,
+                    progress: progress,
+                    progressMap: progressMap,
+                    levelIdByNumber: levelIdByNumber,
+                  ),
+                  xpEarned: progress?.xpEarned ?? 0,
+                );
+              },
+              initiallyExpanded: true,
             ),
-            xpEarned: progress?.xpEarned ?? 0,
-          ),
-        );
-      },
+      ],
     );
   }
 }
@@ -207,6 +232,9 @@ class _HeaderWidget extends ConsumerWidget {
     // Total XP diambil dari database supaya selalu sinkron dengan hasil kuis.
     final totalXp = totalXpAsync.maybeWhen(data: (v) => v, orElse: () => 0);
     final isXpLoading = totalXpAsync.isLoading;
+
+    // Gelar (title) diturunkan dari total XP yang sama.
+    final UserTitle title = TitleLogic.fromTotalXp(totalXp);
 
     // Target XP memakai level berjalan sebagai acuan (100 XP per level).
     final int targetXp = currentLevel * 100;
@@ -321,6 +349,11 @@ class _HeaderWidget extends ConsumerWidget {
                     '${badgeCountAsync.maybeWhen(data: (c) => c, orElse: () => 0)}',
                 label: 'Badge',
                 loading: badgeCountAsync.isLoading,
+              ),
+              _StatChip(
+                icon: TitleLogic.emoji(title),
+                value: TitleLogic.label(title),
+                label: 'Title',
               ),
             ],
           ),

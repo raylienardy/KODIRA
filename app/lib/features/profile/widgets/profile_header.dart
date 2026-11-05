@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/theme.dart';
+import '../../../data/logic/title_logic.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../../home/providers/level_provider.dart';
 
-/// Bagian atas layar Profil: avatar, nama, NIM, dan jumlah badge.
+/// Bagian atas layar Profil: avatar, nama, NIM, gelar, dan jumlah badge.
 class ProfileHeader extends ConsumerWidget {
   const ProfileHeader({super.key});
 
@@ -15,6 +16,12 @@ class ProfileHeader extends ConsumerWidget {
     final badgeCount = ref
         .watch(badgeCountProvider)
         .maybeWhen(data: (value) => value, orElse: () => 0);
+    final totalXpAsync = ref.watch(totalXpProvider);
+    final int totalXp = totalXpAsync.maybeWhen(
+      data: (value) => value,
+      orElse: () => 0,
+    );
+    final UserTitle title = TitleLogic.fromTotalXp(totalXp);
 
     final String rawName = user?.name.trim() ?? '';
     final String name = rawName.isEmpty ? 'Mahasiswa' : rawName;
@@ -102,6 +109,41 @@ class ProfileHeader extends ConsumerWidget {
                   style: KodiraTextStyles.caption.copyWith(
                     color: KodiraColors.primary900,
                   ),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 8),
+          // Gelar (title) user dari total XP, tampil sebagai chip.
+          Semantics(
+            label: 'Gelar: ${TitleLogic.label(title)}',
+            child: ExcludeSemantics(
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
+                decoration: BoxDecoration(
+                  color: KodiraColors.neutral0,
+                  borderRadius: BorderRadius.circular(KodiraRadius.full),
+                  border: Border.all(color: KodiraColors.neutral200),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      TitleLogic.emoji(title),
+                      style: const TextStyle(fontSize: 14),
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      TitleLogic.label(title),
+                      style: KodiraTextStyles.caption.copyWith(
+                        color: KodiraColors.primary700,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
