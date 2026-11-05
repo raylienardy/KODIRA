@@ -127,4 +127,11 @@ class AuthRepository implements IAuthRepository {
       }
     }
   }
+
+  @override
+  Future<void> updateProfile({required String name}) async {
+    final userId = _client.auth.currentUser?.id;
+    if (userId == null) throw const supa.AuthException('Tidak terautentikasi');
+    await _client.from('users').update({'name': name}).eq('id', userId);
+  }
 }

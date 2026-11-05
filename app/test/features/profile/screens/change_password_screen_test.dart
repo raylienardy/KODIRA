@@ -40,6 +40,11 @@ class FakeAuthRepository implements IAuthRepository {
       throw const supa.AuthException('Password lama salah');
     }
   }
+
+  @override
+  Future<void> updateProfile({required String name}) async {
+    throw UnimplementedError();
+  }
 }
 
 void main() {

@@ -7,6 +7,7 @@ import '../features/auth/screens/login_screen.dart';
 import '../features/auth/screens/splash_screen.dart';
 import '../features/home/screens/home_screen.dart';
 import '../features/profile/screens/change_password_screen.dart';
+import '../features/profile/screens/edit_profile_screen.dart';
 import '../features/profile/screens/profile_screen.dart';
 import '../features/profile/screens/about_screen.dart';
 
@@ -80,6 +81,11 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       ),
       // Route tentang aplikasi.
       GoRoute(path: '/about', builder: (context, state) => const AboutScreen()),
+      // Route edit profil (nama saja, NIM immutable).
+      GoRoute(
+        path: '/edit-profile',
+        builder: (context, state) => const EditProfileScreen(),
+      ),
     ],
   );
 });

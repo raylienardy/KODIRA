@@ -28,4 +28,8 @@ abstract class IAuthRepository {
     required String oldPassword,
     required String newPassword,
   });
+
+  /// Update nama profil user yang sedang login.
+  /// Throw `AuthException` jika gagal.
+  Future<void> updateProfile({required String name});
 }

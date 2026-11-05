@@ -96,6 +96,13 @@ class AuthNotifier extends StateNotifier<AuthState> {
     }
   }
 
+  Future<void> refreshUser() async {
+    final user = await _repo.getCurrentUser();
+    if (user != null) {
+      state = state.copyWith(user: user);
+    }
+  }
+
   Future<void> login(String nim, String password) async {
     state = state.copyWith(isLoading: true, errorMessage: null);
     try {

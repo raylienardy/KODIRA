@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../app/theme.dart';
 import '../../../data/logic/title_logic.dart';
@@ -71,12 +72,22 @@ class ProfileHeader extends ConsumerWidget {
             child: ExcludeSemantics(
               child: Column(
                 children: [
-                  Text(
-                    name,
-                    textAlign: TextAlign.center,
-                    style: KodiraTextStyles.h2.copyWith(
-                      color: KodiraColors.neutral900,
-                      fontWeight: FontWeight.w700,
+                  InkWell(
+                    onTap: () => context.push('/edit-profile'),
+                    borderRadius: BorderRadius.circular(KodiraRadius.md),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
+                      child: Text(
+                        name,
+                        textAlign: TextAlign.center,
+                        style: KodiraTextStyles.h2.copyWith(
+                          color: KodiraColors.neutral900,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
                     ),
                   ),
                   const SizedBox(height: 2),

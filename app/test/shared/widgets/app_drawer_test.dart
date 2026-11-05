@@ -39,6 +39,11 @@ class _FakeAuthRepository implements IAuthRepository {
   }) async {
     throw UnimplementedError();
   }
+
+  @override
+  Future<void> updateProfile({required String name}) async {
+    throw UnimplementedError();
+  }
 }
 
 class _DrawerHome extends StatelessWidget {
