@@ -288,7 +288,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
                   const SizedBox(height: 16),
                   TextButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text(
+                            'Silakan hubungi dosen atau admin lab untuk reset password.',
+                          ),
+                          duration: Duration(seconds: 4),
+                        ),
+                      );
+                    },
                     child: Text(
                       'Lupa Password?',
                       style: TextStyle(
