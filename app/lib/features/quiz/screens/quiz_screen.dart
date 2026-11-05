@@ -479,10 +479,10 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
             }
           },
           onSecondary: () {
-            final GoRouter router = GoRouter.of(dialogContext);
+            final GoRouter router = GoRouter.of(context);
             Navigator.of(dialogContext).pop();
             if (tier == ResultTier.pass) {
-              router.go('/home');
+              Future.microtask(() => router.go('/home'));
             } else if (AdaptiveEngine.shouldTriggerRemedialQuiz(
               result.mastery,
             )) {
