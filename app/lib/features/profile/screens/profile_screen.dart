@@ -26,6 +26,13 @@ class ProfileScreen extends ConsumerWidget {
       backgroundColor: KodiraColors.neutral0,
       endDrawer: const AppDrawer(),
       appBar: AppBar(
+        leading: Navigator.canPop(context)
+            ? IconButton(
+                icon: const Icon(Icons.arrow_back),
+                tooltip: 'Kembali',
+                onPressed: () => Navigator.of(context).maybePop(),
+              )
+            : null,
         backgroundColor: KodiraColors.neutral0,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
