@@ -116,7 +116,7 @@ class _DragDropScreenState extends ConsumerState<DragDropScreen> {
     _payloadError = null;
     _data = data;
     _dropZoneIds = [];
-    _poolIds = data.tokens.map((token) => token.id).toList();
+    _poolIds = data.tokens.map((token) => token.id).toList()..shuffle();
   }
 
   String _cleanError(Object error) {
@@ -154,7 +154,7 @@ class _DragDropScreenState extends ConsumerState<DragDropScreen> {
     if (data == null) return;
     setState(() {
       _dropZoneIds = [];
-      _poolIds = data.tokens.map((token) => token.id).toList();
+      _poolIds = data.tokens.map((token) => token.id).toList()..shuffle();
     });
   }
 
