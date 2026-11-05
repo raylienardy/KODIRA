@@ -29,12 +29,49 @@ class MasteryBar extends StatelessWidget {
                     color: KodiraColors.neutral700,
                   ),
                 ),
-                Text(
-                  '$percent%',
-                  style: KodiraTextStyles.body.copyWith(
-                    color: KodiraColors.neutral900,
-                    fontWeight: FontWeight.w600,
-                  ),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      '$percent%',
+                      style: KodiraTextStyles.body.copyWith(
+                        color: KodiraColors.neutral900,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    if (clamped >= 0.95) ...[
+                      const SizedBox(width: 8),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 3,
+                        ),
+                        decoration: BoxDecoration(
+                          color: KodiraColors.success500,
+                          borderRadius: BorderRadius.circular(KodiraRadius.full),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(
+                              Icons.verified,
+                              size: 12,
+                              color: Colors.white,
+                            ),
+                            const SizedBox(width: 3),
+                            Text(
+                              'Mastered',
+                              style: KodiraTextStyles.caption.copyWith(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w700,
+                                fontSize: 10,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ],
                 ),
               ],
             ),

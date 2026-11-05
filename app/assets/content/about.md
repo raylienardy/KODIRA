@@ -105,6 +105,8 @@ Karena E = 1 − A, formula dapat disederhanakan menjadi:
 M = 0.65·A + 0.25·C + 0.10·(1−Tn)
 ```
 
-**Catatan penting:** Mastery **tidak pernah mencapai 100%** dalam kecepatan normal, karena komponen waktu (Tn) punya bobot 10% yang tidak pernah sempurna. Secara matematis, mastery konvergen ke **~96.67%** pada kecepatan jawab normal. Kamu perlu menjawab super cepat untuk mencapai 100%.
+**Catatan:** Mastery cap sekitar **96-99%** karena komponen waktu (Tn) punya bobot 10% yang tidak pernah sempurna — waktu jawab manusia minimum ~5 detik/soal, bukan 0 detik.
 
-**Yang penting:** Kamu hanya perlu **≥ 70%** untuk lulus level. Tidak perlu mengejar 100%. Badge "Mastered" (✓) diberikan otomatis saat mastery mencapai **≥ 95%**.
+**Target realistis:** Lulus level butuh **≥ 70%**. Topik dengan mastery **≥ 95%** dianggap **sudah dikuasai (Mastered)** dan akan mendapat badge ✓ di UI.
+
+Tidak perlu mengejar angka sempurna — fokus pada pemahaman konsep.
