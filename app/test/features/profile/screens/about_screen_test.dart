@@ -23,7 +23,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Tentang Aplikasi'), findsOneWidget);
-      expect(find.byType(SingleChildScrollView), findsOneWidget);
+      expect(find.byType(SingleChildScrollView), findsNWidgets(3));
     });
 
     testWidgets(

@@ -82,3 +82,29 @@ A: Mastery dihitung dari Akurasi + Waktu + Konsistensi. Cepat & konsisten = 100%
 
 Q: Bisa pindah bahasa (C++ ↔ Java) di tengah jalan?
 A: Bisa. Progress per bahasa terpisah. Pilih bahasa di awal level.
+
+---
+
+### Section 7: Kenapa Mastery Tidak Sampai 100%?
+
+Mastery dihitung dari 4 komponen:
+- **A (Akurasi)**: Persentase jawaban benar
+- **C (Konsistensi)**: Mastery terbaik dari attempt sebelumnya
+- **E (Error Rate)**: 1 − A
+- **Tn (Waktu)**: Rata-rata waktu jawab per soal, dinormalisasi
+
+Formula lengkap:
+
+```
+M = 0.45·A + 0.25·C + 0.20·(1−E) + 0.10·(1−Tn)
+```
+
+Karena E = 1 − A, formula dapat disederhanakan menjadi:
+
+```
+M = 0.65·A + 0.25·C + 0.10·(1−Tn)
+```
+
+**Catatan penting:** Mastery **tidak pernah mencapai 100%** dalam kecepatan normal, karena komponen waktu (Tn) punya bobot 10% yang tidak pernah sempurna. Secara matematis, mastery konvergen ke **~96.67%** pada kecepatan jawab normal. Kamu perlu menjawab super cepat untuk mencapai 100%.
+
+**Yang penting:** Kamu hanya perlu **≥ 70%** untuk lulus level. Tidak perlu mengejar 100%. Badge "Mastered" (✓) diberikan otomatis saat mastery mencapai **≥ 95%**.

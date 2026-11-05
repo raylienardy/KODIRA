@@ -127,6 +127,39 @@ class MasteryBreakdownSheet extends StatelessWidget {
                         fontWeight: FontWeight.w800,
                       ),
                     ),
+                    if (breakdown.total >= 0.95) ...[
+                      const SizedBox(width: 8),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: KodiraColors.success500,
+                          borderRadius: BorderRadius.circular(
+                            KodiraRadius.full,
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(
+                              Icons.verified,
+                              size: 16,
+                              color: Colors.white,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              'Mastered',
+                              style: KodiraTextStyles.caption.copyWith(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ],
                 ),
               ),

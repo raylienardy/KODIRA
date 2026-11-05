@@ -98,6 +98,15 @@ class _MasteryRow extends StatelessWidget {
                   fontWeight: FontWeight.w600,
                 ),
               ),
+              if (clamped >= 0.95) ...[
+                const SizedBox(width: 4),
+                const Icon(
+                  Icons.verified,
+                  size: 14,
+                  color: KodiraColors.success500,
+                  semanticLabel: 'Topik ini sudah dikuasai',
+                ),
+              ],
             ],
           ),
           const SizedBox(height: 6),
