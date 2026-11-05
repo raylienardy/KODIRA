@@ -41,6 +41,9 @@ dependencies:
   # Supabase
   supabase_flutter: ^2.8.4
 
+  # Markdown
+  flutter_markdown: ^0.7.4
+
   # Utilities
   freezed_annotation: ^2.4.4
   json_annotation: ^4.9.0
@@ -92,10 +95,8 @@ flutter:
         - asset: assets/fonts/JetBrainsMono-Regular.ttf
           weight: 400
 
-  # To add assets to your application, add an assets section, like this:
-  # assets:
-  #   - images/a_dot_burr.jpeg
-  #   - images/a_dot_ham.jpeg
+  assets:
+    - assets/content/about.md
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

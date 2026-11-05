@@ -8,6 +8,7 @@ import '../features/auth/screens/splash_screen.dart';
 import '../features/home/screens/home_screen.dart';
 import '../features/profile/screens/change_password_screen.dart';
 import '../features/profile/screens/profile_screen.dart';
+import '../features/profile/screens/about_screen.dart';
 
 /// Listenable adapter for GoRouter.
 /// Triggers redirect re-evaluation whenever auth state or session status
@@ -77,6 +78,8 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         path: '/change-password',
         builder: (context, state) => const ChangePasswordScreen(),
       ),
+      // Route tentang aplikasi.
+      GoRoute(path: '/about', builder: (context, state) => const AboutScreen()),
     ],
   );
 });

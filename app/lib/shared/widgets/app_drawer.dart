@@ -41,6 +41,11 @@ class AppDrawer extends ConsumerWidget {
                     trailing: 'Segera hadir',
                     enabled: false,
                   ),
+                  _DrawerItem(
+                    icon: Icons.info_outline,
+                    label: 'Tentang Aplikasi',
+                    onTap: () => _navigate(context, '/about'),
+                  ),
                   const Spacer(),
                   const Divider(height: 1, color: KodiraColors.neutral200),
                   _DrawerItem(
