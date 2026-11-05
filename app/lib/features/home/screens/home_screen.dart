@@ -29,7 +29,7 @@ class HomeScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: KodiraColors.neutral0,
-      drawer: const AppDrawer(),
+      endDrawer: const AppDrawer(),
       body: SafeArea(
         child: Column(
           children: [
@@ -287,7 +287,7 @@ class _HeaderWidget extends ConsumerWidget {
               ),
               IconButton(
                 tooltip: 'Buka menu',
-                onPressed: () => Scaffold.of(context).openDrawer(),
+                onPressed: () => Scaffold.of(context).openEndDrawer(),
                 icon: const Icon(Icons.menu, color: KodiraColors.neutral900),
               ),
               const SizedBox(width: 4),

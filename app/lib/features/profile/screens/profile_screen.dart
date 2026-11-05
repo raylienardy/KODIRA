@@ -24,7 +24,7 @@ class ProfileScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       backgroundColor: KodiraColors.neutral0,
-      drawer: const AppDrawer(),
+      endDrawer: const AppDrawer(),
       appBar: AppBar(
         backgroundColor: KodiraColors.neutral0,
         surfaceTintColor: Colors.transparent,
