@@ -18,8 +18,8 @@ Implementasi fitur Ganti Password di aplikasi mobile (Fase 1) dan Reset Password
   - **Sedang**: 8+ karakter dengan kombinasi angka & huruf (RegExp: `^(?=.*[0-9])(?=.*[a-zA-Z]).{8,}$`).
   - **Kuat**: 10+ karakter dengan kombinasi angka, huruf, dan simbol khusus (RegExp: `^(?=.*[0-9])(?=.*[a-zA-Z])(?=.*[!@#$%^&*]).{10,}$`).
 - **Validasi Backend & Supabase Auth**:
-  - Verifikasi kecocokan password lama menggunakan metode `reauthenticate` atau `signInWithPassword`.
-  - Pembaruan password baru menggunakan `supabaseClient.auth.updateUser(UserAttributes(password: newPassword))`.
+  - Verifikasi password lama menggunakan `signInWithPassword(nimToEmail(nim), oldPassword)` sebagai step 1, lalu `updateUser(UserAttributes(password: newPassword))` sebagai step 2.
+  - Fallback: jika server return "current password required", retry dengan `UserAttributes(password: newPassword, currentPassword: oldPassword)`.
 
 ### Fitur #4B (Web - Reset Password)
 - Terintegrasi di halaman *Student Management* pada Admin Web.
@@ -27,23 +27,22 @@ Implementasi fitur Ganti Password di aplikasi mobile (Fase 1) dan Reset Password
 - Sistem menghasilkan password sementara, mencatat log aktivitas admin, dan mengirimkan notifikasi kepada mahasiswa.
 
 ## 4. File yang Disentuh (File:Line & Snippet)
-- **`app/lib/features/auth/providers/auth_provider.dart`** (Penambahan method baru di repository):
-  - `Future<void> updatePassword({required String newPassword})`:\n    ```dart
+- **`app/lib/data/repositories/auth_repository.dart`** (implements `IAuthRepository`):
+  - `Future<void> updatePassword({required String newPassword, String? currentPassword})`:
+    ```dart
+    await _client.auth.signInWithPassword(email: email, password: currentPassword);
     await _client.auth.updateUser(supa.UserAttributes(password: newPassword));
     ```
-  - `Future<void> reauthenticate({required String email, required String password})`:\n    ```dart
-    await _client.auth.signInWithPassword(email: email, password: password);
-    ```
+- **`app/lib/data/repositories/i_auth_repository.dart`** (add `updatePassword` signature).
 - **`app/lib/features/profile/screens/change_password_screen.dart` (BARU)**.
 - **`admin/src/app/(dashboard)/students/page.tsx`** (Trigger tombol reset password admin).
 
 ## 5. Test Cases & Skenario Pengujian
-- **File Test Baru**: `app/test/features/auth/change_password_test.dart` (5 kasus uji):
-  1. `ValidOldPassword`: Password lama benar → update password sukses.
-  2. `InvalidOldPassword`: Password lama salah → menampilkan pesan error inline.
-  3. `StrengthMeterWeak`: Input `"123456"` → indikator menampilkan label "Lemah".
-  4. `StrengthMeterMedium`: Input `"Password123"` → indikator menampilkan label "Sedang".
-  5. `StrengthMeterStrong`: Input `"Passw0rd!@#"` → indikator menampilkan label "Kuat".
+- **File Test Baru**:
+  - `app/test/features/profile/logic/password_strength_logic_test.dart` (6 kasus)
+  - `app/test/features/profile/logic/password_update_logic_test.dart` (5 kasus)
+  - `app/test/features/profile/screens/change_password_screen_test.dart` (7 kasus)
+  - `app/test/data/repositories/auth_repository_update_password_test.dart` (2 kasus)
 
 ## 6. Definition of Done (DoD)
 - Mahasiswa dapat mengubah password mereka secara mandiri dari aplikasi mobile dengan validasi kekuatan password yang ketat.
@@ -58,3 +57,14 @@ Implementasi fitur Ganti Password di aplikasi mobile (Fase 1) dan Reset Password
 ## 9. Risk & Mitigasi
 - **Risk**: Mahasiswa lupa password lama sehingga terkunci dari aplikasi mobile.
 - **Mitigasi**: Menyediakan petunjuk bantuan pada layar login untuk menghubungi dosen pengampu (admin) guna melakukan reset password melalui web admin.
+
+## Implementation Status (Updated pasca Fase 1c)
+- Commit ref: `95ac4a3` (repository) + `8e55f3a` (screen)
+- File actual:
+  - `app/lib/features/profile/screens/change_password_screen.dart`
+  - `app/lib/features/profile/logic/password_strength_logic.dart`
+  - `app/lib/features/profile/logic/password_update_logic.dart`
+  - `app/lib/data/repositories/i_auth_repository.dart` (add `updatePassword`)
+  - `app/lib/data/repositories/auth_repository.dart` (impl)
+- Drawer entry: `Tentang Aplikasi` item ready via `AppDrawer` (commit `4a712a7` + `6ba9c25`).
+- Known technical debt: `_PasswordField` widget lokal (belum extract ke `shared/widgets/`), lint `Colors.amber.shade700` hardcoded di strength meter (bukan `KodiraColors`).

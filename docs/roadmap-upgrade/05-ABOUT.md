@@ -89,8 +89,8 @@ A: Bisa. Progress per bahasa terpisah. Pilih bahasa di awal level.
 ## 4. File yang Disentuh (File:Line & Snippet)
 - **`app/lib/features/profile/screens/about_screen.dart` (BARU)**
 - **`app/assets/content/about.md` (Aset markdown lengkap)**
-- **`app/lib/app/router.dart:70`**
-  - Registrasi route baru:
+- **`app/lib/app/router.dart:82`**
+  - Registrasi route baru setelah `/change-password`:
     ```dart
     GoRoute(
       path: '/about',
@@ -108,7 +108,9 @@ A: Bisa. Progress per bahasa terpisah. Pilih bahasa di awal level.
 - Mahasiswa memiliki panduan tertulis lengkap di dalam aplikasi tanpa harus bertanya ke dosen.
 
 ## 7. Blocker & Dependency
-- Tidak ada.
+- **Package**: `flutter_markdown: ^0.7.4` (ditambahkan di `pubspec.yaml`, resolved `0.7.7+1`, discontinued per pub.dev namun **functional**; catat hutang migrasi ke `flutter_markdown_plus` di masa depan).
+- **Aset**: Folder `app/assets/content/` + entry `flutter: assets: - assets/content/about.md` di `pubspec.yaml`.
+- **Route**: `/about` terdaftar di `router.dart` setelah `/change-password`, drawer item "Tentang Aplikasi" sudah ada.
 
 ## 8. Effort Estimate
 - 3 jam (termasuk penulisan konten markdown).
@@ -116,3 +118,16 @@ A: Bisa. Progress per bahasa terpisah. Pilih bahasa di awal level.
 ## 9. Risk & Mitigasi
 - **Risk**: Ukuran paket aplikasi meningkat.
 - **Mitigasi**: File markdown teks sangat ringan (< 10 KB) dibandingkan aset gambar.
+
+## Implementation Status (Updated pasca Fase 1d)
+- Commit: `37e3590`
+- File actual:
+  - `app/lib/features/profile/screens/about_screen.dart` (baru)
+  - `app/assets/content/about.md` (baru — 6 section sesuai spec baris 14-87, verbatim)
+  - `app/test/features/profile/screens/about_screen_test.dart` (baru — 3 test)
+  - `app/pubspec.yaml` (edit — flutter_markdown + assets)
+  - `app/lib/app/router.dart` (edit — /about route)
+  - `app/lib/shared/widgets/app_drawer.dart` (edit — item "Tentang Aplikasi")
+- Content: 6 section dari doc baris 14-87, verbatim (verified — tidak ada hallucination).
+- Drawer entry: item "Tentang Aplikasi" setelah Ganti Kelas, sebelum Spacer.
+- Known technical debt: `flutter_markdown` discontinued, migrasi ke `flutter_markdown_plus` di masa depan.

@@ -18,64 +18,45 @@ Implementasi perolehan XP berbasis tier level dan pengali bonus streak harian.
 - **Migration Strategy**: Inkremental. XP mahasiswa yang sudah ada dipertahankan apa adanya. Level baru yang diselesaikan pasca-update akan menggunakan aturan XP bertingkat.
 
 ## 4. File yang Disentuh (File:Line & Signature)
-- **`app/lib/data/repositories/progress_logic.dart:45`**
-  - **Signature Lama**:
+- **`app/lib/data/repositories/progress_logic.dart:31`**
+  - **Signature**:
     ```dart
-    static int computeXp({required double scoreRatio})
-    // Logika: return scoreRatio >= 0.7 ? 100 : (scoreRatio >= 0.4 ? 50 : 0);
+    static int computeXp(int existing, int incoming) => max(existing, incoming);
     ```
-  - **Signature Baru**:
-    ```dart
-    static int computeXp({
-      required double scoreRatio,
-      required LevelTier tier,        // Enum: mudah/sedang/tinggi
-      required int currentStreak,     // Untuk multiplier
-    })
-    ```
-  - **Algoritma Baru**:
-    ```dart
-    int baseXp;
-    if (scoreRatio >= 0.7) {
-      baseXp = tier == LevelTier.mudah ? 50 : (tier == LevelTier.sedang ? 100 : 150);
-    } else if (scoreRatio >= 0.4) {
-      baseXp = tier == LevelTier.mudah ? 25 : (tier == LevelTier.sedang ? 50 : 75);
-    } else {
-      baseXp = 0;
-    }
-    double multiplier = _streakMultiplier(currentStreak);
-    return (baseXp * multiplier).round();
-    ```
-- **`app/lib/features/quiz/screens/quiz_screen.dart:233` (`_saveProgress`)**
-  - Perubahan: Mengambil `tier` dari `levelModel.tier` dan `currentStreak` dari provider, lalu meneruskannya ke `ProgressLogic.computeXp`.
+  - **Logika**: XP tidak pernah turun. Tier-based reward di-handle oleh `XpLogic`.
+- **`app/lib/features/quiz/screens/quiz_screen.dart:356`**
+  - Perubahan: Menghapus logika XP hardcoded lama, menggunakan `XpLogic.computeAttemptXp` untuk mendapatkan `XpResult`.
 - **`app/lib/features/quiz/widgets/result_dialog.dart`**
-  - Menampilkan detail XP: "Base XP: 100 | Streak Bonus: ×1.5 = 150 XP Total".
+  - Terintegrasi untuk menampilkan detail hasil kuis melalui `XpResult`.
 
 ## 5. Test Cases & Skenario Pengujian
-- **File Test Baru**: `app/test/data/repositories/xp_tiering_test.dart` (9 kasus):
-  1. `MudahPass`: Tier Mudah, score 0.8 → 50 XP.
-  2. `MudahRemedial`: Tier Mudah, score 0.5 → 25 XP.
-  3. `SedangPass`: Tier Sedang, score 0.8 → 100 XP.
-  4. `SedangRemedial`: Tier Sedang, score 0.5 → 50 XP.
-  5. `TinggiPass`: Tier Tinggi, score 0.8 → 150 XP.
-  6. `TinggiRemedial`: Tier Tinggi, score 0.5 → 75 XP.
-  7. `Streak7x`: Streak 7 hari → multiplier 1.5.
-  8. `Streak30x`: Streak 30 hari → multiplier 2.0.
-  9. `Streak60x`: Streak 60 hari → multiplier 2.5.
-- **Existing Test Terdampak**:
-  - `app/test/data/repositories/progress_logic_test.dart` (23 kasus):
-    - Group `computeXp` (3 kasus lama: 100/50/0 flat) → **REWRITE** untuk tier-based.
-    - Kasus baru: 9 kasus di atas.
+- **File Test Baru**:
+  - `app/test/data/logic/xp_logic_test.dart` (42 kasus): Test reward tier-based per tier (mudah/sedang/tinggi), per outcome (lulus/remedial/gagal), dan streak multiplier.
+  - `app/test/features/quiz/widgets/result_logic_test.dart` (4 kasus)
+  - `app/test/features/quiz/widgets/result_dialog_test.dart` (4 kasus)
+  - `app/test/features/quiz/screens/quiz_screen_test.dart` (3 kasus integrasi)
+- **Existing Test**:
+  - `app/test/data/repositories/progress_logic_test.dart` (23 kasus): `computeXp` dipertahankan sebagai `max(existing, incoming)`. Test tidak diubah.
 
 ## 6. Definition of Done (DoD)
 - XP bertingkat dan bonus streak terhitung otomatis saat kuis diselesaikan.
 - Data XP mahasiswa lama tidak terhapus (inkremental).
 
 ## 7. Blocker & Dependency
-- Memerlukan informasi tier level dari Fitur #1 (Level Grouping).
+- Tidak ada blocker. `LevelTier` enum di-derive dari `level_number` (standalone, tidak bergantung Fitur #1). Fitur #1 akan reuse enum yang sama.
 
 ## 8. Effort Estimate
 - 2 jam (Logic + UI + Test Update).
 
 ## 9. Risk & Mitigasi
-- **Risk**: Perubahan signature method `ProgressLogic.computeXp` memicu test gagal di `progress_logic_test.dart`.
-- **Mitigasi**: Memperbarui seluruh unit test terkait secara bersamaan dalam satu commit.
+- **Risk**: Integrasi `XpLogic` + refactor `quiz_screen.dart` (hardcoded XP block dihapus).
+- **Mitigasi**: 42 test di `xp_logic_test.dart` menjamin kalkulasi tier-based benar.
+
+## Implementation Status (Updated pasca Fase 1b)
+- Commit ref: `421996a` (foundation) + `8b3148d` (integration)
+- File actual:
+  - `app/lib/data/logic/xp_logic.dart` (baru — `LevelTier`, `XpResult`, `XpLogic`)
+  - `app/lib/features/quiz/screens/quiz_screen.dart` (edit)
+  - `app/lib/features/quiz/widgets/result_dialog.dart` (edit)
+  - `app/lib/features/quiz/widgets/result_logic.dart` (edit)
+- Test: 42 (xp_logic) + 4 (result_logic) + 4 (result_dialog) + 3 (quiz integration) = 53 test baru.
