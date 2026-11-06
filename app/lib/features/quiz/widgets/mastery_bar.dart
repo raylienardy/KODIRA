@@ -48,7 +48,9 @@ class MasteryBar extends StatelessWidget {
                         ),
                         decoration: BoxDecoration(
                           color: KodiraColors.success500,
-                          borderRadius: BorderRadius.circular(KodiraRadius.full),
+                          borderRadius: BorderRadius.circular(
+                            KodiraRadius.full,
+                          ),
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
