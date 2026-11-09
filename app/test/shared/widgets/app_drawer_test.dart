@@ -96,6 +96,11 @@ Future<GoRouter> _pumpDrawer(
         path: '/change-password',
         builder: (context, state) => const ChangePasswordScreen(),
       ),
+      GoRoute(
+        path: '/join-class',
+        builder: (context, state) =>
+            const Scaffold(body: Center(child: Text('Join Class Page'))),
+      ),
     ],
   );
 
@@ -145,13 +150,14 @@ void main() {
     expect(find.text('Profil'), findsOneWidget);
     expect(find.text('Ganti Password'), findsOneWidget);
     expect(find.text('Ganti Kelas'), findsOneWidget);
-    expect(find.text('Segera hadir'), findsOneWidget);
+    expect(find.text('Leaderboard'), findsOneWidget);
+    expect(find.text('Tentang Aplikasi'), findsOneWidget);
     expect(find.text('Logout'), findsOneWidget);
     expect(find.text('Ayu Tester'), findsOneWidget);
     expect(find.text('2402095010141'), findsOneWidget);
   });
 
-  testWidgets('gantiKelasIsDisabled', (tester) async {
+  testWidgets('gantiKelasNavigates', (tester) async {
     final _FakeAuthRepository repo = _FakeAuthRepository(user);
     await _pumpDrawer(tester, repo);
     await _openDrawer(tester);
@@ -159,9 +165,9 @@ void main() {
     await tester.tap(find.text('Ganti Kelas'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Home Page'), findsOneWidget);
-    expect(find.text('Profile Page'), findsNothing);
-    expect(find.text('Ganti Kelas'), findsOneWidget);
+    expect(find.text('Join Class Page'), findsOneWidget);
+    expect(find.text('Home Page'), findsNothing);
+    expect(find.byType(AppDrawer), findsNothing);
   });
 
   testWidgets('logoutShowsConfirmDialog', (tester) async {
