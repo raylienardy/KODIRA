@@ -10,10 +10,11 @@ final leaderboardRepositoryProvider = Provider<LeaderboardRepository>((ref) {
 });
 
 /// Top 10 peringkat global (urut menurun berdasarkan total XP).
-final top10LeaderboardProvider =
-    FutureProvider<List<LeaderboardEntry>>((ref) async {
-      return ref.watch(leaderboardRepositoryProvider).fetchTop10();
-    });
+final top10LeaderboardProvider = FutureProvider<List<LeaderboardEntry>>((
+  ref,
+) async {
+  return ref.watch(leaderboardRepositoryProvider).fetchTop10();
+});
 
 /// Peringkat personal user aktif — tetap tampil walau di luar top 10.
 final myRankProvider = FutureProvider<LeaderboardEntry?>((ref) async {
