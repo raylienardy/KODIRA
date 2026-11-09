@@ -10,6 +10,7 @@ import '../features/profile/screens/change_password_screen.dart';
 import '../features/profile/screens/edit_profile_screen.dart';
 import '../features/profile/screens/profile_screen.dart';
 import '../features/profile/screens/about_screen.dart';
+import '../features/leaderboard/screens/leaderboard_screen.dart';
 
 /// Listenable adapter for GoRouter.
 /// Triggers redirect re-evaluation whenever auth state or session status
@@ -81,6 +82,11 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       ),
       // Route tentang aplikasi.
       GoRoute(path: '/about', builder: (context, state) => const AboutScreen()),
+      // Route leaderboard.
+      GoRoute(
+        path: '/leaderboard',
+        builder: (context, state) => const LeaderboardScreen(),
+      ),
       // Route edit profil (nama saja, NIM immutable).
       GoRoute(
         path: '/edit-profile',

@@ -42,6 +42,11 @@ class AppDrawer extends ConsumerWidget {
                     enabled: false,
                   ),
                   _DrawerItem(
+                    icon: Icons.leaderboard_outlined,
+                    label: 'Leaderboard',
+                    onTap: () => _navigate(context, '/leaderboard'),
+                  ),
+                  _DrawerItem(
                     icon: Icons.info_outline,
                     label: 'Tentang Aplikasi',
                     onTap: () => _navigate(context, '/about'),
