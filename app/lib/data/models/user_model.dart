@@ -13,6 +13,7 @@ class UserModel with _$UserModel {
     required String name,
     String? email,
     String? avatarUrl,
+    String? primaryClassId,
     required DateTime createdAt,
     DateTime? lastLogin,
   }) = _UserModel;
@@ -27,6 +28,7 @@ class UserModel with _$UserModel {
       name: map['name'] as String,
       email: map['email'] as String?,
       avatarUrl: map['avatar_url'] as String?,
+      primaryClassId: map['primary_class_id'] as String?,
       createdAt: DateTime.parse(map['created_at'] as String),
       lastLogin: map['last_login'] != null
           ? DateTime.parse(map['last_login'] as String)
