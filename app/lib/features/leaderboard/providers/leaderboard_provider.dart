@@ -29,12 +29,14 @@ final currentUserClassIdProvider = FutureProvider<String?>((ref) async {
 /// Top 10 per class.
 final top10ByClassProvider =
     FutureProvider.family<List<LeaderboardEntry>, String>((ref, classId) async {
-  return ref.read(leaderboardRepositoryProvider).fetchTop10ByClass(classId);
-});
+      return ref.read(leaderboardRepositoryProvider).fetchTop10ByClass(classId);
+    });
 
 /// Personal rank per class.
-final myRankByClassProvider =
-    FutureProvider.family<LeaderboardEntry?, String>((ref, classId) async {
+final myRankByClassProvider = FutureProvider.family<LeaderboardEntry?, String>((
+  ref,
+  classId,
+) async {
   final user = ref.watch(authStateProvider).user;
   if (user == null) return null;
   return ref

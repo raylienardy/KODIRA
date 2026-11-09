@@ -53,10 +53,7 @@ class LeaderboardScreen extends StatelessWidget {
           ),
         ),
         body: const TabBarView(
-          children: <Widget>[
-            _GlobalLeaderboardTab(),
-            _ClassLeaderboardTab(),
-          ],
+          children: <Widget>[_GlobalLeaderboardTab(), _ClassLeaderboardTab()],
         ),
       ),
     );
@@ -82,9 +79,7 @@ class _GlobalLeaderboardTab extends ConsumerWidget {
           child: Text(
             'Gagal memuat data leaderboard. Silakan coba lagi.',
             textAlign: TextAlign.center,
-            style: KodiraTextStyles.body.copyWith(
-              color: KodiraColors.alert700,
-            ),
+            style: KodiraTextStyles.body.copyWith(color: KodiraColors.alert700),
           ),
         ),
       ),
@@ -121,9 +116,7 @@ class _ClassLeaderboardTab extends ConsumerWidget {
           child: Text(
             'Gagal memuat data kelas. Silakan coba lagi.',
             textAlign: TextAlign.center,
-            style: KodiraTextStyles.body.copyWith(
-              color: KodiraColors.alert700,
-            ),
+            style: KodiraTextStyles.body.copyWith(color: KodiraColors.alert700),
           ),
         ),
       ),
@@ -150,8 +143,7 @@ class _ClassLeaderboardTab extends ConsumerWidget {
                   ),
                   const SizedBox(height: KodiraSpacing.s4),
                   OutlinedButton.icon(
-                    onPressed: () =>
-                        ref.invalidate(currentUserClassIdProvider),
+                    onPressed: () => ref.invalidate(currentUserClassIdProvider),
                     icon: const Icon(Icons.refresh, size: 18),
                     label: const Text('Muat Ulang'),
                     style: OutlinedButton.styleFrom(
