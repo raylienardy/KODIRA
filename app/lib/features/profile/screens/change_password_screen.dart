@@ -277,11 +277,11 @@ class _PasswordStrengthIndicator extends StatelessWidget {
         progress = 0.33;
         break;
       case PasswordStrength.medium:
-        color = Colors.amber.shade700;
+        color = KodiraColors.reward500;
         progress = 0.66;
         break;
       case PasswordStrength.strong:
-        color = Colors.green.shade700;
+        color = KodiraColors.success500;
         progress = 1.0;
         break;
     }
