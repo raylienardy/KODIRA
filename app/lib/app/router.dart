@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../features/auth/providers/auth_provider.dart';
 import '../features/auth/screens/login_screen.dart';
 import '../features/auth/screens/register_screen.dart';
+import '../features/class/screens/join_class_screen.dart';
 import '../features/auth/screens/splash_screen.dart';
 import '../features/home/screens/home_screen.dart';
 import '../features/profile/screens/change_password_screen.dart';
@@ -92,6 +93,11 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       ),
       // Route tentang aplikasi.
       GoRoute(path: '/about', builder: (context, state) => const AboutScreen()),
+      // Route ganti kelas (join via kode + pilih kelas primary).
+      GoRoute(
+        path: '/join-class',
+        builder: (context, state) => const JoinClassScreen(),
+      ),
       // Route leaderboard.
       GoRoute(
         path: '/leaderboard',

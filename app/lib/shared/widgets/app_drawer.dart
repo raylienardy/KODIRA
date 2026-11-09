@@ -35,11 +35,10 @@ class AppDrawer extends ConsumerWidget {
                     label: 'Ganti Password',
                     onTap: () => _navigate(context, '/change-password'),
                   ),
-                  const _DrawerItem(
+                  _DrawerItem(
                     icon: Icons.school_outlined,
                     label: 'Ganti Kelas',
-                    trailing: 'Segera hadir',
-                    enabled: false,
+                    onTap: () => _navigate(context, '/join-class'),
                   ),
                   _DrawerItem(
                     icon: Icons.leaderboard_outlined,
@@ -203,13 +202,11 @@ class _DrawerHeader extends ConsumerWidget {
   }
 }
 
-/// Satu baris menu drawer dengan ikon, label, dan trailing opsional.
+/// Satu baris menu drawer dengan ikon dan label.
 class _DrawerItem extends StatelessWidget {
   const _DrawerItem({
     required this.icon,
     required this.label,
-    this.trailing,
-    this.enabled = true,
     this.onTap,
     this.iconColor,
     this.labelColor,
@@ -217,69 +214,38 @@ class _DrawerItem extends StatelessWidget {
 
   final IconData icon;
   final String label;
-  final String? trailing;
-  final bool enabled;
   final VoidCallback? onTap;
   final Color? iconColor;
   final Color? labelColor;
 
   @override
   Widget build(BuildContext context) {
-    final Color resolvedIconColor =
-        iconColor ??
-        (enabled ? KodiraColors.neutral700 : KodiraColors.neutral500);
-    final Color resolvedLabelColor =
-        labelColor ??
-        (enabled ? KodiraColors.neutral900 : KodiraColors.neutral500);
-    final String semanticsLabel = trailing == null
-        ? label
-        : '$label ($trailing)';
+    final Color resolvedIconColor = iconColor ?? KodiraColors.neutral700;
+    final Color resolvedLabelColor = labelColor ?? KodiraColors.neutral900;
 
     return Semantics(
       button: true,
-      enabled: enabled,
-      label: semanticsLabel,
+      enabled: true,
+      label: label,
       excludeSemantics: true,
-      child: Opacity(
-        opacity: enabled ? 1 : 0.55,
-        child: InkWell(
-          onTap: enabled ? onTap : null,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-            child: Row(
-              children: [
-                Icon(icon, size: 22, color: resolvedIconColor),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Text(
-                    label,
-                    style: KodiraTextStyles.bodyLg.copyWith(
-                      color: resolvedLabelColor,
-                      fontWeight: enabled ? FontWeight.w500 : FontWeight.w400,
-                    ),
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+          child: Row(
+            children: [
+              Icon(icon, size: 22, color: resolvedIconColor),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Text(
+                  label,
+                  style: KodiraTextStyles.bodyLg.copyWith(
+                    color: resolvedLabelColor,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
-                if (trailing != null) ...[
-                  const SizedBox(width: 8),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 4,
-                    ),
-                    decoration: BoxDecoration(
-                      color: KodiraColors.neutral100,
-                      borderRadius: BorderRadius.circular(KodiraRadius.full),
-                    ),
-                    child: Text(
-                      trailing!,
-                      style: KodiraTextStyles.caption.copyWith(
-                        color: KodiraColors.neutral500,
-                      ),
-                    ),
-                  ),
-                ],
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
