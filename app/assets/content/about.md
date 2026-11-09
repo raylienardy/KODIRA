@@ -90,23 +90,23 @@ A: Bisa. Progress per bahasa terpisah. Pilih bahasa di awal level.
 Mastery dihitung dari 4 komponen:
 - **A (Akurasi)**: Persentase jawaban benar
 - **C (Konsistensi)**: Mastery terbaik dari attempt sebelumnya
-- **E (Error Rate)**: 1 − A
+- **E (Error Rate)**: 1 - A
 - **Tn (Waktu)**: Rata-rata waktu jawab per soal, dinormalisasi
 
 Formula lengkap:
 
 ```
-M = 0.45·A + 0.25·C + 0.20·(1−E) + 0.10·(1−Tn)
+M = 0.45*A + 0.25*C + 0.20*(1-E) + 0.10*(1-Tn)
 ```
 
-Karena E = 1 − A, formula dapat disederhanakan menjadi:
+Karena E = 1 - A, formula dapat disederhanakan menjadi:
 
 ```
-M = 0.65·A + 0.25·C + 0.10·(1−Tn)
+M = 0.65*A + 0.25*C + 0.10*(1-Tn)
 ```
 
-**Catatan:** Mastery cap sekitar **96-99%** karena komponen waktu (Tn) punya bobot 10% yang tidak pernah sempurna — waktu jawab manusia minimum ~5 detik/soal, bukan 0 detik.
+**Catatan:** Mastery cap sekitar **96-99%** karena komponen waktu (Tn) punya bobot 10% yang tidak pernah sempurna - waktu jawab manusia minimum ~5 detik/soal, bukan 0 detik.
 
-**Target realistis:** Lulus level butuh **≥ 70%**. Topik dengan mastery **≥ 95%** dianggap **sudah dikuasai (Mastered)** dan akan mendapat badge ✓ di UI.
+**Target realistis:** Lulus level butuh **>= 70%**. Topik dengan mastery **>= 95%** dianggap **sudah dikuasai (Mastered)** dan akan mendapat badge (check) di UI.
 
-Tidak perlu mengejar angka sempurna — fokus pada pemahaman konsep.
+Tidak perlu mengejar angka sempurna - fokus pada pemahaman konsep.
