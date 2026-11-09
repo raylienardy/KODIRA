@@ -148,5 +148,134 @@ void main() {
       expect(find.textContaining('token', findRichText: true), findsNothing);
       expect(find.textContaining('email', findRichText: true), findsNothing);
     });
+
+    // --- #7-perclass tests ---
+
+    testWidgets('rendersTwoTabs', (tester) async {
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: <Override>[
+            top10LeaderboardProvider.overrideWith(
+              (ref) async => <LeaderboardEntry>[],
+            ),
+            myRankProvider.overrideWith((ref) async => null),
+          ],
+          child: const MaterialApp(home: LeaderboardScreen()),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Global'), findsOneWidget);
+      expect(find.text('Kelas Saya'), findsOneWidget);
+    });
+
+    testWidgets('classTab_showsMessageWhenNoPrimaryClass', (tester) async {
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: <Override>[
+            top10LeaderboardProvider.overrideWith(
+              (ref) async => <LeaderboardEntry>[],
+            ),
+            myRankProvider.overrideWith((ref) async => null),
+            currentUserClassIdProvider.overrideWith((ref) async => null),
+          ],
+          child: const MaterialApp(home: LeaderboardScreen()),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Kelas Saya'));
+      await tester.pumpAndSettle();
+
+      expect(
+        find.text('Kamu belum terdaftar di kelas manapun'),
+        findsOneWidget,
+      );
+      expect(find.text('Muat Ulang'), findsOneWidget);
+    });
+
+    testWidgets('classTab_showsTop10ByClass', (tester) async {
+      const String classId = 'c1';
+      const List<LeaderboardEntry> entries = <LeaderboardEntry>[
+        LeaderboardEntry(
+          userId: 'u1',
+          name: 'Mahasiswa 1',
+          nim: '2402095010001',
+          totalXp: 1000,
+          rank: 1,
+        ),
+        LeaderboardEntry(
+          userId: 'u2',
+          name: 'Mahasiswa 2',
+          nim: '2402095010002',
+          totalXp: 900,
+          rank: 2,
+        ),
+        LeaderboardEntry(
+          userId: 'u3',
+          name: 'Mahasiswa 3',
+          nim: '2402095010003',
+          totalXp: 800,
+          rank: 3,
+        ),
+        LeaderboardEntry(
+          userId: 'u4',
+          name: 'Mahasiswa 4',
+          nim: '2402095010004',
+          totalXp: 700,
+          rank: 4,
+        ),
+        LeaderboardEntry(
+          userId: 'u5',
+          name: 'Mahasiswa 5',
+          nim: '2402095010005',
+          totalXp: 600,
+          rank: 5,
+        ),
+      ];
+      const LeaderboardEntry myRank = LeaderboardEntry(
+        userId: 'me',
+        name: 'Saya',
+        nim: '2402095010999',
+        totalXp: 500,
+        rank: 6,
+      );
+
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: <Override>[
+            top10LeaderboardProvider.overrideWith(
+              (ref) async => <LeaderboardEntry>[],
+            ),
+            myRankProvider.overrideWith((ref) async => null),
+            currentUserClassIdProvider.overrideWith((ref) async => classId),
+            top10ByClassProvider.overrideWith((ref, String cid) async {
+              expect(cid, classId);
+              return entries;
+            }),
+            myRankByClassProvider.overrideWith((ref, String cid) async {
+              expect(cid, classId);
+              return myRank;
+            }),
+          ],
+          child: const MaterialApp(home: LeaderboardScreen()),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Kelas Saya'));
+      await tester.pumpAndSettle();
+
+      // All 5 entries rendered: 3 in podium + 2 in list rows.
+      for (int i = 1; i <= 5; i++) {
+        expect(find.text('Mahasiswa $i'), findsOneWidget);
+      }
+      // Rank labels #4 and #5 for the list rows (1-3 are podium medals).
+      expect(find.text('#4'), findsOneWidget);
+      expect(find.text('#5'), findsOneWidget);
+      // Personal rank card within the class.
+      expect(find.text('Peringkat Anda'), findsOneWidget);
+      expect(find.text('#6 \u2022 Saya'), findsOneWidget);
+    });
   });
 }
