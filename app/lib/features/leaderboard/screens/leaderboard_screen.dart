@@ -5,113 +5,276 @@ import '../../../app/theme.dart';
 import '../../../data/repositories/leaderboard_repository.dart';
 import '../providers/leaderboard_provider.dart';
 
-/// Halaman Leaderboard Global KODIRA.
+/// Halaman Leaderboard KODIRA dengan 2 tab (#7-perclass):
+/// - "Global"   : peringkat semua pengguna (view `leaderboard_global`).
+/// - "Kelas Saya": peringkat hanya di dalam kelas user aktif
+///   (view `leaderboard_by_class`, filter `primary_class_id`).
 ///
-/// Menyajikan peringkat 1 s/d 10 pengguna berdasarkan total XP,
-/// dilengkapi dengan highlight Top 3 (Medali Emas, Perak, Perunggu)
-/// dan kartu posisi personal pengguna aktif di bagian bawah.
-class LeaderboardScreen extends ConsumerWidget {
+/// Kedua tab menyajikan peringkat 1 s/d 10 dengan highlight Top 3
+/// (Medali Emas, Perak, Perunggu) dan kartu posisi personal di bawah.
+class LeaderboardScreen extends StatelessWidget {
   const LeaderboardScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return DefaultTabController(
+      length: 2,
+      child: Scaffold(
+        backgroundColor: KodiraColors.neutral100,
+        appBar: AppBar(
+          backgroundColor: KodiraColors.neutral0,
+          surfaceTintColor: Colors.transparent,
+          elevation: 0,
+          scrolledUnderElevation: 0,
+          foregroundColor: KodiraColors.neutral900,
+          title: Text(
+            'Leaderboard',
+            style: KodiraTextStyles.h2.copyWith(color: KodiraColors.neutral900),
+          ),
+          bottom: const TabBar(
+            labelColor: KodiraColors.primary700,
+            unselectedLabelColor: KodiraColors.neutral500,
+            indicatorColor: KodiraColors.primary700,
+            indicatorWeight: 3,
+            labelStyle: TextStyle(
+              fontFamily: 'Inter',
+              fontSize: 13,
+              fontWeight: FontWeight.w700,
+            ),
+            unselectedLabelStyle: TextStyle(
+              fontFamily: 'Inter',
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+            ),
+            tabs: <Tab>[
+              Tab(text: 'Global'),
+              Tab(text: 'Kelas Saya'),
+            ],
+          ),
+        ),
+        body: const TabBarView(
+          children: <Widget>[
+            _GlobalLeaderboardTab(),
+            _ClassLeaderboardTab(),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Tab "Global": konten leaderboard lama (semua user).
+class _GlobalLeaderboardTab extends ConsumerWidget {
+  const _GlobalLeaderboardTab();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final top10Async = ref.watch(top10LeaderboardProvider);
     final myRankAsync = ref.watch(myRankProvider);
 
-    return Scaffold(
-      backgroundColor: KodiraColors.neutral100,
-      appBar: AppBar(
-        backgroundColor: KodiraColors.neutral0,
-        surfaceTintColor: Colors.transparent,
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        foregroundColor: KodiraColors.neutral900,
-        title: Text(
-          'Leaderboard',
-          style: KodiraTextStyles.h2.copyWith(color: KodiraColors.neutral900),
-        ),
+    return top10Async.when(
+      loading: () => const Center(
+        child: CircularProgressIndicator(color: KodiraColors.primary700),
       ),
-      body: top10Async.when(
-        loading: () => const Center(
-          child: CircularProgressIndicator(color: KodiraColors.primary700),
-        ),
-        error: (error, stack) => Center(
-          child: Padding(
-            padding: const EdgeInsets.all(KodiraSpacing.s6),
-            child: Text(
-              'Gagal memuat data leaderboard. Silakan coba lagi.',
-              textAlign: TextAlign.center,
-              style: KodiraTextStyles.body.copyWith(
-                color: KodiraColors.alert700,
-              ),
+      error: (error, stack) => Center(
+        child: Padding(
+          padding: const EdgeInsets.all(KodiraSpacing.s6),
+          child: Text(
+            'Gagal memuat data leaderboard. Silakan coba lagi.',
+            textAlign: TextAlign.center,
+            style: KodiraTextStyles.body.copyWith(
+              color: KodiraColors.alert700,
             ),
           ),
         ),
-        data: (entries) {
-          if (entries.isEmpty) {
-            return Center(
-              child: Padding(
-                padding: const EdgeInsets.all(KodiraSpacing.s6),
-                child: Text(
-                  'Belum ada data leaderboard.',
-                  style: KodiraTextStyles.body.copyWith(
-                    color: KodiraColors.neutral500,
-                  ),
-                ),
-              ),
-            );
-          }
-
-          final top3 = entries.take(3).toList();
-          final rest = entries.length > 3
-              ? entries.sublist(3)
-              : <LeaderboardEntry>[];
-
-          return Column(
-            children: [
-              Expanded(
-                child: RefreshIndicator(
-                  color: KodiraColors.primary700,
-                  onRefresh: () async {
-                    ref.invalidate(top10LeaderboardProvider);
-                    ref.invalidate(myRankProvider);
-                  },
-                  child: ListView(
-                    padding: const EdgeInsets.all(KodiraSpacing.s4),
-                    children: [
-                      // Top 3 Podium
-                      if (top3.isNotEmpty) _Top3PodiumSection(top3: top3),
-                      const SizedBox(height: KodiraSpacing.s4),
-                      // Rank 4-10 List
-                      if (rest.isNotEmpty)
-                        ListView.separated(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          itemCount: rest.length,
-                          separatorBuilder: (_, _) =>
-                              const SizedBox(height: KodiraSpacing.s2),
-                          itemBuilder: (context, index) {
-                            final entry = rest[index];
-                            return _LeaderboardRowCard(entry: entry);
-                          },
-                        ),
-                    ],
-                  ),
-                ),
-              ),
-              // Fixed Bottom Personal Rank Card
-              myRankAsync.when(
-                data: (myRank) {
-                  if (myRank == null) return const SizedBox.shrink();
-                  return _PersonalRankBottomCard(entry: myRank);
-                },
-                loading: () => const SizedBox.shrink(),
-                error: (_, _) => const SizedBox.shrink(),
-              ),
-            ],
-          );
+      ),
+      data: (entries) => _LeaderboardContent(
+        entries: entries,
+        myRankAsync: myRankAsync,
+        onRefresh: () async {
+          ref.invalidate(top10LeaderboardProvider);
+          ref.invalidate(myRankProvider);
         },
       ),
+    );
+  }
+}
+
+/// Tab "Kelas Saya": leaderboard yang difilter berdasarkan kelas user aktif.
+///
+/// Fallback: jika user belum punya `primary_class_id`, tampilkan pesan
+/// "Kamu belum terdaftar di kelas manapun" dengan tombol "Muat Ulang".
+class _ClassLeaderboardTab extends ConsumerWidget {
+  const _ClassLeaderboardTab();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final classIdAsync = ref.watch(currentUserClassIdProvider);
+
+    return classIdAsync.when(
+      loading: () => const Center(
+        child: CircularProgressIndicator(color: KodiraColors.primary700),
+      ),
+      error: (error, stack) => Center(
+        child: Padding(
+          padding: const EdgeInsets.all(KodiraSpacing.s6),
+          child: Text(
+            'Gagal memuat data kelas. Silakan coba lagi.',
+            textAlign: TextAlign.center,
+            style: KodiraTextStyles.body.copyWith(
+              color: KodiraColors.alert700,
+            ),
+          ),
+        ),
+      ),
+      data: (String? classId) {
+        if (classId == null) {
+          return Center(
+            child: Padding(
+              padding: const EdgeInsets.all(KodiraSpacing.s6),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(
+                    Icons.groups_2_outlined,
+                    size: 48,
+                    color: KodiraColors.neutral300,
+                  ),
+                  const SizedBox(height: KodiraSpacing.s3),
+                  Text(
+                    'Kamu belum terdaftar di kelas manapun',
+                    textAlign: TextAlign.center,
+                    style: KodiraTextStyles.body.copyWith(
+                      color: KodiraColors.neutral500,
+                    ),
+                  ),
+                  const SizedBox(height: KodiraSpacing.s4),
+                  OutlinedButton.icon(
+                    onPressed: () =>
+                        ref.invalidate(currentUserClassIdProvider),
+                    icon: const Icon(Icons.refresh, size: 18),
+                    label: const Text('Muat Ulang'),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: KodiraColors.primary700,
+                      side: const BorderSide(color: KodiraColors.primary700),
+                      textStyle: const TextStyle(
+                        fontFamily: 'Inter',
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
+
+        final top10Async = ref.watch(top10ByClassProvider(classId));
+        final myRankAsync = ref.watch(myRankByClassProvider(classId));
+
+        return top10Async.when(
+          loading: () => const Center(
+            child: CircularProgressIndicator(color: KodiraColors.primary700),
+          ),
+          error: (error, stack) => Center(
+            child: Padding(
+              padding: const EdgeInsets.all(KodiraSpacing.s6),
+              child: Text(
+                'Gagal memuat data leaderboard. Silakan coba lagi.',
+                textAlign: TextAlign.center,
+                style: KodiraTextStyles.body.copyWith(
+                  color: KodiraColors.alert700,
+                ),
+              ),
+            ),
+          ),
+          data: (entries) => _LeaderboardContent(
+            entries: entries,
+            myRankAsync: myRankAsync,
+            onRefresh: () async {
+              ref.invalidate(currentUserClassIdProvider);
+              ref.invalidate(top10ByClassProvider(classId));
+              ref.invalidate(myRankByClassProvider(classId));
+            },
+          ),
+        );
+      },
+    );
+  }
+}
+
+/// Konten leaderboard yang dipakai bersama oleh kedua tab:
+/// Top 3 podium + list rank 4-10 + kartu posisi personal di bawah.
+class _LeaderboardContent extends StatelessWidget {
+  final List<LeaderboardEntry> entries;
+  final AsyncValue<LeaderboardEntry?> myRankAsync;
+  final Future<void> Function() onRefresh;
+
+  const _LeaderboardContent({
+    required this.entries,
+    required this.myRankAsync,
+    required this.onRefresh,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    if (entries.isEmpty) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(KodiraSpacing.s6),
+          child: Text(
+            'Belum ada data leaderboard.',
+            style: KodiraTextStyles.body.copyWith(
+              color: KodiraColors.neutral500,
+            ),
+          ),
+        ),
+      );
+    }
+
+    final top3 = entries.take(3).toList();
+    final rest = entries.length > 3 ? entries.sublist(3) : <LeaderboardEntry>[];
+
+    return Column(
+      children: [
+        Expanded(
+          child: RefreshIndicator(
+            color: KodiraColors.primary700,
+            onRefresh: onRefresh,
+            child: ListView(
+              padding: const EdgeInsets.all(KodiraSpacing.s4),
+              children: [
+                // Top 3 Podium
+                if (top3.isNotEmpty) _Top3PodiumSection(top3: top3),
+                const SizedBox(height: KodiraSpacing.s4),
+                // Rank 4-10 List
+                if (rest.isNotEmpty)
+                  ListView.separated(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: rest.length,
+                    separatorBuilder: (_, _) =>
+                        const SizedBox(height: KodiraSpacing.s2),
+                    itemBuilder: (context, index) {
+                      final entry = rest[index];
+                      return _LeaderboardRowCard(entry: entry);
+                    },
+                  ),
+              ],
+            ),
+          ),
+        ),
+        // Fixed Bottom Personal Rank Card
+        myRankAsync.when(
+          data: (myRank) {
+            if (myRank == null) return const SizedBox.shrink();
+            return _PersonalRankBottomCard(entry: myRank);
+          },
+          loading: () => const SizedBox.shrink(),
+          error: (_, _) => const SizedBox.shrink(),
+        ),
+      ],
     );
   }
 }
