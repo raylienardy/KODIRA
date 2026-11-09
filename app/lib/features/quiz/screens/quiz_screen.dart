@@ -466,7 +466,12 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
             Navigator.of(dialogContext).pop();
             if (tier == ResultTier.pass) {
               if (widget.levelId >= 50) {
-                context.go('/home');
+                // Same fix as onSecondary — pop imperative stack
+                final NavigatorState nav = Navigator.of(context);
+                nav.popUntil((route) => route.isFirst);
+                if (mounted) {
+                  context.go('/home');
+                }
               } else {
                 _openMaterial(widget.levelId + 1);
               }
@@ -479,10 +484,16 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
             }
           },
           onSecondary: () {
-            final GoRouter router = GoRouter.of(context);
             Navigator.of(dialogContext).pop();
             if (tier == ResultTier.pass) {
-              Future.microtask(() => router.go('/home'));
+              // QuizScreen was pushed via Navigator.push (imperative) — not GoRouter.
+              // Must pop imperative stack back to Home, not router.go().
+              final NavigatorState nav = Navigator.of(context);
+              nav.popUntil((route) => route.isFirst);
+              // Sync go_router location state for consistency
+              if (mounted) {
+                context.go('/home');
+              }
             } else if (AdaptiveEngine.shouldTriggerRemedialQuiz(
               result.mastery,
             )) {
