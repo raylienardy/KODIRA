@@ -15,6 +15,15 @@ abstract class IAuthRepository {
     required String password,
   });
 
+  /// Register user baru dengan NIM + password + nama.
+  /// Auto-enroll ke default class "PTIK24".
+  /// Returns UserModel yang siap untuk auto-login.
+  Future<UserModel> signUpWithNim({
+    required String nim,
+    required String name,
+    required String password,
+  });
+
   /// Logout user.
   Future<void> signOut();
 

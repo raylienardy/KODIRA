@@ -189,6 +189,13 @@ class _FakeAuthRepository implements IAuthRepository {
   }) async => user;
 
   @override
+  Future<UserModel> signUpWithNim({
+    required String nim,
+    required String name,
+    required String password,
+  }) async => user;
+
+  @override
   Future<void> signOut() async {}
 
   @override

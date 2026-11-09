@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show kDebugMode, debugPrint;
 import 'package:supabase_flutter/supabase_flutter.dart' as supa;
 import '../models/user_model.dart';
 import '../../core/errors/auth_exception.dart';
@@ -133,5 +134,61 @@ class AuthRepository implements IAuthRepository {
     final userId = _client.auth.currentUser?.id;
     if (userId == null) throw const supa.AuthException('Tidak terautentikasi');
     await _client.from('users').update({'name': name}).eq('id', userId);
+  }
+
+  @override
+  Future<UserModel> signUpWithNim({
+    required String nim,
+    required String name,
+    required String password,
+  }) async {
+    // 1. Validate NIM format
+    if (!RegExp(r'^\d{13}$').hasMatch(nim)) {
+      throw const supa.AuthException('NIM harus 13 digit angka');
+    }
+
+    final String email = AuthLogic.nimToEmail(nim);
+
+    // 2. Check NIM duplicate (client-side quick check)
+    final existing = await _client
+        .from('users')
+        .select('id')
+        .eq('nim', nim)
+        .maybeSingle();
+    if (existing != null) {
+      throw const supa.AuthException('NIM sudah terdaftar. Silakan login.');
+    }
+
+    // 3. Sign up via Supabase Auth (trigger auto-creates public.users)
+    final authResponse = await _client.auth.signUp(
+      email: email,
+      password: password,
+      data: {
+        'nim': nim,
+        'name': name,
+      },
+    );
+
+    if (authResponse.user == null) {
+      throw const supa.AuthException('Registrasi gagal. Coba lagi.');
+    }
+
+    // 4. Auto-enroll ke default class "PTIK24"
+    try {
+      await _client.rpc('join_class', params: {'p_code': 'PTIK24'});
+    } catch (e) {
+      // Non-fatal: user created but not enrolled. Log but continue.
+      if (kDebugMode) {
+        debugPrint('Auto-enroll failed: $e');
+      }
+    }
+
+    // 5. Return user model
+    final userMap = await _client
+        .from('users')
+        .select()
+        .eq('id', authResponse.user!.id)
+        .single();
+    return UserModel.fromSupabase(Map<String, dynamic>.from(userMap));
   }
 }
