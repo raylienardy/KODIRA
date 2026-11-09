@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../features/auth/providers/auth_provider.dart';
 import '../features/auth/screens/login_screen.dart';
+import '../features/auth/screens/register_screen.dart';
 import '../features/auth/screens/splash_screen.dart';
 import '../features/home/screens/home_screen.dart';
 import '../features/profile/screens/change_password_screen.dart';
@@ -47,16 +48,21 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         return path == '/splash' ? null : '/splash';
       }
 
-      // 2) Login berhasil → ke home (aturan lama, timing tetap).
-      if (user != null && path == '/login') return '/home';
+      // 2) Login atau register berhasil → ke home (aturan lama, timing tetap).
+      if (user != null && (path == '/login' || path == '/register')) {
+        return '/home';
+      }
 
       // 3) Session tersimpan valid → lewati login.
       if (sessionStatus == SessionStatus.authenticated && path == '/splash') {
         return '/home';
       }
 
-      // 4) Tidak ada session → ke login.
-      if (sessionStatus == SessionStatus.unauthenticated && path != '/login') {
+      // 4) Tidak ada session → ke login. Register tetap boleh diakses
+      //    supaya user baru bisa mendaftar tanpa session.
+      if (sessionStatus == SessionStatus.unauthenticated &&
+          path != '/login' &&
+          path != '/register') {
         return '/login';
       }
 
@@ -68,6 +74,10 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const SplashScreen(),
       ),
       GoRoute(path: '/login', builder: (context, state) => const LoginScreen()),
+      GoRoute(
+        path: '/register',
+        builder: (context, state) => const RegisterScreen(),
+      ),
       GoRoute(path: '/home', builder: (context, state) => const HomeScreen()),
       // Terlindungi otomatis oleh aturan 4 di redirect: tanpa session,
       // path ini dipaksa kembali ke /login.

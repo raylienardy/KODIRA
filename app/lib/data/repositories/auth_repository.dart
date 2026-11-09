@@ -163,10 +163,7 @@ class AuthRepository implements IAuthRepository {
     final authResponse = await _client.auth.signUp(
       email: email,
       password: password,
-      data: {
-        'nim': nim,
-        'name': name,
-      },
+      data: {'nim': nim, 'name': name},
     );
 
     if (authResponse.user == null) {
