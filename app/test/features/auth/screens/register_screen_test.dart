@@ -12,6 +12,7 @@ class _FakeAuthRepository implements IAuthRepository {
   bool signUpCalled = false;
   String? lastNim;
   String? lastName;
+  String? lastRole;
   bool shouldThrowDuplicate = false;
 
   final UserModel user = UserModel(
@@ -38,10 +39,12 @@ class _FakeAuthRepository implements IAuthRepository {
     required String nim,
     required String name,
     required String password,
+    String role = 'student',
   }) async {
     signUpCalled = true;
     lastNim = nim;
     lastName = name;
+    lastRole = role;
     if (shouldThrowDuplicate) {
       throw const supa.AuthException('NIM sudah terdaftar. Silakan login.');
     }
@@ -205,5 +208,44 @@ void main() {
     expect(fakeRepo.signUpCalled, isTrue);
     expect(find.text('NIM sudah terdaftar. Silakan login.'), findsOneWidget);
     expect(find.text('Home Page'), findsNothing);
+  });
+
+  testWidgets('roleSelectorRenders', (tester) async {
+    await tester.pumpWidget(createTestWidget());
+    await tester.pumpAndSettle();
+
+    expect(find.text('Daftar Sebagai'), findsOneWidget);
+    expect(find.byType(SegmentedButton<String>), findsOneWidget);
+    expect(find.text('Mahasiswa'), findsOneWidget);
+    expect(find.text('Dosen'), findsOneWidget);
+    // Default role = student
+    expect(find.text('NIM'), findsOneWidget);
+  });
+
+  testWidgets('submitAsTeacher_callsRepoWithRole', (tester) async {
+    await tester.pumpWidget(createTestWidget());
+    await tester.pumpAndSettle();
+
+    // Pilih role Dosen
+    await tester.tap(find.text('Dosen'));
+    await tester.pumpAndSettle();
+
+    // NIM field berubah jadi NIDN (10 digit)
+    expect(find.text('NIDN'), findsOneWidget);
+
+    await tester.enterText(find.byType(TextFormField).at(0), '1234567890');
+    await tester.enterText(find.byType(TextFormField).at(1), 'Prof. Dosen');
+    await tester.enterText(find.byType(TextFormField).at(2), 'rahasia123');
+    await tester.enterText(find.byType(TextFormField).at(3), 'rahasia123');
+    await tester.pump();
+
+    await tester.tap(find.text('Daftar'));
+    await tester.pumpAndSettle();
+
+    expect(fakeRepo.signUpCalled, isTrue);
+    expect(fakeRepo.lastNim, '1234567890');
+    expect(fakeRepo.lastName, 'Prof. Dosen');
+    expect(fakeRepo.lastRole, 'teacher');
+    expect(find.text('Home Page'), findsOneWidget);
   });
 }

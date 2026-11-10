@@ -32,6 +32,14 @@ class _FakeClassRepository implements ClassRepository {
     setPrimaryCalls += 1;
     lastPrimaryClassId = classId;
   }
+
+  @override
+  Future<Map<String, dynamic>> createClass({
+    required String name,
+    String? description,
+  }) async {
+    throw UnimplementedError();
+  }
 }
 
 MyClass _buildClass({

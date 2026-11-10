@@ -28,6 +28,7 @@ class _FakeAuthRepository implements IAuthRepository {
     required String nim,
     required String name,
     required String password,
+    String role = 'student',
   }) async => user;
 
   @override
@@ -101,6 +102,11 @@ Future<GoRouter> _pumpDrawer(
         builder: (context, state) =>
             const Scaffold(body: Center(child: Text('Join Class Page'))),
       ),
+      GoRoute(
+        path: '/create-class',
+        builder: (context, state) =>
+            const Scaffold(body: Center(child: Text('Create Class Page'))),
+      ),
     ],
   );
 
@@ -139,6 +145,15 @@ void main() {
     id: 'user-1',
     nim: '2402095010141',
     name: 'Ayu Tester',
+    role: 'student',
+    createdAt: DateTime(2026, 1, 1),
+  );
+
+  final UserModel teacher = UserModel(
+    id: 'user-2',
+    nim: '0012345678',
+    name: 'Prof. Dosen',
+    role: 'teacher',
     createdAt: DateTime(2026, 1, 1),
   );
 
@@ -155,6 +170,8 @@ void main() {
     expect(find.text('Logout'), findsOneWidget);
     expect(find.text('Ayu Tester'), findsOneWidget);
     expect(find.text('2402095010141'), findsOneWidget);
+    // Student tidak melihat menu Buat Kelas.
+    expect(find.text('Buat Kelas'), findsNothing);
   });
 
   testWidgets('gantiKelasNavigates', (tester) async {
@@ -166,6 +183,22 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Join Class Page'), findsOneWidget);
+    expect(find.text('Home Page'), findsNothing);
+    expect(find.byType(AppDrawer), findsNothing);
+  });
+
+  testWidgets('buatKelasNavigates_forTeacher', (tester) async {
+    final _FakeAuthRepository repo = _FakeAuthRepository(teacher);
+    await _pumpDrawer(tester, repo);
+    await _openDrawer(tester);
+
+    expect(find.text('Buat Kelas'), findsOneWidget);
+    expect(find.text('Ganti Kelas'), findsOneWidget);
+
+    await tester.tap(find.text('Buat Kelas'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Create Class Page'), findsOneWidget);
     expect(find.text('Home Page'), findsNothing);
     expect(find.byType(AppDrawer), findsNothing);
   });
