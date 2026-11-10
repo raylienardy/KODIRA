@@ -9,9 +9,10 @@ import '../providers/auth_provider.dart';
 
 /// Layar Registrasi Self-Service (Fitur #3).
 ///
-/// Mahasiswa membuat akun dengan NIM + Nama Lengkap + Password. Setelah
-/// berhasil, user otomatis terdaftar di kelas default "PTIK B 2024" dan
-/// langsung masuk ke Home.
+/// Mahasiswa membuat akun dengan NIM + Nama Lengkap + Password. Dosen membuat
+/// akun dengan NIM + Nama + Password + role 'teacher' (NIDN opsional).
+/// Setelah berhasil, user otomatis terdaftar di kelas default "PTIK B 2024"
+/// (hanya untuk student) dan langsung masuk ke Home.
 class RegisterScreen extends ConsumerStatefulWidget {
   const RegisterScreen({super.key});
 
@@ -29,6 +30,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   bool _obscurePassword = true;
   bool _obscureConfirm = true;
   bool _isLoading = false;
+  String _role = 'student';
 
   static const String _defaultClassName = 'PTIK B 2024';
 
@@ -52,6 +54,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
             nim: _nimController.text.trim(),
             name: _nameController.text.trim(),
             password: _passwordController.text,
+            role: _role,
           );
 
       if (!mounted) return;
@@ -126,18 +129,41 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                   ),
                   const SizedBox(height: 24),
 
+                  // Role selector: Mahasiswa (default) atau Dosen.
+                  const _FieldLabel('Daftar Sebagai'),
+                  const SizedBox(height: 8),
+                  SegmentedButton<String>(
+                    segments: const [
+                      ButtonSegment(
+                        value: 'student',
+                        label: Text('Mahasiswa'),
+                        icon: Icon(Icons.school_outlined),
+                      ),
+                      ButtonSegment(
+                        value: 'teacher',
+                        label: Text('Dosen'),
+                        icon: Icon(Icons.person_pin_outlined),
+                      ),
+                    ],
+                    selected: <String>{_role},
+                    onSelectionChanged: (Set<String> values) {
+                      setState(() => _role = values.first);
+                    },
+                  ),
+                  const SizedBox(height: 24),
+
                   Form(
                     key: _formKey,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        // NIM
-                        const _FieldLabel('NIM'),
+                        // Identifier: NIM (mahasiswa) atau NIDN (dosen)
+                        _FieldLabel(_role == 'teacher' ? 'NIDN' : 'NIM'),
                         const SizedBox(height: 4),
                         TextFormField(
                           controller: _nimController,
                           keyboardType: TextInputType.number,
-                          maxLength: 13,
+                          maxLength: _role == 'teacher' ? 10 : 13,
                           autocorrect: false,
                           enableSuggestions: false,
                           style: const TextStyle(
@@ -145,13 +171,24 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                             color: Colors.white,
                           ),
                           decoration: _inputDecoration(
-                            'Masukkan NIM Anda',
+                            _role == 'teacher'
+                                ? 'Masukkan NIDN Anda'
+                                : 'Masukkan NIM Anda',
                           ).copyWith(counterText: ''),
                           validator: (value) {
-                            final nim = value?.trim() ?? '';
-                            if (nim.isEmpty) return 'NIM wajib diisi';
-                            if (!AuthLogic.isValidNim(nim)) {
-                              return 'NIM harus 13 digit angka';
+                            final identifier = value?.trim() ?? '';
+                            if (identifier.isEmpty) {
+                              return _role == 'teacher'
+                                  ? 'NIDN wajib diisi'
+                                  : 'NIM wajib diisi';
+                            }
+                            if (!AuthLogic.isValidIdentifier(
+                              identifier,
+                              role: _role,
+                            )) {
+                              return _role == 'teacher'
+                                  ? 'NIDN harus 10 digit angka'
+                                  : 'NIM harus 13 digit angka';
                             }
                             return null;
                           },
@@ -260,10 +297,12 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                       ],
                     ),
                   ),
-                  // Info kelas default
+                  // Info kelas default atau status dosen
                   const SizedBox(height: 12),
                   Text(
-                    'Kamu akan otomatis terdaftar di kelas $_defaultClassName.',
+                    _role == 'teacher'
+                        ? 'Akun dosen akan terdaftar sebagai pengajar di KODIRA.'
+                        : 'Kamu akan otomatis terdaftar di kelas $_defaultClassName.',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontFamily: 'Inter',

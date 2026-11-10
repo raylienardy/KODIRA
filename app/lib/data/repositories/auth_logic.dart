@@ -14,6 +14,21 @@ class AuthLogic {
     return RegExp(r'^\d{13}$').hasMatch(nim);
   }
 
+  /// NIDN dosen terdiri atas 10 digit angka, contoh `0012345678`.
+  ///
+  /// Dipakai pada registrasi dosen; NIDN disimpan di kolom `nidn`
+  /// sekaligus dipakai sebagai identifier login.
+  static bool isValidNidn(String nidn) {
+    return RegExp(r'^\d{10}$').hasMatch(nidn);
+  }
+
+  /// Validasi identifier registrasi berdasar peran.
+  /// Mahasiswa butuh NIM 13 digit, dosen butuh NIDN 10 digit.
+  static bool isValidIdentifier(String value, {required String role}) {
+    if (role == 'teacher') return isValidNidn(value);
+    return isValidNim(value);
+  }
+
   /// Mengubah NIM menjadi format email internal Supabase.
   static String nimToEmail(String nim) => 'nim_$nim@kodira.local';
 

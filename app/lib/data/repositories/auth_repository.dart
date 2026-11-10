@@ -141,13 +141,20 @@ class AuthRepository implements IAuthRepository {
     required String nim,
     required String name,
     required String password,
+    String role = 'student',
   }) async {
-    // 1. Validate NIM format
-    if (!RegExp(r'^\d{13}$').hasMatch(nim)) {
+    final String email = AuthLogic.nimToEmail(nim);
+
+    // 1b. Validasi identifier: NIM (13 digit) untuk mahasiswa,
+    //     NIDN (10 digit) untuk dosen.
+    final bool isTeacher = role == 'teacher';
+    if (isTeacher) {
+      if (!RegExp(r'^\d{10}$').hasMatch(nim)) {
+        throw const supa.AuthException('NIDN harus 10 digit angka');
+      }
+    } else if (!RegExp(r'^\d{13}$').hasMatch(nim)) {
       throw const supa.AuthException('NIM harus 13 digit angka');
     }
-
-    final String email = AuthLogic.nimToEmail(nim);
 
     // 2. Check NIM duplicate (client-side quick check)
     final existing = await _client
@@ -159,24 +166,31 @@ class AuthRepository implements IAuthRepository {
       throw const supa.AuthException('NIM sudah terdaftar. Silakan login.');
     }
 
-    // 3. Sign up via Supabase Auth (trigger auto-creates public.users)
+    // 3. Sign up via Supabase Auth (trigger auto-creates public.users with role)
     final authResponse = await _client.auth.signUp(
       email: email,
       password: password,
-      data: {'nim': nim, 'name': name},
+      data: {
+        'nim': nim,
+        'name': name,
+        'role': role,
+        'nidn': isTeacher ? nim : null,
+      },
     );
 
     if (authResponse.user == null) {
       throw const supa.AuthException('Registrasi gagal. Coba lagi.');
     }
 
-    // 4. Auto-enroll ke default class "PTIK24"
-    try {
-      await _client.rpc('join_class', params: {'p_code': 'PTIK24'});
-    } catch (e) {
-      // Non-fatal: user created but not enrolled. Log but continue.
-      if (kDebugMode) {
-        debugPrint('Auto-enroll failed: $e');
+    // 4. Auto-enroll ke default class "PTIK24" hanya untuk student
+    if (role == 'student') {
+      try {
+        await _client.rpc('join_class', params: {'p_code': 'PTIK24'});
+      } catch (e) {
+        // Non-fatal: user created but not enrolled. Log but continue.
+        if (kDebugMode) {
+          debugPrint('Auto-enroll failed: $e');
+        }
       }
     }
 
