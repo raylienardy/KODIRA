@@ -7,13 +7,17 @@ import '../../features/auth/providers/auth_provider.dart';
 
 /// Drawer navigasi utama KODIRA.
 ///
-/// Menggantikan `PopupMenuButton` lama di HomeScreen. Berisi empat menu:
-/// Profil, Ganti Password, Ganti Kelas (belum tersedia), dan Logout.
+/// Menggantikan `PopupMenuButton` lama di HomeScreen. Berisi menu:
+/// Profil, Ganti Password, Ganti Kelas, (Buat Kelas untuk dosen),
+/// Leaderboard, Tentang Aplikasi, dan Logout.
 class AppDrawer extends ConsumerWidget {
   const AppDrawer({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final user = ref.watch(authStateProvider).user;
+    final bool isTeacher = user?.role == 'teacher';
+
     return Drawer(
       backgroundColor: KodiraColors.neutral0,
       child: Column(
@@ -40,6 +44,12 @@ class AppDrawer extends ConsumerWidget {
                     label: 'Ganti Kelas',
                     onTap: () => _navigate(context, '/join-class'),
                   ),
+                  if (isTeacher)
+                    _DrawerItem(
+                      icon: Icons.add_box_outlined,
+                      label: 'Buat Kelas',
+                      onTap: () => _navigate(context, '/create-class'),
+                    ),
                   _DrawerItem(
                     icon: Icons.leaderboard_outlined,
                     label: 'Leaderboard',
@@ -191,6 +201,31 @@ class _DrawerHeader extends ConsumerWidget {
                         color: Colors.white.withValues(alpha: 0.7),
                       ),
                     ),
+                    if (user?.role == 'teacher') ...[
+                      const SizedBox(height: 2),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 6,
+                          vertical: 2,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.2),
+                          borderRadius: BorderRadius.circular(
+                            KodiraRadius.full,
+                          ),
+                        ),
+                        child: const Text(
+                          'DOSEN',
+                          style: TextStyle(
+                            fontFamily: 'Inter',
+                            fontSize: 9,
+                            fontWeight: FontWeight.w800,
+                            color: Colors.white,
+                            letterSpacing: 1.0,
+                          ),
+                        ),
+                      ),
+                    ],
                   ],
                 ),
               ),

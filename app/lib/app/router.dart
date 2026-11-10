@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../features/auth/providers/auth_provider.dart';
 import '../features/auth/screens/login_screen.dart';
 import '../features/auth/screens/register_screen.dart';
+import '../features/class/screens/create_class_screen.dart';
 import '../features/class/screens/join_class_screen.dart';
 import '../features/auth/screens/splash_screen.dart';
 import '../features/home/screens/home_screen.dart';
@@ -67,6 +68,11 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         return '/login';
       }
 
+      // 5) Buat Kelas hanya untuk dosen.
+      if (path == '/create-class' && (user == null || user.role != 'teacher')) {
+        return '/home';
+      }
+
       return null;
     },
     routes: [
@@ -97,6 +103,11 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/join-class',
         builder: (context, state) => const JoinClassScreen(),
+      ),
+      // Route buat kelas (khusus dosen).
+      GoRoute(
+        path: '/create-class',
+        builder: (context, state) => const CreateClassScreen(),
       ),
       // Route leaderboard.
       GoRoute(
