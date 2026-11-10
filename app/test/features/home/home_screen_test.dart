@@ -166,6 +166,7 @@ class _FakeAuthRepository implements IAuthRepository {
     required String nim,
     required String name,
     required String password,
+    String role = 'student',
   }) async => user;
 
   @override
