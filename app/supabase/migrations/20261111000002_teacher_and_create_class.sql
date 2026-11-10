@@ -17,10 +17,12 @@ DECLARE
   v_nim TEXT;
   v_name TEXT;
   v_role TEXT;
+  v_nidn TEXT;
 BEGIN
   v_nim := COALESCE(NEW.raw_user_meta_data->>'nim', '');
   v_name := COALESCE(NEW.raw_user_meta_data->>'name', 'Mahasiswa');
   v_role := COALESCE(NEW.raw_user_meta_data->>'role', 'student');
+  v_nidn := NULLIF(TRIM(COALESCE(NEW.raw_user_meta_data->>'nidn', '')), '');
 
   -- Validate role
   IF v_role NOT IN ('student', 'teacher') THEN
@@ -33,9 +35,9 @@ BEGIN
   END IF;
 
   INSERT INTO public.users (
-    id, nim, name, email, role, created_at, updated_at
+    id, nim, name, email, role, nidn, created_at, updated_at
   ) VALUES (
-    NEW.id, v_nim, v_name, NEW.email, v_role, NOW(), NOW()
+    NEW.id, v_nim, v_name, NEW.email, v_role, v_nidn, NOW(), NOW()
   )
   ON CONFLICT (id) DO NOTHING;
 
