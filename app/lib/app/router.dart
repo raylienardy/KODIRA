@@ -14,6 +14,8 @@ import '../features/profile/screens/edit_profile_screen.dart';
 import '../features/profile/screens/profile_screen.dart';
 import '../features/profile/screens/about_screen.dart';
 import '../features/leaderboard/screens/leaderboard_screen.dart';
+import '../features/teacher/screens/class_roster_screen.dart';
+import '../features/teacher/screens/teacher_dashboard_screen.dart';
 
 /// Listenable adapter for GoRouter.
 /// Triggers redirect re-evaluation whenever auth state or session status
@@ -73,6 +75,13 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         return '/home';
       }
 
+      // 6) Teacher Dashboard + roster hanya untuk dosen.
+      if ((path == '/teacher-dashboard' ||
+              path.startsWith('/teacher-roster/')) &&
+          (user == null || user.role != 'teacher')) {
+        return '/home';
+      }
+
       return null;
     },
     routes: [
@@ -113,6 +122,17 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/leaderboard',
         builder: (context, state) => const LeaderboardScreen(),
+      ),
+      // Route dashboard dosen (daftar kelas yang diampu).
+      GoRoute(
+        path: '/teacher-dashboard',
+        builder: (context, state) => const TeacherDashboardScreen(),
+      ),
+      // Route roster mahasiswa per kelas.
+      GoRoute(
+        path: '/teacher-roster/:classId',
+        builder: (context, state) =>
+            ClassRosterScreen(classId: state.pathParameters['classId']!),
       ),
       // Route edit profil (nama saja, NIM immutable).
       GoRoute(

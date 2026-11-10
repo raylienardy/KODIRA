@@ -9,7 +9,8 @@ import '../../features/auth/providers/auth_provider.dart';
 ///
 /// Menggantikan `PopupMenuButton` lama di HomeScreen. Berisi menu:
 /// Profil, Ganti Password, Ganti Kelas, (Buat Kelas untuk dosen),
-/// Leaderboard, Tentang Aplikasi, dan Logout.
+/// (Kelas Saya/Dashboard untuk dosen), Leaderboard, Tentang Aplikasi,
+/// dan Logout.
 class AppDrawer extends ConsumerWidget {
   const AppDrawer({super.key});
 
@@ -26,51 +27,60 @@ class AppDrawer extends ConsumerWidget {
           Expanded(
             child: SafeArea(
               top: false,
-              child: Column(
-                children: [
-                  const SizedBox(height: 8),
-                  _DrawerItem(
-                    icon: Icons.person_outline,
-                    label: 'Profil',
-                    onTap: () => _navigate(context, '/profile'),
-                  ),
-                  _DrawerItem(
-                    icon: Icons.lock_outline,
-                    label: 'Ganti Password',
-                    onTap: () => _navigate(context, '/change-password'),
-                  ),
-                  _DrawerItem(
-                    icon: Icons.school_outlined,
-                    label: 'Ganti Kelas',
-                    onTap: () => _navigate(context, '/join-class'),
-                  ),
-                  if (isTeacher)
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    const SizedBox(height: 8),
                     _DrawerItem(
-                      icon: Icons.add_box_outlined,
-                      label: 'Buat Kelas',
-                      onTap: () => _navigate(context, '/create-class'),
+                      icon: Icons.person_outline,
+                      label: 'Profil',
+                      onTap: () => _navigate(context, '/profile'),
                     ),
-                  _DrawerItem(
-                    icon: Icons.leaderboard_outlined,
-                    label: 'Leaderboard',
-                    onTap: () => _navigate(context, '/leaderboard'),
-                  ),
-                  _DrawerItem(
-                    icon: Icons.info_outline,
-                    label: 'Tentang Aplikasi',
-                    onTap: () => _navigate(context, '/about'),
-                  ),
-                  const Spacer(),
-                  const Divider(height: 1, color: KodiraColors.neutral200),
-                  _DrawerItem(
-                    icon: Icons.logout,
-                    label: 'Logout',
-                    iconColor: KodiraColors.alert700,
-                    labelColor: KodiraColors.alert700,
-                    onTap: () => _confirmLogout(context, ref),
-                  ),
-                  const SizedBox(height: 8),
-                ],
+                    _DrawerItem(
+                      icon: Icons.lock_outline,
+                      label: 'Ganti Password',
+                      onTap: () => _navigate(context, '/change-password'),
+                    ),
+                    _DrawerItem(
+                      icon: Icons.school_outlined,
+                      label: 'Ganti Kelas',
+                      onTap: () => _navigate(context, '/join-class'),
+                    ),
+                    if (isTeacher)
+                      _DrawerItem(
+                        icon: Icons.add_box_outlined,
+                        label: 'Buat Kelas',
+                        onTap: () => _navigate(context, '/create-class'),
+                      ),
+                    if (isTeacher)
+                      _DrawerItem(
+                        icon: Icons.groups_outlined,
+                        label: 'Kelas Saya (Dosen)',
+                        onTap: () => _navigate(context, '/teacher-dashboard'),
+                      ),
+                    _DrawerItem(
+                      icon: Icons.leaderboard_outlined,
+                      label: 'Leaderboard',
+                      onTap: () => _navigate(context, '/leaderboard'),
+                    ),
+                    _DrawerItem(
+                      icon: Icons.info_outline,
+                      label: 'Tentang Aplikasi',
+                      onTap: () => _navigate(context, '/about'),
+                    ),
+                    const SizedBox(height: 16),
+                    const Divider(height: 1, color: KodiraColors.neutral200),
+                    const SizedBox(height: 8),
+                    _DrawerItem(
+                      icon: Icons.logout,
+                      label: 'Logout',
+                      iconColor: KodiraColors.alert700,
+                      labelColor: KodiraColors.alert700,
+                      onTap: () => _confirmLogout(context, ref),
+                    ),
+                    const SizedBox(height: 8),
+                  ],
+                ),
               ),
             ),
           ),
