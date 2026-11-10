@@ -49,4 +49,19 @@ class ClassRepository {
   Future<void> setPrimaryClass(String classId) async {
     await _client.rpc('set_primary_class', params: {'p_class_id': classId});
   }
+
+  /// Create new class (teacher only).
+  ///
+  /// Menghasilkan kode 6-karakter unik di server, memasukkan baris ke
+  /// tabel `classes`, lalu menambahkan teacher sebagai owner.
+  Future<Map<String, dynamic>> createClass({
+    required String name,
+    String? description,
+  }) async {
+    final result = await _client.rpc(
+      'create_class',
+      params: {'p_name': name, 'p_description': description},
+    );
+    return Map<String, dynamic>.from(result as Map);
+  }
 }
