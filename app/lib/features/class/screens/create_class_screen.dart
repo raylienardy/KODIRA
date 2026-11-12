@@ -212,7 +212,17 @@ class _CreateClassScreenState extends ConsumerState<CreateClassScreen> {
                     ),
                     const SizedBox(height: KodiraSpacing.s2),
                     Text(
-                      'Kode kelas otomatis dibuat setelah kelas dibuat.',
+                      'Buat kelas untuk mengelompokkan mahasiswa',
+                      style: KodiraTextStyles.body.copyWith(
+                        fontWeight: FontWeight.w600,
+                        color: KodiraColors.primary700,
+                      ),
+                    ),
+                    const SizedBox(height: KodiraSpacing.s2),
+                    Text(
+                      'Setelah dibuat, sistem akan membuat kode 6 karakter unik. '
+                      'Bagikan kode ke mahasiswa supaya mereka bisa join. '
+                      'Anda bisa memantau progress mereka di menu "Kelas Saya".',
                       style: KodiraTextStyles.body.copyWith(
                         color: KodiraColors.neutral700,
                       ),

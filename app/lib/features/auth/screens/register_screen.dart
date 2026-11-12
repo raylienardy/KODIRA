@@ -418,7 +418,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                   const SizedBox(height: 12),
                   Text(
                     _role == 'teacher'
-                        ? 'Akun dosen akan terdaftar sebagai pengajar di KODIRA.'
+                        ? 'Akun dosen bisa membuat kelas, memantau progress mahasiswa, dan melihat mastery per topik.'
                         : 'Kamu akan otomatis terdaftar di kelas $_defaultClassName.',
                     textAlign: TextAlign.center,
                     style: TextStyle(
