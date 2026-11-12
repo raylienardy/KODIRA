@@ -157,7 +157,9 @@ CREATE POLICY class_teachers_select ON public.class_teachers
 
 | # | Task | Effort | Source |
 |---|---|---|---|
-| **P3-1** | Titles: title_logic + UI Profile + Leaderboard | 3 jam | roadmap #8 |
+| **P3-1a** | ~~Titles logic + Home UI + Profile UI~~ — **DONE 2026-11-13** (verified): `data/logic/title_logic.dart` 39 lines, 5-tier XP-based enum (Pemula/Menengah/Mahir/Master/GrandMaster), 12 tests PASS, render di Home + Profile chip. Diverged from `08-TITLES.md` spec (per-language chain NOT implemented — deliberate simplification, works for MVP) | — | verify session |
+| **P3-1b** | Titles: leaderboard title column (spec `08-TITLES.md` — title di kolom nama user leaderboard) | 20-30 min | original spec |
+| **P3-1c** | Titles: per-language chain (Pelajar C++ → Ahli C++ → Master C++, Pelajar Java → Master Java, Ultimate Grand Master) — spec `08-TITLES.md` layer | 2-3 jam | original spec, POST-DEMO |
 | **P3-2** | CircularDependencyError streak/badge: pindahkan `invalidate(allProgressProvider)` ke caller | 30 min | handover §4.2 |
 | **P3-3** | `_PasswordField` extract ke shared widget | 20 min | 04-PASSWORD §70 |
 | **P3-4** | `flutter_markdown` → `flutter_markdown_plus` migrate | 30-45 min | 05-ABOUT §133 |
@@ -230,6 +232,7 @@ CREATE POLICY class_teachers_select ON public.class_teachers
 | **Q1** | ~~Quiz L16-50~~ — **RESOLVED 2026-11-12**: `seed-quiz-02.sql` contains 3 questions/level × levels 16-50 (verified). Handover §4.1 stale. | ✅ |
 | **Q2** | ~~Phase 5 AI status~~ — **RESOLVED 2026-11-12**: PARTIAL. AiRepository uses `_client.functions.invoke(...)`, UI done. Backend Edge Function + Groq key unverified → see P1-4. | ✅ |
 | **Q3** | NIM format: 12 atau 13 digit? | **OPEN** — Seed: 13 digit (`2402095010141`). Peer review: 12 digit (`240209501015`). Butuh konfirmasi Pak Kurnia atau cek NIM mahasiswa lain. Default: lenient regex `^\d{12,13}$`. |
+| **Q4** | ~~Titles status~~ — **RESOLVED 2026-11-13**: PARTIALLY DONE. Logic + Home + Profile live, leaderboard missing, per-language chain deferred. Original roadmap note "NOT STARTED" was based on wrong path check (looked in data/repositories/ instead of data/logic/). | ✅ |
 
 ---
 
@@ -278,3 +281,4 @@ CREATE POLICY class_teachers_select ON public.class_teachers
 |---|---|---|
 | 2026-11-12 | 1.0 | Initial consolidation. Supersedes stale handover + roadmap status. Includes 6 peer review items. HEAD `5332a02`, 490 tests |
 | 2026-11-12 | 1.1 | Q1+Q2 resolved via verify (Q1: fully seeded; Q2: partial). Added P1-4 (AI hint risk), removed P3-6 + TD-1. Q3 still open |
+| 2026-11-13 | 1.2 | Titles status verified: PARTIALLY DONE (logic + Home + Profile done; leaderboard + per-language chain open). P3-1 split into P3-1a (done), P3-1b (leaderboard, 20-30 min), P3-1c (per-language, 2-3 jam post-demo). Q4 resolved. |
