@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../app/theme.dart';
 import '../../../data/models/class_roster_entry.dart';
@@ -84,68 +85,77 @@ class _ClassRosterScreenState extends ConsumerState<ClassRosterScreen> {
                   ? '?'
                   : r.name.trim().substring(0, 1).toUpperCase();
 
-              return Container(
-                padding: const EdgeInsets.all(KodiraSpacing.s3),
-                decoration: BoxDecoration(
-                  color: KodiraColors.neutral0,
+              return Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: () => context.go(
+                    '/teacher-roster/${widget.classId}/student/${r.userId}',
+                  ),
                   borderRadius: BorderRadius.circular(KodiraRadius.md),
-                  boxShadow: KodiraShadows.elevation1,
-                ),
-                child: Row(
-                  children: [
-                    CircleAvatar(
-                      radius: 20,
-                      backgroundColor: KodiraColors.primary100,
-                      child: Text(
-                        initial,
-                        style: KodiraTextStyles.body.copyWith(
-                          color: KodiraColors.primary700,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
+                  child: Container(
+                    padding: const EdgeInsets.all(KodiraSpacing.s3),
+                    decoration: BoxDecoration(
+                      color: KodiraColors.neutral0,
+                      borderRadius: BorderRadius.circular(KodiraRadius.md),
+                      boxShadow: KodiraShadows.elevation1,
                     ),
-                    const SizedBox(width: KodiraSpacing.s3),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            r.name,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: KodiraTextStyles.body.copyWith(
-                              fontWeight: FontWeight.w600,
-                              color: KodiraColors.neutral900,
-                            ),
-                          ),
-                          Text(
-                            'NIM: ${r.nim}',
-                            style: KodiraTextStyles.caption.copyWith(
-                              color: KodiraColors.neutral500,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
+                    child: Row(
                       children: [
-                        Text(
-                          '${r.totalXp}',
-                          style: KodiraTextStyles.body.copyWith(
-                            fontWeight: FontWeight.w700,
-                            color: KodiraColors.primary700,
+                        CircleAvatar(
+                          radius: 20,
+                          backgroundColor: KodiraColors.primary100,
+                          child: Text(
+                            initial,
+                            style: KodiraTextStyles.body.copyWith(
+                              color: KodiraColors.primary700,
+                              fontWeight: FontWeight.w700,
+                            ),
                           ),
                         ),
-                        Text(
-                          'XP',
-                          style: KodiraTextStyles.caption.copyWith(
-                            color: KodiraColors.neutral500,
+                        const SizedBox(width: KodiraSpacing.s3),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                r.name,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: KodiraTextStyles.body.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                  color: KodiraColors.neutral900,
+                                ),
+                              ),
+                              Text(
+                                'NIM: ${r.nim}',
+                                style: KodiraTextStyles.caption.copyWith(
+                                  color: KodiraColors.neutral500,
+                                ),
+                              ),
+                            ],
                           ),
+                        ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Text(
+                              '${r.totalXp}',
+                              style: KodiraTextStyles.body.copyWith(
+                                fontWeight: FontWeight.w700,
+                                color: KodiraColors.primary700,
+                              ),
+                            ),
+                            Text(
+                              'XP',
+                              style: KodiraTextStyles.caption.copyWith(
+                                color: KodiraColors.neutral500,
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
-                  ],
+                  ),
                 ),
               );
             },

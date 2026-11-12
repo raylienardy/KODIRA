@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kodira/data/models/class_roster_entry.dart';
+import 'package:kodira/data/models/student_detail.dart';
 import 'package:kodira/data/models/teacher_class_entry.dart';
 import 'package:kodira/data/repositories/teacher_repository.dart';
 import 'package:kodira/features/teacher/providers/teacher_provider.dart';
@@ -24,6 +25,15 @@ class _FakeTeacherRepository implements TeacherRepository {
   @override
   Future<List<ClassRosterEntry>> getClassRoster(String classId) async =>
       const <ClassRosterEntry>[];
+
+  @override
+  Future<StudentDetail?> getStudentDetail({
+    required String classId,
+    required String studentId,
+  }) async {
+    if (error != null) throw error!;
+    return null;
+  }
 }
 
 void main() {

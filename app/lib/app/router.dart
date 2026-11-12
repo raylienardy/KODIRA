@@ -15,6 +15,7 @@ import '../features/profile/screens/profile_screen.dart';
 import '../features/profile/screens/about_screen.dart';
 import '../features/leaderboard/screens/leaderboard_screen.dart';
 import '../features/teacher/screens/class_roster_screen.dart';
+import '../features/teacher/screens/student_detail_screen.dart';
 import '../features/teacher/screens/teacher_dashboard_screen.dart';
 
 /// Listenable adapter for GoRouter.
@@ -133,6 +134,14 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         path: '/teacher-roster/:classId',
         builder: (context, state) =>
             ClassRosterScreen(classId: state.pathParameters['classId']!),
+      ),
+      // Route detail satu mahasiswa (drill-down dari roster).
+      GoRoute(
+        path: '/teacher-roster/:classId/student/:studentId',
+        builder: (context, state) => StudentDetailScreen(
+          classId: state.pathParameters['classId']!,
+          studentId: state.pathParameters['studentId']!,
+        ),
       ),
       // Route edit profil (nama saja, NIM immutable).
       GoRoute(
