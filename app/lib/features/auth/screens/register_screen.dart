@@ -5,7 +5,18 @@ import 'package:supabase_flutter/supabase_flutter.dart' as supa;
 
 import '../../../app/theme.dart';
 import '../../../data/repositories/auth_logic.dart';
+import '../../class/providers/class_provider.dart';
 import '../providers/auth_provider.dart';
+
+/// Sumber session Supabase yang aktif saat registrasi berjalan.
+///
+/// Dikembangkan sebagai provider agar widget test dapat meng-override nilainya
+/// (`overrideWithValue`) untuk mensimulasikan kondisi "session aktif" maupun
+/// "session null" — tanpa harus menjalankan `Supabase.instance` yang memang
+/// melempar assertion bila belum diinisialisasi.
+final currentSupabaseSessionProvider = Provider<supa.Session?>((ref) {
+  return supa.Supabase.instance.client.auth.currentSession;
+});
 
 /// Layar Registrasi Self-Service (Fitur #3).
 ///
@@ -24,6 +35,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nimController = TextEditingController();
   final _nameController = TextEditingController();
+  final _classCodeController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
 
@@ -38,6 +50,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   void dispose() {
     _nimController.dispose();
     _nameController.dispose();
+    _classCodeController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
     super.dispose();
@@ -56,6 +69,11 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
             password: _passwordController.text,
             role: _role,
           );
+
+      // Fitur #P4: setelah sign-up berhasil, coba auto-join kelas via kode
+      // kelas opsional (student only). Semua kegagalan join hanya berupa
+      // SnackBar — tidak boleh memblokir registrasi atau navigasi ke /home.
+      await _autoJoinClass();
 
       if (!mounted) return;
 
@@ -81,6 +99,84 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
       ).showSnackBar(SnackBar(content: Text('Registrasi gagal: $e')));
     } finally {
       if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  /// Fitur #P4: Auto-join kelas setelah registrasi berhasil.
+  ///
+  /// Dipanggil setelah `signUp` sukses dan sebelum navigasi ke `/home`.
+  /// Hanya berjalan untuk role `student` yang memasukkan kode kelas.
+  /// Kegagalan join (error / exception / session null) HANYA berupa SnackBar —
+  /// registrasi sudah sukses, jadi kegagalan join tidak boleh memblokir
+  /// navigasi ke `/home`.
+  Future<void> _autoJoinClass() async {
+    if (_role != 'student') return;
+
+    final classCode = _classCodeController.text.trim().toUpperCase();
+    if (classCode.isEmpty || classCode.length != 6) return;
+
+    try {
+      final session = ref.read(currentSupabaseSessionProvider);
+      if (session == null) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                'Registrasi sukses. Cek email untuk konfirmasi, lalu join '
+                'kelas "$classCode" via menu Ganti Kelas.',
+              ),
+            ),
+          );
+        }
+        return;
+      }
+
+      final result = await ref
+          .read(classRepositoryProvider)
+          .joinClass(classCode);
+      if (!mounted) return;
+
+      final error = result['error'] as String?;
+      final success = result['success'] as bool?;
+      final alreadyMember = result['already_member'] as bool?;
+      final className =
+          (result['class'] as Map<String, dynamic>?)?['name'] as String? ?? '';
+
+      if (error != null) {
+        String message = 'Gagal join kelas otomatis: $error';
+        if (error == 'class_not_found') {
+          message =
+              'Kode kelas tidak ditemukan. Kamu bisa join manual nanti via menu Ganti Kelas.';
+        } else if (error == 'invalid_code_format') {
+          message = 'Format kode tidak valid.';
+        }
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(message)));
+      } else if (alreadyMember == true) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Kamu sudah member kelas $className.')),
+        );
+      } else if (success == true) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Berhasil join ${className.isEmpty ? 'kelas' : className}.',
+            ),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Registrasi sukses tapi gagal join kelas: $e. '
+              'Join manual nanti via menu Ganti Kelas.',
+            ),
+          ),
+        );
+      }
     }
   }
 
@@ -294,6 +390,27 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                             return null;
                           },
                         ),
+                        const SizedBox(height: 12),
+
+                        // Kode Kelas (Opsional, hanya untuk Student)
+                        if (_role == 'student') ...[
+                          const _FieldLabel('Kode Kelas (Opsional)'),
+                          const SizedBox(height: 4),
+                          TextField(
+                            controller: _classCodeController,
+                            textCapitalization: TextCapitalization.characters,
+                            maxLength: 6,
+                            autocorrect: false,
+                            enableSuggestions: false,
+                            style: const TextStyle(
+                              fontSize: 13,
+                              color: Colors.white,
+                            ),
+                            decoration: _inputDecoration(
+                              '6 karakter, dari dosen Anda',
+                            ).copyWith(counterText: ''),
+                          ),
+                        ],
                       ],
                     ),
                   ),

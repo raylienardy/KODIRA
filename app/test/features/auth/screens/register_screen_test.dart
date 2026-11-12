@@ -2,10 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
+import 'package:kodira/data/models/my_class_model.dart';
 import 'package:kodira/data/models/user_model.dart';
+import 'package:kodira/data/repositories/class_repository.dart';
 import 'package:kodira/data/repositories/i_auth_repository.dart';
 import 'package:kodira/features/auth/providers/auth_provider.dart';
 import 'package:kodira/features/auth/screens/register_screen.dart';
+import 'package:kodira/features/class/providers/class_provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' as supa;
 
 class _FakeAuthRepository implements IAuthRepository {
@@ -72,14 +75,69 @@ class _FakeAuthRepository implements IAuthRepository {
   }
 }
 
+class _FakeClassRepository implements ClassRepository {
+  int joinCalls = 0;
+  String? lastCode;
+  Map<String, dynamic>? joinResult;
+  Object? joinError;
+
+  @override
+  Future<List<MyClass>> getMyClasses(String userId) async => const [];
+
+  @override
+  Future<Map<String, dynamic>> joinClass(String code) async {
+    joinCalls += 1;
+    lastCode = code;
+    final error = joinError;
+    if (error != null) throw error;
+    return joinResult ??
+        <String, dynamic>{
+          'success': true,
+          'already_member': false,
+          'class': <String, dynamic>{'name': 'PTIK B 2024'},
+        };
+  }
+
+  @override
+  Future<void> setPrimaryClass(String classId) async {}
+
+  @override
+  Future<Map<String, dynamic>> createClass({
+    required String name,
+    String? description,
+  }) async {
+    throw UnimplementedError();
+  }
+}
+
 void main() {
-  late _FakeAuthRepository fakeRepo;
+  late _FakeAuthRepository fakeAuth;
+  late _FakeClassRepository fakeClass;
+
+  final fakeSession = supa.Session(
+    accessToken: 'token',
+    tokenType: 'bearer',
+    user: supa.User(
+      id: 'user-new',
+      appMetadata: const {},
+      userMetadata: const {},
+      aud: 'authenticated',
+      createdAt: DateTime(2026, 11, 10).toIso8601String(),
+    ),
+  );
 
   setUp(() {
-    fakeRepo = _FakeAuthRepository();
+    fakeAuth = _FakeAuthRepository();
+    fakeClass = _FakeClassRepository();
   });
 
-  Widget createTestWidget() {
+  void setViewport(WidgetTester tester) {
+    tester.view.physicalSize = const Size(800, 1400);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+  }
+
+  Widget createTestWidget({supa.Session? session}) {
     final router = GoRouter(
       initialLocation: '/register',
       routes: [
@@ -99,7 +157,11 @@ void main() {
     );
 
     return ProviderScope(
-      overrides: [authRepositoryProvider.overrideWithValue(fakeRepo)],
+      overrides: [
+        authRepositoryProvider.overrideWithValue(fakeAuth),
+        classRepositoryProvider.overrideWithValue(fakeClass),
+        currentSupabaseSessionProvider.overrideWithValue(session),
+      ],
       child: MaterialApp.router(routerConfig: router),
     );
   }
@@ -110,6 +172,7 @@ void main() {
     String name = 'Mahasiswa Baru',
     String password = 'rahasia123',
     String? confirm,
+    String? classCode,
   }) async {
     await tester.enterText(find.byType(TextFormField).at(0), nim);
     await tester.enterText(find.byType(TextFormField).at(1), name);
@@ -118,10 +181,21 @@ void main() {
       find.byType(TextFormField).at(3),
       confirm ?? password,
     );
+    if (classCode != null) {
+      // Field kode kelas adalah TextField biasa (bukan TextFormField) agar
+      // input opsional ini tidak ikut memblokir validasi form registrasi.
+      await tester.enterText(find.byType(TextField).at(4), classCode);
+    }
     await tester.pump();
   }
 
+  Future<void> submit(WidgetTester tester) async {
+    await tester.tap(find.text('Daftar'));
+    await tester.pumpAndSettle();
+  }
+
   testWidgets('rendersFourFields', (tester) async {
+    setViewport(tester);
     await tester.pumpWidget(createTestWidget());
     await tester.pumpAndSettle();
 
@@ -133,7 +207,18 @@ void main() {
     expect(find.text('Daftar'), findsOneWidget);
   });
 
+  // Fitur #P4: field kode kelas opsional hanya tampil untuk mahasiswa.
+  testWidgets('rendersOptionalClassCodeFieldForStudent', (tester) async {
+    setViewport(tester);
+    await tester.pumpWidget(createTestWidget());
+    await tester.pumpAndSettle();
+
+    expect(find.text('Kode Kelas (Opsional)'), findsOneWidget);
+    expect(find.text('6 karakter, dari dosen Anda'), findsOneWidget);
+  });
+
   testWidgets('validationInvalidNim', (tester) async {
+    setViewport(tester);
     await tester.pumpWidget(createTestWidget());
     await tester.pumpAndSettle();
 
@@ -142,10 +227,11 @@ void main() {
     await tester.pump();
 
     expect(find.text('NIM harus 13 digit angka'), findsOneWidget);
-    expect(fakeRepo.signUpCalled, isFalse);
+    expect(fakeAuth.signUpCalled, isFalse);
   });
 
   testWidgets('validationEmptyNama', (tester) async {
+    setViewport(tester);
     await tester.pumpWidget(createTestWidget());
     await tester.pumpAndSettle();
 
@@ -154,10 +240,11 @@ void main() {
     await tester.pump();
 
     expect(find.text('Nama wajib diisi'), findsOneWidget);
-    expect(fakeRepo.signUpCalled, isFalse);
+    expect(fakeAuth.signUpCalled, isFalse);
   });
 
   testWidgets('validationShortPassword', (tester) async {
+    setViewport(tester);
     await tester.pumpWidget(createTestWidget());
     await tester.pumpAndSettle();
 
@@ -166,10 +253,11 @@ void main() {
     await tester.pump();
 
     expect(find.text('Password minimal 6 karakter'), findsOneWidget);
-    expect(fakeRepo.signUpCalled, isFalse);
+    expect(fakeAuth.signUpCalled, isFalse);
   });
 
   testWidgets('validationPasswordMismatch', (tester) async {
+    setViewport(tester);
     await tester.pumpWidget(createTestWidget());
     await tester.pumpAndSettle();
 
@@ -178,39 +266,40 @@ void main() {
     await tester.pump();
 
     expect(find.text('Konfirmasi password tidak cocok'), findsOneWidget);
-    expect(fakeRepo.signUpCalled, isFalse);
+    expect(fakeAuth.signUpCalled, isFalse);
   });
 
   testWidgets('validSubmit_callsRepoAndNavigates', (tester) async {
+    setViewport(tester);
     await tester.pumpWidget(createTestWidget());
     await tester.pumpAndSettle();
 
     await fillForm(tester);
-    await tester.tap(find.text('Daftar'));
-    await tester.pumpAndSettle();
+    await submit(tester);
 
-    expect(fakeRepo.signUpCalled, isTrue);
-    expect(fakeRepo.lastNim, '2402095010999');
-    expect(fakeRepo.lastName, 'Mahasiswa Baru');
+    expect(fakeAuth.signUpCalled, isTrue);
+    expect(fakeAuth.lastNim, '2402095010999');
+    expect(fakeAuth.lastName, 'Mahasiswa Baru');
     expect(find.text('Home Page'), findsOneWidget);
   });
 
   testWidgets('duplicateNim_showsError', (tester) async {
-    fakeRepo.shouldThrowDuplicate = true;
+    setViewport(tester);
+    fakeAuth.shouldThrowDuplicate = true;
 
     await tester.pumpWidget(createTestWidget());
     await tester.pumpAndSettle();
 
     await fillForm(tester);
-    await tester.tap(find.text('Daftar'));
-    await tester.pumpAndSettle();
+    await submit(tester);
 
-    expect(fakeRepo.signUpCalled, isTrue);
+    expect(fakeAuth.signUpCalled, isTrue);
     expect(find.text('NIM sudah terdaftar. Silakan login.'), findsOneWidget);
     expect(find.text('Home Page'), findsNothing);
   });
 
   testWidgets('roleSelectorRenders', (tester) async {
+    setViewport(tester);
     await tester.pumpWidget(createTestWidget());
     await tester.pumpAndSettle();
 
@@ -218,20 +307,19 @@ void main() {
     expect(find.byType(SegmentedButton<String>), findsOneWidget);
     expect(find.text('Mahasiswa'), findsOneWidget);
     expect(find.text('Dosen'), findsOneWidget);
-    // Default role = student
     expect(find.text('NIM'), findsOneWidget);
   });
 
   testWidgets('submitAsTeacher_callsRepoWithRole', (tester) async {
+    setViewport(tester);
     await tester.pumpWidget(createTestWidget());
     await tester.pumpAndSettle();
 
-    // Pilih role Dosen
     await tester.tap(find.text('Dosen'));
     await tester.pumpAndSettle();
 
-    // NIM field berubah jadi NIDN (10 digit)
     expect(find.text('NIDN'), findsOneWidget);
+    expect(find.text('Kode Kelas (Opsional)'), findsNothing);
 
     await tester.enterText(find.byType(TextFormField).at(0), '1234567890');
     await tester.enterText(find.byType(TextFormField).at(1), 'Prof. Dosen');
@@ -239,13 +327,150 @@ void main() {
     await tester.enterText(find.byType(TextFormField).at(3), 'rahasia123');
     await tester.pump();
 
-    await tester.tap(find.text('Daftar'));
+    await submit(tester);
+
+    expect(fakeAuth.signUpCalled, isTrue);
+    expect(fakeAuth.lastNim, '1234567890');
+    expect(fakeAuth.lastName, 'Prof. Dosen');
+    expect(fakeAuth.lastRole, 'teacher');
+    expect(find.text('Home Page'), findsOneWidget);
+  });
+
+  // --- Fitur #P4: auto-join kelas saat registrasi mahasiswa ---
+
+  testWidgets('noClassCode_doesNotCallJoin', (tester) async {
+    setViewport(tester);
+    await tester.pumpWidget(createTestWidget(session: fakeSession));
     await tester.pumpAndSettle();
 
-    expect(fakeRepo.signUpCalled, isTrue);
-    expect(fakeRepo.lastNim, '1234567890');
-    expect(fakeRepo.lastName, 'Prof. Dosen');
-    expect(fakeRepo.lastRole, 'teacher');
+    await fillForm(tester);
+    await submit(tester);
+
+    expect(fakeAuth.signUpCalled, isTrue);
+    expect(fakeClass.joinCalls, 0);
+    expect(find.text('Home Page'), findsOneWidget);
+  });
+
+  testWidgets('validClassCode_callsJoinAndNavigates', (tester) async {
+    setViewport(tester);
+    await tester.pumpWidget(createTestWidget(session: fakeSession));
+    await tester.pumpAndSettle();
+
+    await fillForm(tester, classCode: 'PTIK24');
+    await submit(tester);
+
+    expect(fakeAuth.signUpCalled, isTrue);
+    expect(fakeClass.joinCalls, 1);
+    expect(fakeClass.lastCode, 'PTIK24');
+    expect(find.textContaining('Berhasil join PTIK B 2024'), findsOneWidget);
+    expect(find.text('Home Page'), findsOneWidget);
+  });
+
+  testWidgets('classCode_isUppercasedBeforeJoin', (tester) async {
+    setViewport(tester);
+    await tester.pumpWidget(createTestWidget(session: fakeSession));
+    await tester.pumpAndSettle();
+
+    await fillForm(tester, classCode: 'ptik24');
+    await submit(tester);
+
+    expect(fakeClass.joinCalls, 1);
+    expect(fakeClass.lastCode, 'PTIK24');
+    expect(find.text('Home Page'), findsOneWidget);
+  });
+
+  testWidgets('joinError_doesNotBlockRegistration', (tester) async {
+    setViewport(tester);
+    fakeClass.joinResult = <String, dynamic>{'error': 'class_not_found'};
+
+    await tester.pumpWidget(createTestWidget(session: fakeSession));
+    await tester.pumpAndSettle();
+
+    await fillForm(tester, classCode: 'WRONG1');
+    await submit(tester);
+
+    expect(fakeAuth.signUpCalled, isTrue);
+    expect(fakeClass.joinCalls, 1);
+    expect(find.textContaining('Kode kelas tidak ditemukan'), findsOneWidget);
+    expect(find.text('Home Page'), findsOneWidget);
+  });
+
+  testWidgets('joinThrowsException_doesNotBlockRegistration', (tester) async {
+    setViewport(tester);
+    fakeClass.joinError = Exception('network down');
+
+    await tester.pumpWidget(createTestWidget(session: fakeSession));
+    await tester.pumpAndSettle();
+
+    await fillForm(tester, classCode: 'PTIK24');
+    await submit(tester);
+
+    expect(fakeAuth.signUpCalled, isTrue);
+    expect(fakeClass.joinCalls, 1);
+    expect(find.textContaining('gagal join kelas'), findsOneWidget);
+    expect(find.text('Home Page'), findsOneWidget);
+  });
+
+  testWidgets('alreadyMember_doesNotBlockRegistration', (tester) async {
+    setViewport(tester);
+    fakeClass.joinResult = <String, dynamic>{
+      'success': true,
+      'already_member': true,
+      'class': <String, dynamic>{'name': 'PTIK B 2024'},
+    };
+
+    await tester.pumpWidget(createTestWidget(session: fakeSession));
+    await tester.pumpAndSettle();
+
+    await fillForm(tester, classCode: 'PTIK24');
+    await submit(tester);
+
+    expect(find.textContaining('sudah member kelas'), findsOneWidget);
+    expect(find.text('Home Page'), findsOneWidget);
+  });
+
+  testWidgets('shortClassCode_skipsJoinButRegisters', (tester) async {
+    setViewport(tester);
+    await tester.pumpWidget(createTestWidget(session: fakeSession));
+    await tester.pumpAndSettle();
+
+    await fillForm(tester, classCode: 'ABC');
+    await submit(tester);
+
+    expect(fakeAuth.signUpCalled, isTrue);
+    expect(fakeClass.joinCalls, 0);
+    expect(find.text('Home Page'), findsOneWidget);
+  });
+
+  testWidgets('nullSession_showsConfirmEmailHintAndSkipsJoin', (tester) async {
+    setViewport(tester);
+    await tester.pumpWidget(createTestWidget(session: null));
+    await tester.pumpAndSettle();
+
+    await fillForm(tester, classCode: 'PTIK24');
+    await submit(tester);
+
+    expect(fakeAuth.signUpCalled, isTrue);
+    expect(fakeClass.joinCalls, 0);
+    expect(find.textContaining('Cek email untuk konfirmasi'), findsOneWidget);
+    expect(find.text('Home Page'), findsOneWidget);
+  });
+
+  testWidgets('teacherWithClassCodeFieldHidden_neverJoins', (tester) async {
+    setViewport(tester);
+    await tester.pumpWidget(createTestWidget(session: fakeSession));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Dosen'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Kode Kelas (Opsional)'), findsNothing);
+
+    await fillForm(tester, nim: '1234567890', name: 'Prof. Dosen');
+    await submit(tester);
+
+    expect(fakeAuth.lastRole, 'teacher');
+    expect(fakeClass.joinCalls, 0);
     expect(find.text('Home Page'), findsOneWidget);
   });
 }
