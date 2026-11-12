@@ -83,6 +83,12 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         return '/home';
       }
 
+      // 7) Dosen login ke /home → langsung ke Teacher Dashboard.
+      // Dosen tidak seharusnya melihat home screen mahasiswa (XP/level/streak).
+      if (user != null && user.role == 'teacher' && path == '/home') {
+        return '/teacher-dashboard';
+      }
+
       return null;
     },
     routes: [
