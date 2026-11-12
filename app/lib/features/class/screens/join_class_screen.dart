@@ -38,7 +38,8 @@ class _JoinClassScreenState extends ConsumerState<JoinClassScreen> {
       final error = result['error'] as String?;
       final success = result['success'] as bool?;
       final alreadyMember = result['already_member'] as bool?;
-      final className = result['class_name'] as String? ?? '';
+      final className =
+          (result['class'] as Map<String, dynamic>?)?['name'] as String? ?? '';
 
       if (!mounted) return;
 

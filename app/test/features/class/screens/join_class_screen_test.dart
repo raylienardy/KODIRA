@@ -24,7 +24,11 @@ class _FakeClassRepository implements ClassRepository {
     joinCalls += 1;
     lastCode = code;
     return joinResult ??
-        <String, dynamic>{'success': true, 'class_name': 'PTIK B 2024'};
+        <String, dynamic>{
+          'success': true,
+          'already_member': false,
+          'class': <String, dynamic>{'name': 'PTIK B 2024'},
+        };
   }
 
   @override
@@ -116,6 +120,7 @@ void main() {
     expect(fakeRepo.joinCalls, 1);
     expect(fakeRepo.lastCode, 'PTIK24');
     expect(find.text('Berhasil join PTIK B 2024'), findsOneWidget);
+    expect(find.textContaining('PTIK B 2024'), findsOneWidget);
   });
 
   testWidgets('joinClassNotFoundShowsError', (tester) async {
@@ -133,7 +138,7 @@ void main() {
     fakeRepo.joinResult = <String, dynamic>{
       'success': true,
       'already_member': true,
-      'class_name': 'PTIK B 2024',
+      'class': <String, dynamic>{'name': 'PTIK B 2024'},
     };
     await tester.pumpWidget(createTestWidget());
     await tester.pumpAndSettle();
@@ -141,6 +146,7 @@ void main() {
     await submitCode(tester, 'PTIK24');
 
     expect(find.text('Kamu sudah member kelas PTIK B 2024'), findsOneWidget);
+    expect(find.textContaining('PTIK B 2024'), findsOneWidget);
   });
 
   testWidgets('listRendersMyClasses', (tester) async {
