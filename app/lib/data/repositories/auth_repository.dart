@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart' show kDebugMode, debugPrint;
 import 'package:supabase_flutter/supabase_flutter.dart' as supa;
 import '../models/user_model.dart';
 import '../../core/errors/auth_exception.dart';
@@ -182,19 +181,7 @@ class AuthRepository implements IAuthRepository {
       throw const supa.AuthException('Registrasi gagal. Coba lagi.');
     }
 
-    // 4. Auto-enroll ke default class "PTIK24" hanya untuk student
-    if (role == 'student') {
-      try {
-        await _client.rpc('join_class', params: {'p_code': 'PTIK24'});
-      } catch (e) {
-        // Non-fatal: user created but not enrolled. Log but continue.
-        if (kDebugMode) {
-          debugPrint('Auto-enroll failed: $e');
-        }
-      }
-    }
-
-    // 5. Return user model
+    // 4. Return user model
     final userMap = await _client
         .from('users')
         .select()

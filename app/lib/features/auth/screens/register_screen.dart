@@ -70,10 +70,13 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
             role: _role,
           );
 
-      // Fitur #P4: setelah sign-up berhasil, coba auto-join kelas via kode
-      // kelas opsional (student only). Semua kegagalan join hanya berupa
-      // SnackBar — tidak boleh memblokir registrasi atau navigasi ke /home.
-      await _autoJoinClass();
+      // Fitur #P4: setelah sign-up berhasil, coba auto-join kelas. Kode
+      // dari input user menang (multi-prodi); kosong/invalid → default PTIK24
+      // (prodi PTIK B). Semua kegagalan join hanya berupa SnackBar — tidak
+      // boleh memblokir registrasi atau navigasi ke /home.
+      final userCode = _classCodeController.text.trim().toUpperCase();
+      final joinCode = userCode.length == 6 ? userCode : 'PTIK24';
+      await _autoJoinClass(joinCode);
 
       if (!mounted) return;
 
@@ -109,11 +112,8 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   /// Kegagalan join (error / exception / session null) HANYA berupa SnackBar —
   /// registrasi sudah sukses, jadi kegagalan join tidak boleh memblokir
   /// navigasi ke `/home`.
-  Future<void> _autoJoinClass() async {
+  Future<void> _autoJoinClass(String classCode) async {
     if (_role != 'student') return;
-
-    final classCode = _classCodeController.text.trim().toUpperCase();
-    if (classCode.isEmpty || classCode.length != 6) return;
 
     try {
       final session = ref.read(currentSupabaseSessionProvider);

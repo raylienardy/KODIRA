@@ -338,7 +338,7 @@ void main() {
 
   // --- Fitur #P4: auto-join kelas saat registrasi mahasiswa ---
 
-  testWidgets('noClassCode_doesNotCallJoin', (tester) async {
+  testWidgets('noClassCode_joinsDefaultClass', (tester) async {
     setViewport(tester);
     await tester.pumpWidget(createTestWidget(session: fakeSession));
     await tester.pumpAndSettle();
@@ -347,7 +347,8 @@ void main() {
     await submit(tester);
 
     expect(fakeAuth.signUpCalled, isTrue);
-    expect(fakeClass.joinCalls, 0);
+    expect(fakeClass.joinCalls, 1);
+    expect(fakeClass.lastCode, 'PTIK24');
     expect(find.text('Home Page'), findsOneWidget);
   });
 
@@ -429,7 +430,7 @@ void main() {
     expect(find.text('Home Page'), findsOneWidget);
   });
 
-  testWidgets('shortClassCode_skipsJoinButRegisters', (tester) async {
+  testWidgets('shortClassCode_fallsBackToDefault', (tester) async {
     setViewport(tester);
     await tester.pumpWidget(createTestWidget(session: fakeSession));
     await tester.pumpAndSettle();
@@ -438,7 +439,22 @@ void main() {
     await submit(tester);
 
     expect(fakeAuth.signUpCalled, isTrue);
-    expect(fakeClass.joinCalls, 0);
+    expect(fakeClass.joinCalls, 1);
+    expect(fakeClass.lastCode, 'PTIK24');
+    expect(find.text('Home Page'), findsOneWidget);
+  });
+
+  testWidgets('customCode_skipsDefaultClass', (tester) async {
+    setViewport(tester);
+    await tester.pumpWidget(createTestWidget(session: fakeSession));
+    await tester.pumpAndSettle();
+
+    await fillForm(tester, classCode: 'PTIKA1');
+    await submit(tester);
+
+    expect(fakeAuth.signUpCalled, isTrue);
+    expect(fakeClass.joinCalls, 1);
+    expect(fakeClass.lastCode, 'PTIKA1');
     expect(find.text('Home Page'), findsOneWidget);
   });
 
