@@ -119,7 +119,7 @@ class _ClassCard extends StatelessWidget {
         boxShadow: KodiraShadows.elevation1,
       ),
       child: InkWell(
-        onTap: () => context.go('/teacher-roster/${cls.id}'),
+        onTap: () => context.push('/teacher-roster/${cls.id}'),
         borderRadius: BorderRadius.circular(KodiraRadius.md),
         child: Row(
           children: [

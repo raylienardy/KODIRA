@@ -88,7 +88,7 @@ class _ClassRosterScreenState extends ConsumerState<ClassRosterScreen> {
               return Material(
                 color: Colors.transparent,
                 child: InkWell(
-                  onTap: () => context.go(
+                  onTap: () => context.push(
                     '/teacher-roster/${widget.classId}/student/${r.userId}',
                   ),
                   borderRadius: BorderRadius.circular(KodiraRadius.md),
