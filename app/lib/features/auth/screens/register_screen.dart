@@ -400,6 +400,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                             controller: _classCodeController,
                             textCapitalization: TextCapitalization.characters,
                             maxLength: 6,
+                            onChanged: (_) => setState(() {}),
                             autocorrect: false,
                             enableSuggestions: false,
                             style: const TextStyle(
@@ -419,7 +420,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                   Text(
                     _role == 'teacher'
                         ? 'Akun dosen bisa membuat kelas, memantau progress mahasiswa, dan melihat mastery per topik.'
-                        : 'Kamu akan otomatis terdaftar di kelas $_defaultClassName.',
+                        : (_classCodeController.text.trim().length == 6
+                              ? 'Kamu akan join ke kelas dengan kode ${_classCodeController.text.trim().toUpperCase()}. Tidak masuk PTIK B 2024.'
+                              : 'Kamu akan otomatis terdaftar di kelas $_defaultClassName.'),
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontFamily: 'Inter',
