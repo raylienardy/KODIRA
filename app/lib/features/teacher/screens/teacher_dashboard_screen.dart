@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../app/theme.dart';
 import '../../../data/models/teacher_class_entry.dart';
+import '../../../shared/widgets/app_drawer.dart';
 import '../providers/teacher_provider.dart';
 
 /// Dashboard dosen: daftar kelas yang diampu.
@@ -25,6 +26,7 @@ class _TeacherDashboardScreenState
 
     return Scaffold(
       backgroundColor: KodiraColors.neutral100,
+      drawer: const AppDrawer(),
       appBar: AppBar(
         backgroundColor: KodiraColors.neutral0,
         surfaceTintColor: Colors.transparent,

@@ -302,7 +302,7 @@ class _Top3PodiumSection extends StatelessWidget {
                 entry: second,
                 medal: '🥈',
                 color: const Color(0xFFC0C0C0),
-                height: 110,
+                height: 122,
               ),
             )
           else
@@ -314,7 +314,7 @@ class _Top3PodiumSection extends StatelessWidget {
                 entry: first,
                 medal: '🥇',
                 color: KodiraColors.reward500,
-                height: 130,
+                height: 142,
                 isFirst: true,
               ),
             )
@@ -327,7 +327,7 @@ class _Top3PodiumSection extends StatelessWidget {
                 entry: third,
                 medal: '🥉',
                 color: const Color(0xFFCD7F32),
-                height: 95,
+                height: 107,
               ),
             )
           else
@@ -374,12 +374,13 @@ class _PodiumCard extends StatelessWidget {
           const SizedBox(height: 2),
           Text(
             entry.name,
-            maxLines: 1,
+            maxLines: 2,
             overflow: TextOverflow.ellipsis,
             textAlign: TextAlign.center,
-            style: KodiraTextStyles.bodySm.copyWith(
+            style: KodiraTextStyles.caption.copyWith(
               fontWeight: FontWeight.w600,
               color: KodiraColors.neutral900,
+              fontSize: 12,
             ),
           ),
           const SizedBox(height: 2),
