@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/theme.dart';
+import '../../../data/logic/title_logic.dart';
 import '../../../data/repositories/leaderboard_repository.dart';
 import '../providers/leaderboard_provider.dart';
 
@@ -430,14 +431,23 @@ class _LeaderboardRowCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  entry.name,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: KodiraTextStyles.body.copyWith(
-                    fontWeight: FontWeight.w600,
-                    color: KodiraColors.neutral900,
-                  ),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Flexible(
+                      child: Text(
+                        entry.name,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: KodiraTextStyles.body.copyWith(
+                          fontWeight: FontWeight.w600,
+                          color: KodiraColors.neutral900,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    _TitleChip(title: TitleLogic.fromTotalXp(entry.totalXp)),
+                  ],
                 ),
                 Text(
                   entry.nim,
@@ -456,6 +466,32 @@ class _LeaderboardRowCard extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// Widget chip kecil untuk menampilkan gelar user.
+class _TitleChip extends StatelessWidget {
+  final UserTitle title;
+
+  const _TitleChip({required this.title});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      decoration: BoxDecoration(
+        color: KodiraColors.primary100,
+        borderRadius: BorderRadius.circular(KodiraRadius.full),
+      ),
+      child: Text(
+        '${TitleLogic.emoji(title)} ${TitleLogic.label(title)}',
+        style: KodiraTextStyles.caption.copyWith(
+          color: KodiraColors.primary700,
+          fontWeight: FontWeight.w600,
+          fontSize: 10, // Sedikit lebih kecil supaya pas di baris
+        ),
       ),
     );
   }
