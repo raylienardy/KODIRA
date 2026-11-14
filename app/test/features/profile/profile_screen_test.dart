@@ -54,11 +54,14 @@ void main() {
     required Future<List<UserAchievementModel>> Function() achievementsLoader,
     required Future<Map<String, double>> Function() masteryLoader,
     required Future<List<UserProgressModel>> Function() activityLoader,
+    UserModel? userOverride,
   }) => <Override>[
-    authRepositoryProvider.overrideWithValue(_FakeAuthRepository(user)),
+    authRepositoryProvider.overrideWithValue(
+      _FakeAuthRepository(userOverride ?? user),
+    ),
     authStateProvider.overrideWith((ref) {
       final notifier = AuthNotifier(ref.watch(authRepositoryProvider), ref);
-      notifier.restoreSession(user);
+      notifier.restoreSession(userOverride ?? user);
       return notifier;
     }),
     allProgressProvider.overrideWith((ref) => progressLoader()),
@@ -82,6 +85,7 @@ void main() {
     required Future<List<UserAchievementModel>> Function() achievementsLoader,
     required Future<Map<String, double>> Function() masteryLoader,
     required Future<List<UserProgressModel>> Function() activityLoader,
+    UserModel? userOverride,
   }) async {
     await tester.pumpWidget(
       ProviderScope(
@@ -94,6 +98,7 @@ void main() {
           achievementsLoader: achievementsLoader,
           masteryLoader: masteryLoader,
           activityLoader: activityLoader,
+          userOverride: userOverride,
         ),
         child: const MaterialApp(home: ProfileScreen()),
       ),
@@ -171,6 +176,43 @@ void main() {
     expect(find.text('Total XP'), findsOneWidget);
     expect(find.text('Level Aktif'), findsOneWidget);
     expect(find.text('Streak'), findsOneWidget);
+    expect(find.text('Pemula'), findsOneWidget);
+  });
+
+  testWidgets('teacher_profile_shows_teacher_card_only', (tester) async {
+    final teacherUser = UserModel(
+      id: 'user-teacher',
+      nim: '19900101',
+      name: 'Pak Ido',
+      role: 'teacher',
+      createdAt: DateTime(2026, 1, 1),
+    );
+    await pumpProfile(
+      tester,
+      progressLoader: () async => <UserProgressModel>[],
+      xpLoader: () async => 0,
+      streakLoader: () async => null,
+      levelsLoader: () async => <LevelModel>[],
+      badgesLoader: () async => <UserBadgeModel>[],
+      achievementsLoader: () async => <UserAchievementModel>[],
+      masteryLoader: () async => <String, double>{},
+      activityLoader: () async => <UserProgressModel>[],
+      userOverride: teacherUser,
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Pak Ido'), findsOneWidget);
+    expect(find.text('Anda Dosen'), findsOneWidget);
+    expect(find.text('Total XP'), findsNothing);
+    expect(find.text('Level Aktif'), findsNothing);
+    expect(find.text('Streak'), findsNothing);
+    expect(find.text('Badge'), findsNothing);
+    expect(find.text('Achievement'), findsNothing);
+    expect(find.text('Mastery per Topik'), findsNothing);
+    expect(find.text('Aktivitas Terakhir'), findsNothing);
+    expect(find.text('Pemula'), findsNothing);
+    expect(find.text('Gelar: Pemula'), findsNothing);
+    expect(find.textContaining('Badge'), findsNothing);
   });
 }
 

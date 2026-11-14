@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/theme.dart';
 import '../../../shared/widgets/app_drawer.dart';
+import '../../auth/providers/auth_provider.dart';
 import '../../home/providers/level_provider.dart';
 import '../providers/profile_provider.dart';
 import '../widgets/achievement_list.dart';
@@ -22,6 +23,9 @@ class ProfileScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final authState = ref.watch(authStateProvider);
+    final isTeacher = authState.user?.role == 'teacher';
+
     return Scaffold(
       backgroundColor: KodiraColors.neutral0,
       endDrawer: const AppDrawer(),
@@ -49,26 +53,31 @@ class ProfileScreen extends ConsumerWidget {
         child: ListView(
           physics: const AlwaysScrollableScrollPhysics(),
           padding: const EdgeInsets.fromLTRB(20, 8, 20, 40),
-          children: const <Widget>[
-            ProfileHeader(),
-            SizedBox(height: 16),
-            StatCards(),
-            SizedBox(height: 24),
-            _SectionHeader(title: 'Badge'),
-            SizedBox(height: 10),
-            BadgeGrid(),
-            SizedBox(height: 24),
-            _SectionHeader(title: 'Achievement'),
-            SizedBox(height: 10),
-            AchievementList(),
-            SizedBox(height: 24),
-            _SectionHeader(title: 'Mastery per Topik'),
-            SizedBox(height: 10),
-            MasterySection(),
-            SizedBox(height: 24),
-            _SectionHeader(title: 'Aktivitas Terakhir'),
-            SizedBox(height: 10),
-            ActivityList(),
+          children: <Widget>[
+            ProfileHeader(isTeacher: isTeacher),
+            if (!isTeacher) ...[
+              const SizedBox(height: 16),
+              const StatCards(),
+              const SizedBox(height: 24),
+              const _SectionHeader(title: 'Badge'),
+              const SizedBox(height: 10),
+              const BadgeGrid(),
+              const SizedBox(height: 24),
+              const _SectionHeader(title: 'Achievement'),
+              const SizedBox(height: 10),
+              const AchievementList(),
+              const SizedBox(height: 24),
+              const _SectionHeader(title: 'Mastery per Topik'),
+              const SizedBox(height: 10),
+              const MasterySection(),
+              const SizedBox(height: 24),
+              const _SectionHeader(title: 'Aktivitas Terakhir'),
+              const SizedBox(height: 10),
+              const ActivityList(),
+            ] else ...[
+              const SizedBox(height: 16),
+              const _TeacherInfoCard(),
+            ],
           ],
         ),
       ),
@@ -105,6 +114,38 @@ class ProfileScreen extends ConsumerWidget {
         debugPrint('Profile refresh failed: $error');
       }
     }
+  }
+}
+
+class _TeacherInfoCard extends StatelessWidget {
+  const _TeacherInfoCard();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(KodiraSpacing.s4),
+      decoration: BoxDecoration(
+        color: KodiraColors.primary100,
+        borderRadius: BorderRadius.circular(KodiraRadius.md),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Anda Dosen',
+            style: KodiraTextStyles.h3.copyWith(color: KodiraColors.primary700),
+          ),
+          const SizedBox(height: KodiraSpacing.s2),
+          Text(
+            'Akses menu "Kelas Saya (Dosen)" di drawer untuk melihat daftar '
+            'kelas, roster mahasiswa, dan detail progress mereka.',
+            style: KodiraTextStyles.body.copyWith(
+              color: KodiraColors.neutral700,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
 

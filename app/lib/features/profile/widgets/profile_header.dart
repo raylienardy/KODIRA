@@ -9,7 +9,8 @@ import '../../home/providers/level_provider.dart';
 
 /// Bagian atas layar Profil: avatar, nama, NIM, gelar, dan jumlah badge.
 class ProfileHeader extends ConsumerWidget {
-  const ProfileHeader({super.key});
+  const ProfileHeader({super.key, this.isTeacher = false});
+  final bool isTeacher;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -102,63 +103,65 @@ class ProfileHeader extends ConsumerWidget {
               ),
             ),
           ),
-          const SizedBox(height: 12),
-          Semantics(
-            label: 'Badge terkumpul: $badgeCount',
-            child: ExcludeSemantics(
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 6,
-                ),
-                decoration: BoxDecoration(
-                  color: KodiraColors.primary100,
-                  borderRadius: BorderRadius.circular(KodiraRadius.full),
-                ),
-                child: Text(
-                  '🎖️ $badgeCount Badge',
-                  style: KodiraTextStyles.caption.copyWith(
-                    color: KodiraColors.primary900,
+          if (!isTeacher) ...[
+            const SizedBox(height: 12),
+            Semantics(
+              label: 'Badge terkumpul: $badgeCount',
+              child: ExcludeSemantics(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
+                  decoration: BoxDecoration(
+                    color: KodiraColors.primary100,
+                    borderRadius: BorderRadius.circular(KodiraRadius.full),
+                  ),
+                  child: Text(
+                    '🎖️ $badgeCount Badge',
+                    style: KodiraTextStyles.caption.copyWith(
+                      color: KodiraColors.primary900,
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
-          const SizedBox(height: 8),
-          // Gelar (title) user dari total XP, tampil sebagai chip.
-          Semantics(
-            label: 'Gelar: ${TitleLogic.label(title)}',
-            child: ExcludeSemantics(
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 6,
-                ),
-                decoration: BoxDecoration(
-                  color: KodiraColors.neutral0,
-                  borderRadius: BorderRadius.circular(KodiraRadius.full),
-                  border: Border.all(color: KodiraColors.neutral200),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      TitleLogic.emoji(title),
-                      style: const TextStyle(fontSize: 14),
-                    ),
-                    const SizedBox(width: 6),
-                    Text(
-                      TitleLogic.label(title),
-                      style: KodiraTextStyles.caption.copyWith(
-                        color: KodiraColors.primary700,
-                        fontWeight: FontWeight.w700,
+            const SizedBox(height: 8),
+            // Gelar (title) user dari total XP, tampil sebagai chip.
+            Semantics(
+              label: 'Gelar: ${TitleLogic.label(title)}',
+              child: ExcludeSemantics(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
+                  decoration: BoxDecoration(
+                    color: KodiraColors.neutral0,
+                    borderRadius: BorderRadius.circular(KodiraRadius.full),
+                    border: Border.all(color: KodiraColors.neutral200),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        TitleLogic.emoji(title),
+                        style: const TextStyle(fontSize: 14),
                       ),
-                    ),
-                  ],
+                      const SizedBox(width: 6),
+                      Text(
+                        TitleLogic.label(title),
+                        style: KodiraTextStyles.caption.copyWith(
+                          color: KodiraColors.primary700,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
-          ),
+          ],
         ],
       ),
     );
