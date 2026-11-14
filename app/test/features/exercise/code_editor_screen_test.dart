@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_code_editor/flutter_code_editor.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:highlight/languages/cpp.dart';
 import 'package:kodira/data/repositories/code_runner_repository.dart';
 import 'package:kodira/data/sources/remote/code_runner_source.dart';
 import 'package:kodira/features/exercise/providers/code_runner_provider.dart';
@@ -13,13 +15,18 @@ void main() {
 
   Future<void> pumpCodeEditor(
     WidgetTester tester,
-    CodeRunnerRepository repository,
-  ) async {
+    CodeRunnerRepository repository, {
+    CodeController? codeController,
+  }) async {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [codeRunnerRepositoryProvider.overrideWithValue(repository)],
-        child: const MaterialApp(
-          home: CodeEditorScreen(levelId: levelId, levelTitle: levelTitle),
+        child: MaterialApp(
+          home: CodeEditorScreen(
+            levelId: levelId,
+            levelTitle: levelTitle,
+            codeController: codeController,
+          ),
         ),
       ),
     );
@@ -95,17 +102,17 @@ void main() {
     });
 
     testWidgets('tombol Reset mengembalikan kode ke starter', (tester) async {
-      await pumpCodeEditor(tester, repository);
+      final codeController = CodeController(text: 'int x = 10;', language: cpp);
+
+      await pumpCodeEditor(tester, repository, codeController: codeController);
       await tester.pumpAndSettle();
 
-      final textField = find.byType(TextField);
-      await tester.enterText(textField, 'int x = 10;');
-      expect(find.text('int x = 10;'), findsOneWidget);
+      expect(codeController.text, 'int x = 10;');
 
       await tester.tap(find.text('Reset'));
       await tester.pumpAndSettle();
 
-      expect(find.textContaining('#include <iostream>'), findsOneWidget);
+      expect(codeController.text, contains('#include <iostream>'));
     });
   });
 }

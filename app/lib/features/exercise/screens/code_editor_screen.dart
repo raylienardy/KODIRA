@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_code_editor/flutter_code_editor.dart';
+import 'package:flutter_highlight/themes/monokai-sublime.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:highlight/languages/cpp.dart';
+import 'package:highlight/languages/java.dart';
 
 import '../../../app/theme.dart';
 import '../../../data/sources/remote/code_runner_source.dart';
@@ -9,10 +13,12 @@ import '../providers/code_runner_provider.dart';
 class CodeEditorScreen extends ConsumerStatefulWidget {
   final int levelId;
   final String levelTitle;
+  final CodeController? codeController;
 
   const CodeEditorScreen({
     required this.levelId,
     required this.levelTitle,
+    this.codeController,
     super.key,
   });
 
@@ -22,7 +28,7 @@ class CodeEditorScreen extends ConsumerStatefulWidget {
 
 class _CodeEditorScreenState extends ConsumerState<CodeEditorScreen> {
   String _selectedLanguage = 'cpp';
-  late TextEditingController _codeController;
+  late CodeController _codeController;
   CodeRunResult? _result;
   bool _isLoading = false;
   String? _errorMessage;
@@ -43,7 +49,9 @@ int main() {
   @override
   void initState() {
     super.initState();
-    _codeController = TextEditingController(text: _cppStarter);
+    _codeController =
+        widget.codeController ??
+        CodeController(text: _cppStarter, language: cpp);
   }
 
   @override
@@ -61,6 +69,7 @@ int main() {
 
     setState(() {
       _selectedLanguage = lang;
+      _codeController.language = lang == 'cpp' ? cpp : java;
       if (isCurrentStarter) {
         _codeController.text = lang == 'cpp' ? _cppStarter : _javaStarter;
       }
@@ -217,27 +226,21 @@ int main() {
                     // Editor Field
                     SizedBox(
                       height: 260,
-                      child: TextField(
-                        controller: _codeController,
-                        maxLines: null,
-                        expands: true,
-                        textAlignVertical: TextAlignVertical.top,
-                        style: const TextStyle(
-                          fontFamily: 'JetBrains Mono',
-                          fontSize: 13,
-                          color: Colors.white,
-                          height: 1.5,
+                      child: CodeTheme(
+                        data: CodeThemeData(styles: monokaiSublimeTheme),
+                        child: CodeField(
+                          controller: _codeController,
+                          textStyle: const TextStyle(
+                            fontFamily: 'JetBrains Mono',
+                            fontSize: 13,
+                            color: Colors.white,
+                            height: 1.5,
+                          ),
+                          gutterStyle: const GutterStyle(
+                            showLineNumbers: true,
+                            showErrors: false,
+                          ),
                         ),
-                        cursorColor: KodiraColors.primary500,
-                        decoration: const InputDecoration(
-                          contentPadding: EdgeInsets.all(16),
-                          border: InputBorder.none,
-                          hintText: 'Tulis kodemu di sini...',
-                          hintStyle: TextStyle(color: KodiraColors.neutral500),
-                        ),
-                        keyboardType: TextInputType.multiline,
-                        autocorrect: false,
-                        enableSuggestions: false,
                       ),
                     ),
                   ],
