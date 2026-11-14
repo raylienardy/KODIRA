@@ -226,8 +226,20 @@ void main() {
     await tester.tap(find.text('Daftar'));
     await tester.pump();
 
-    expect(find.text('NIM harus 13 digit angka'), findsOneWidget);
+    expect(find.text('NIM harus 12 atau 13 digit angka'), findsOneWidget);
     expect(fakeAuth.signUpCalled, isFalse);
+  });
+
+  testWidgets('validationValidNim12Digits', (tester) async {
+    setViewport(tester);
+    await tester.pumpWidget(createTestWidget());
+    await tester.pumpAndSettle();
+
+    await fillForm(tester, nim: '240209501014');
+    await tester.tap(find.text('Daftar'));
+    await tester.pumpAndSettle();
+
+    expect(fakeAuth.signUpCalled, isTrue);
   });
 
   testWidgets('validationEmptyNama', (tester) async {

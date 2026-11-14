@@ -6,12 +6,12 @@
 class AuthLogic {
   const AuthLogic._();
 
-  /// NIM mahasiswa terdiri atas 13 digit angka, contoh `2402095010141`.
+  /// NIM mahasiswa terdiri atas 12 atau 13 digit angka.
   ///
   /// Helper ini tersedia untuk validasi di sisi UI. Saat ini belum dipasang
   /// ke alur login supaya perilaku produksi tidak berubah.
   static bool isValidNim(String nim) {
-    return RegExp(r'^\d{13}$').hasMatch(nim);
+    return RegExp(r'^\d{12,13}$').hasMatch(nim);
   }
 
   /// NIDN dosen terdiri atas 10 digit angka, contoh `0012345678`.
@@ -23,7 +23,7 @@ class AuthLogic {
   }
 
   /// Validasi identifier registrasi berdasar peran.
-  /// Mahasiswa butuh NIM 13 digit, dosen butuh NIDN 10 digit.
+  /// Mahasiswa butuh NIM 12-13 digit, dosen butuh NIDN 10 digit.
   static bool isValidIdentifier(String value, {required String role}) {
     if (role == 'teacher') return isValidNidn(value);
     return isValidNim(value);

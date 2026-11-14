@@ -144,15 +144,15 @@ class AuthRepository implements IAuthRepository {
   }) async {
     final String email = AuthLogic.nimToEmail(nim);
 
-    // 1b. Validasi identifier: NIM (13 digit) untuk mahasiswa,
+    // 1b. Validasi identifier: NIM (12-13 digit) untuk mahasiswa,
     //     NIDN (10 digit) untuk dosen.
     final bool isTeacher = role == 'teacher';
     if (isTeacher) {
       if (!RegExp(r'^\d{10}$').hasMatch(nim)) {
         throw const supa.AuthException('NIDN harus 10 digit angka');
       }
-    } else if (!RegExp(r'^\d{13}$').hasMatch(nim)) {
-      throw const supa.AuthException('NIM harus 13 digit angka');
+    } else if (!RegExp(r'^\d{12,13}$').hasMatch(nim)) {
+      throw const supa.AuthException('NIM harus 12 atau 13 digit angka');
     }
 
     // 2. Check NIM duplicate (client-side quick check)

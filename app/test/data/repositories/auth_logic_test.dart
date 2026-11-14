@@ -11,8 +11,8 @@ void main() {
       expect(AuthLogic.isValidNim('0123456789012'), isTrue);
     });
 
-    test('NIM 12 digit tidak valid', () {
-      expect(AuthLogic.isValidNim('240209501014'), isFalse);
+    test('NIM 12 digit valid', () {
+      expect(AuthLogic.isValidNim('240209501014'), isTrue);
     });
 
     test('NIM 14 digit tidak valid', () {

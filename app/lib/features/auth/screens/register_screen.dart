@@ -284,7 +284,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                             )) {
                               return _role == 'teacher'
                                   ? 'NIDN harus 10 digit angka'
-                                  : 'NIM harus 13 digit angka';
+                                  : 'NIM harus 12 atau 13 digit angka';
                             }
                             return null;
                           },
