@@ -3,9 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/theme.dart';
 import '../../../data/logic/title_logic.dart';
+import '../../../data/models/my_class_model.dart';
 import '../../../data/models/teacher_class_entry.dart';
 import '../../../data/repositories/leaderboard_repository.dart';
 import '../../auth/providers/auth_provider.dart';
+import '../../class/providers/class_provider.dart';
 import '../../teacher/providers/teacher_provider.dart';
 import '../providers/leaderboard_provider.dart';
 
@@ -101,7 +103,8 @@ class _GlobalLeaderboardTab extends ConsumerWidget {
 
 /// Tab "Kelas Saya": leaderboard yang difilter berdasarkan kelas user aktif.
 ///
-/// - Mahasiswa: memakai `primary_class_id` user (`currentUserClassIdProvider`).
+/// - Mahasiswa: memakai daftar kelas yang diikuti (`myClassesProvider`)
+///   dengan pemilih kelas bila > 1 kelas (default: kelas primary).
 ///   Fallback: jika belum punya kelas, tampilkan pesan
 ///   "Kamu belum terdaftar di kelas manapun" dengan tombol "Muat Ulang".
 /// - Dosen: memakai daftar kelas yang diajar (`teacherClassesProvider`).
@@ -118,32 +121,55 @@ class _ClassLeaderboardTab extends ConsumerWidget {
       return _buildTeacherClassTab(ref);
     }
 
-    final classIdAsync = ref.watch(currentUserClassIdProvider);
+    return _buildStudentClassTab(ref);
+  }
 
-    return classIdAsync.when(
+  /// Cabang mahasiswa: daftar kelas yang diikuti + pemilih kelas bila > 1.
+  Widget _buildStudentClassTab(WidgetRef ref) {
+    final classesAsync = ref.watch(myClassesProvider);
+
+    return classesAsync.when(
       loading: () => const Center(
         child: CircularProgressIndicator(color: KodiraColors.primary700),
       ),
       error: (error, stack) => _ClassTabMessage(
         message: 'Gagal memuat data kelas. Silakan coba lagi.',
         isAlert: true,
-        onRefresh: () => ref.invalidate(currentUserClassIdProvider),
+        onRefresh: () => ref.invalidate(myClassesProvider),
       ),
-      data: (String? classId) {
-        if (classId == null) {
+      data: (List<MyClass> classes) {
+        if (classes.isEmpty) {
           return _ClassTabMessage(
             message: 'Kamu belum terdaftar di kelas manapun',
-            onRefresh: () => ref.invalidate(currentUserClassIdProvider),
+            onRefresh: () => ref.invalidate(myClassesProvider),
           );
         }
 
-        return _ClassLeaderboardBody(
-          classId: classId,
-          onRefresh: () async {
-            ref.invalidate(currentUserClassIdProvider);
-            ref.invalidate(top10ByClassProvider(classId));
-            ref.invalidate(myRankByClassProvider(classId));
-          },
+        final String? selectedId = ref.watch(selectedStudentClassIdProvider);
+        final MyClass selected = classes.firstWhere(
+          (MyClass c) => c.id == selectedId,
+          orElse: () => classes.firstWhere(
+            (MyClass c) => c.isPrimary,
+            orElse: () => classes.first,
+          ),
+        );
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            if (classes.length > 1)
+              _ClassPickerStudent(classes: classes, selected: selected),
+            Expanded(
+              child: _ClassLeaderboardBody(
+                classId: selected.id,
+                onRefresh: () async {
+                  ref.invalidate(myClassesProvider);
+                  ref.invalidate(top10ByClassProvider(selected.id));
+                  ref.invalidate(myRankByClassProvider(selected.id));
+                },
+              ),
+            ),
+          ],
         );
       },
     );
@@ -330,6 +356,74 @@ class _ClassPicker extends ConsumerWidget {
                   showCheckmark: false,
                   onSelected: (_) {
                     ref.read(selectedTeacherClassIdProvider.notifier).state =
+                        c.id;
+                  },
+                  selectedColor: KodiraColors.primary100,
+                  side: BorderSide(
+                    color: isSelected
+                        ? KodiraColors.primary700
+                        : KodiraColors.neutral200,
+                  ),
+                  labelStyle: KodiraTextStyles.caption.copyWith(
+                    fontFamily: 'Inter',
+                    fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
+                    color: isSelected
+                        ? KodiraColors.primary700
+                        : KodiraColors.neutral700,
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Pemilih kelas horizontal untuk mahasiswa yang mengikuti > 1 kelas.
+class _ClassPickerStudent extends ConsumerWidget {
+  final List<MyClass> classes;
+  final MyClass selected;
+
+  const _ClassPickerStudent({required this.classes, required this.selected});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+        KodiraSpacing.s4,
+        KodiraSpacing.s4,
+        KodiraSpacing.s4,
+        0,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Kelas: ${selected.name}',
+            style: KodiraTextStyles.caption.copyWith(
+              color: KodiraColors.neutral500,
+              fontFamily: 'Inter',
+            ),
+          ),
+          const SizedBox(height: KodiraSpacing.s2),
+          SizedBox(
+            height: 40,
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              itemCount: classes.length,
+              separatorBuilder: (_, _) =>
+                  const SizedBox(width: KodiraSpacing.s2),
+              itemBuilder: (BuildContext context, int index) {
+                final MyClass c = classes[index];
+                final bool isSelected = c.id == selected.id;
+                return ChoiceChip(
+                  label: Text(c.name),
+                  selected: isSelected,
+                  showCheckmark: false,
+                  onSelected: (_) {
+                    ref.read(selectedStudentClassIdProvider.notifier).state =
                         c.id;
                   },
                   selectedColor: KodiraColors.primary100,

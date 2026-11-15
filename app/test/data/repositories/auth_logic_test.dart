@@ -3,12 +3,12 @@ import 'package:kodira/data/repositories/auth_logic.dart';
 
 void main() {
   group('AuthLogic.isValidNim', () {
-    test('NIM 13 digit dianggap valid', () {
-      expect(AuthLogic.isValidNim('2402095010141'), isTrue);
+    test('NIM 13 digit dianggap tidak valid', () {
+      expect(AuthLogic.isValidNim('2402095010141'), isFalse);
     });
 
-    test('NIM 13 digit dengan nol di depan valid', () {
-      expect(AuthLogic.isValidNim('0123456789012'), isTrue);
+    test('NIM 13 digit dengan nol di depan tidak valid', () {
+      expect(AuthLogic.isValidNim('0123456789012'), isFalse);
     });
 
     test('NIM 12 digit valid', () {

@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:kodira/data/models/my_class_model.dart';
 import 'package:kodira/data/models/user_model.dart';
 import 'package:kodira/data/repositories/i_auth_repository.dart';
 import 'package:kodira/data/repositories/leaderboard_repository.dart';
 import 'package:kodira/features/auth/providers/auth_provider.dart';
+import 'package:kodira/features/class/providers/class_provider.dart';
 import 'package:kodira/features/leaderboard/providers/leaderboard_provider.dart';
 import 'package:kodira/features/leaderboard/screens/leaderboard_screen.dart';
 
@@ -234,7 +236,7 @@ void main() {
               (ref) async => <LeaderboardEntry>[],
             ),
             myRankProvider.overrideWith((ref) async => null),
-            currentUserClassIdProvider.overrideWith((ref) async => null),
+            myClassesProvider.overrideWith((ref) async => <MyClass>[]),
             authRepositoryProvider.overrideWithValue(
               _FakeAuthRepository(studentUser),
             ),
@@ -316,7 +318,17 @@ void main() {
               (ref) async => <LeaderboardEntry>[],
             ),
             myRankProvider.overrideWith((ref) async => null),
-            currentUserClassIdProvider.overrideWith((ref) async => classId),
+            myClassesProvider.overrideWith(
+              (ref) async => <MyClass>[
+                MyClass(
+                  id: classId,
+                  name: 'PTIK B 2024',
+                  code: 'PTIK24',
+                  isPrimary: true,
+                  enrolledAt: DateTime(2026, 1, 1),
+                ),
+              ],
+            ),
             top10ByClassProvider.overrideWith((ref, String cid) async {
               expect(cid, classId);
               return entries;
@@ -355,6 +367,72 @@ void main() {
       // Personal rank card within the class.
       expect(find.text('Peringkat Anda'), findsOneWidget);
       expect(find.text('#6 \u2022 Saya'), findsOneWidget);
+    });
+
+    testWidgets('classTab_studentClassPicker_showsWhenMultipleClasses', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: <Override>[
+            top10LeaderboardProvider.overrideWith(
+              (ref) async => <LeaderboardEntry>[],
+            ),
+            myRankProvider.overrideWith((ref) async => null),
+            myClassesProvider.overrideWith(
+              (ref) async => <MyClass>[
+                MyClass(
+                  id: 'c1',
+                  name: 'PTIK B 2024',
+                  code: 'PTIK24',
+                  isPrimary: true,
+                  enrolledAt: DateTime(2026, 1, 1),
+                ),
+                MyClass(
+                  id: 'c2',
+                  name: 'Pemrograman Dasar',
+                  code: 'PRODAS',
+                  isPrimary: false,
+                  enrolledAt: DateTime(2026, 2, 1),
+                ),
+              ],
+            ),
+            top10ByClassProvider.overrideWith(
+              (ref, String cid) async => <LeaderboardEntry>[],
+            ),
+            myRankByClassProvider.overrideWith((ref, String cid) async => null),
+            authRepositoryProvider.overrideWithValue(
+              _FakeAuthRepository(studentUser),
+            ),
+            authStateProvider.overrideWith((ref) {
+              final AuthNotifier notifier = AuthNotifier(
+                ref.watch(authRepositoryProvider),
+                ref,
+              );
+              notifier.restoreSession(studentUser);
+              return notifier;
+            }),
+          ],
+          child: const MaterialApp(home: LeaderboardScreen()),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Kelas Saya'));
+      await tester.pumpAndSettle();
+
+      // Picker shows both enrolled classes as chips.
+      expect(find.byType(ChoiceChip), findsNWidgets(2));
+      expect(find.text('PTIK B 2024'), findsOneWidget);
+      expect(find.text('Pemrograman Dasar'), findsOneWidget);
+      // Primary class is selected by default.
+      expect(find.text('Kelas: PTIK B 2024'), findsOneWidget);
+
+      // Tapping the other chip switches the selected class label.
+      await tester.tap(find.text('Pemrograman Dasar'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Kelas: Pemrograman Dasar'), findsOneWidget);
     });
   });
 }

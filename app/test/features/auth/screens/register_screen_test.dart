@@ -20,9 +20,9 @@ class _FakeAuthRepository implements IAuthRepository {
 
   final UserModel user = UserModel(
     id: 'user-new',
-    nim: '2402095010999',
+    nim: '240209501014',
     name: 'Mahasiswa Baru',
-    email: 'nim_2402095010999@kodira.local',
+    email: 'nim_240209501014@kodira.local',
     createdAt: DateTime(2026, 11, 10),
   );
 
@@ -168,7 +168,7 @@ void main() {
 
   Future<void> fillForm(
     WidgetTester tester, {
-    String nim = '2402095010999',
+    String nim = '240209501014',
     String name = 'Mahasiswa Baru',
     String password = 'rahasia123',
     String? confirm,
@@ -226,7 +226,20 @@ void main() {
     await tester.tap(find.text('Daftar'));
     await tester.pump();
 
-    expect(find.text('NIM harus 12 atau 13 digit angka'), findsOneWidget);
+    expect(find.text('NIM harus 12 digit angka'), findsOneWidget);
+    expect(fakeAuth.signUpCalled, isFalse);
+  });
+
+  testWidgets('validationInvalidNim13Digits', (tester) async {
+    setViewport(tester);
+    await tester.pumpWidget(createTestWidget());
+    await tester.pumpAndSettle();
+
+    await fillForm(tester, nim: '2402095010141');
+    await tester.tap(find.text('Daftar'));
+    await tester.pump();
+
+    expect(find.text('NIM harus 12 digit angka'), findsOneWidget);
     expect(fakeAuth.signUpCalled, isFalse);
   });
 
@@ -290,7 +303,7 @@ void main() {
     await submit(tester);
 
     expect(fakeAuth.signUpCalled, isTrue);
-    expect(fakeAuth.lastNim, '2402095010999');
+    expect(fakeAuth.lastNim, '240209501014');
     expect(fakeAuth.lastName, 'Mahasiswa Baru');
     expect(find.text('Home Page'), findsOneWidget);
   });
