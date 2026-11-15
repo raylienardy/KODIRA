@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:kodira/data/models/user_model.dart';
+import 'package:kodira/data/repositories/i_auth_repository.dart';
 import 'package:kodira/data/repositories/leaderboard_repository.dart';
+import 'package:kodira/features/auth/providers/auth_provider.dart';
 import 'package:kodira/features/leaderboard/providers/leaderboard_provider.dart';
 import 'package:kodira/features/leaderboard/screens/leaderboard_screen.dart';
 
@@ -17,7 +20,61 @@ List<LeaderboardEntry> buildEntries(int n) => List.generate(
   ),
 );
 
+class _FakeAuthRepository implements IAuthRepository {
+  _FakeAuthRepository(this.user);
+
+  final UserModel user;
+  int signOutCalls = 0;
+
+  @override
+  Future<UserModel?> getCurrentUser() async => user;
+
+  @override
+  Future<UserModel> signInWithNim({
+    required String nim,
+    required String password,
+  }) async => user;
+
+  @override
+  Future<UserModel> signUpWithNim({
+    required String nim,
+    required String name,
+    required String password,
+    String role = 'student',
+  }) async => user;
+
+  @override
+  Future<void> signOut() async {
+    signOutCalls += 1;
+  }
+
+  @override
+  Stream<bool> authStateChanges() => const Stream<bool>.empty();
+
+  @override
+  Future<void> updatePassword({
+    required String nim,
+    required String oldPassword,
+    required String newPassword,
+  }) async {
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> updateProfile({required String name}) async {
+    throw UnimplementedError();
+  }
+}
+
 void main() {
+  final studentUser = UserModel(
+    id: 'u1',
+    nim: '2402095010001',
+    name: 'Student 1',
+    role: 'student',
+    createdAt: DateTime(2026, 1, 1),
+  );
+
   group('LeaderboardScreen Tests (#7)', () {
     testWidgets('Top10QueryExecution renders exactly 10 ranked entries', (
       tester,
@@ -178,6 +235,17 @@ void main() {
             ),
             myRankProvider.overrideWith((ref) async => null),
             currentUserClassIdProvider.overrideWith((ref) async => null),
+            authRepositoryProvider.overrideWithValue(
+              _FakeAuthRepository(studentUser),
+            ),
+            authStateProvider.overrideWith((ref) {
+              final AuthNotifier notifier = AuthNotifier(
+                ref.watch(authRepositoryProvider),
+                ref,
+              );
+              notifier.restoreSession(studentUser);
+              return notifier;
+            }),
           ],
           child: const MaterialApp(home: LeaderboardScreen()),
         ),
@@ -256,6 +324,17 @@ void main() {
             myRankByClassProvider.overrideWith((ref, String cid) async {
               expect(cid, classId);
               return myRank;
+            }),
+            authRepositoryProvider.overrideWithValue(
+              _FakeAuthRepository(studentUser),
+            ),
+            authStateProvider.overrideWith((ref) {
+              final AuthNotifier notifier = AuthNotifier(
+                ref.watch(authRepositoryProvider),
+                ref,
+              );
+              notifier.restoreSession(studentUser);
+              return notifier;
             }),
           ],
           child: const MaterialApp(home: LeaderboardScreen()),

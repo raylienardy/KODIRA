@@ -26,6 +26,9 @@ final currentUserClassIdProvider = FutureProvider<String?>((ref) async {
   return response?['primary_class_id'] as String?;
 });
 
+/// Kelas terpilih pada tab "Kelas Saya" untuk dosen (null = kelas pertama).
+final selectedTeacherClassIdProvider = StateProvider<String?>((ref) => null);
+
 /// Top 10 per class.
 final top10ByClassProvider =
     FutureProvider.family<List<LeaderboardEntry>, String>((ref, classId) async {

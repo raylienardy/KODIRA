@@ -3,7 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/theme.dart';
 import '../../../data/logic/title_logic.dart';
+import '../../../data/models/teacher_class_entry.dart';
 import '../../../data/repositories/leaderboard_repository.dart';
+import '../../auth/providers/auth_provider.dart';
+import '../../teacher/providers/teacher_provider.dart';
 import '../providers/leaderboard_provider.dart';
 
 /// Halaman Leaderboard KODIRA dengan 2 tab (#7-perclass):
@@ -98,101 +101,256 @@ class _GlobalLeaderboardTab extends ConsumerWidget {
 
 /// Tab "Kelas Saya": leaderboard yang difilter berdasarkan kelas user aktif.
 ///
-/// Fallback: jika user belum punya `primary_class_id`, tampilkan pesan
-/// "Kamu belum terdaftar di kelas manapun" dengan tombol "Muat Ulang".
+/// - Mahasiswa: memakai `primary_class_id` user (`currentUserClassIdProvider`).
+///   Fallback: jika belum punya kelas, tampilkan pesan
+///   "Kamu belum terdaftar di kelas manapun" dengan tombol "Muat Ulang".
+/// - Dosen: memakai daftar kelas yang diajar (`teacherClassesProvider`).
+///   Dosen tidak punya `primary_class_id`, jadi tanpa cabang peran ini tab
+///   selalu menampilkan "belum terdaftar di kelas manapun".
 class _ClassLeaderboardTab extends ConsumerWidget {
   const _ClassLeaderboardTab();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final bool isTeacher = ref.watch(authStateProvider).user?.role == 'teacher';
+
+    if (isTeacher) {
+      return _buildTeacherClassTab(ref);
+    }
+
     final classIdAsync = ref.watch(currentUserClassIdProvider);
 
     return classIdAsync.when(
       loading: () => const Center(
         child: CircularProgressIndicator(color: KodiraColors.primary700),
       ),
-      error: (error, stack) => Center(
-        child: Padding(
-          padding: const EdgeInsets.all(KodiraSpacing.s6),
-          child: Text(
-            'Gagal memuat data kelas. Silakan coba lagi.',
-            textAlign: TextAlign.center,
-            style: KodiraTextStyles.body.copyWith(color: KodiraColors.alert700),
-          ),
-        ),
+      error: (error, stack) => _ClassTabMessage(
+        message: 'Gagal memuat data kelas. Silakan coba lagi.',
+        isAlert: true,
+        onRefresh: () => ref.invalidate(currentUserClassIdProvider),
       ),
       data: (String? classId) {
         if (classId == null) {
-          return Center(
-            child: Padding(
-              padding: const EdgeInsets.all(KodiraSpacing.s6),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(
-                    Icons.groups_2_outlined,
-                    size: 48,
-                    color: KodiraColors.neutral300,
-                  ),
-                  const SizedBox(height: KodiraSpacing.s3),
-                  Text(
-                    'Kamu belum terdaftar di kelas manapun',
-                    textAlign: TextAlign.center,
-                    style: KodiraTextStyles.body.copyWith(
-                      color: KodiraColors.neutral500,
-                    ),
-                  ),
-                  const SizedBox(height: KodiraSpacing.s4),
-                  OutlinedButton.icon(
-                    onPressed: () => ref.invalidate(currentUserClassIdProvider),
-                    icon: const Icon(Icons.refresh, size: 18),
-                    label: const Text('Muat Ulang'),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: KodiraColors.primary700,
-                      side: const BorderSide(color: KodiraColors.primary700),
-                      textStyle: const TextStyle(
-                        fontFamily: 'Inter',
-                        fontSize: 13,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+          return _ClassTabMessage(
+            message: 'Kamu belum terdaftar di kelas manapun',
+            onRefresh: () => ref.invalidate(currentUserClassIdProvider),
           );
         }
 
-        final top10Async = ref.watch(top10ByClassProvider(classId));
-        final myRankAsync = ref.watch(myRankByClassProvider(classId));
+        return _ClassLeaderboardBody(
+          classId: classId,
+          onRefresh: () async {
+            ref.invalidate(currentUserClassIdProvider);
+            ref.invalidate(top10ByClassProvider(classId));
+            ref.invalidate(myRankByClassProvider(classId));
+          },
+        );
+      },
+    );
+  }
 
-        return top10Async.when(
-          loading: () => const Center(
-            child: CircularProgressIndicator(color: KodiraColors.primary700),
-          ),
-          error: (error, stack) => Center(
-            child: Padding(
-              padding: const EdgeInsets.all(KodiraSpacing.s6),
-              child: Text(
-                'Gagal memuat data leaderboard. Silakan coba lagi.',
-                textAlign: TextAlign.center,
-                style: KodiraTextStyles.body.copyWith(
-                  color: KodiraColors.alert700,
+  /// Cabang dosen: daftar kelas yang diajar + pemilih kelas bila > 1 kelas.
+  Widget _buildTeacherClassTab(WidgetRef ref) {
+    final classesAsync = ref.watch(teacherClassesProvider);
+
+    return classesAsync.when(
+      loading: () => const Center(
+        child: CircularProgressIndicator(color: KodiraColors.primary700),
+      ),
+      error: (error, stack) => _ClassTabMessage(
+        message: 'Gagal memuat data kelas. Silakan coba lagi.',
+        isAlert: true,
+        onRefresh: () => ref.invalidate(teacherClassesProvider),
+      ),
+      data: (List<TeacherClassEntry> classes) {
+        if (classes.isEmpty) {
+          return _ClassTabMessage(
+            message:
+                'Anda belum punya kelas. Buat kelas dulu lewat menu '
+                '"Buat Kelas".',
+            onRefresh: () => ref.invalidate(teacherClassesProvider),
+          );
+        }
+
+        final String? selectedId = ref.watch(selectedTeacherClassIdProvider);
+        final TeacherClassEntry selected = classes.firstWhere(
+          (TeacherClassEntry c) => c.id == selectedId,
+          orElse: () => classes.first,
+        );
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            if (classes.length > 1)
+              _ClassPicker(classes: classes, selected: selected),
+            Expanded(
+              child: _ClassLeaderboardBody(
+                classId: selected.id,
+                onRefresh: () async {
+                  ref.invalidate(teacherClassesProvider);
+                  ref.invalidate(top10ByClassProvider(selected.id));
+                  ref.invalidate(myRankByClassProvider(selected.id));
+                },
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+/// Isi leaderboard untuk satu kelas (dipakai mahasiswa & dosen).
+class _ClassLeaderboardBody extends ConsumerWidget {
+  final String classId;
+  final Future<void> Function() onRefresh;
+
+  const _ClassLeaderboardBody({required this.classId, required this.onRefresh});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final top10Async = ref.watch(top10ByClassProvider(classId));
+    final myRankAsync = ref.watch(myRankByClassProvider(classId));
+
+    return top10Async.when(
+      loading: () => const Center(
+        child: CircularProgressIndicator(color: KodiraColors.primary700),
+      ),
+      error: (error, stack) => _ClassTabMessage(
+        message: 'Gagal memuat data leaderboard. Silakan coba lagi.',
+        isAlert: true,
+        onRefresh: onRefresh,
+      ),
+      data: (entries) => _LeaderboardContent(
+        entries: entries,
+        myRankAsync: myRankAsync,
+        onRefresh: onRefresh,
+      ),
+    );
+  }
+}
+
+/// Pusat pesan tab kelas: ikon + pesan + tombol "Muat Ulang".
+class _ClassTabMessage extends StatelessWidget {
+  final String message;
+  final bool isAlert;
+  final VoidCallback onRefresh;
+
+  const _ClassTabMessage({
+    required this.message,
+    required this.onRefresh,
+    this.isAlert = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(KodiraSpacing.s6),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              isAlert ? Icons.error_outline : Icons.groups_2_outlined,
+              size: 48,
+              color: isAlert ? KodiraColors.alert700 : KodiraColors.neutral300,
+            ),
+            const SizedBox(height: KodiraSpacing.s3),
+            Text(
+              message,
+              textAlign: TextAlign.center,
+              style: KodiraTextStyles.body.copyWith(
+                color: isAlert
+                    ? KodiraColors.alert700
+                    : KodiraColors.neutral500,
+              ),
+            ),
+            const SizedBox(height: KodiraSpacing.s4),
+            OutlinedButton.icon(
+              onPressed: onRefresh,
+              icon: const Icon(Icons.refresh, size: 18),
+              label: const Text('Muat Ulang'),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: KodiraColors.primary700,
+                side: const BorderSide(color: KodiraColors.primary700),
+                textStyle: const TextStyle(
+                  fontFamily: 'Inter',
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
             ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Pemilih kelas horizontal untuk dosen yang mengampu > 1 kelas.
+class _ClassPicker extends ConsumerWidget {
+  final List<TeacherClassEntry> classes;
+  final TeacherClassEntry selected;
+
+  const _ClassPicker({required this.classes, required this.selected});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+        KodiraSpacing.s4,
+        KodiraSpacing.s4,
+        KodiraSpacing.s4,
+        0,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Kelas: ${selected.name}',
+            style: KodiraTextStyles.caption.copyWith(
+              color: KodiraColors.neutral500,
+              fontFamily: 'Inter',
+            ),
           ),
-          data: (entries) => _LeaderboardContent(
-            entries: entries,
-            myRankAsync: myRankAsync,
-            onRefresh: () async {
-              ref.invalidate(currentUserClassIdProvider);
-              ref.invalidate(top10ByClassProvider(classId));
-              ref.invalidate(myRankByClassProvider(classId));
-            },
+          const SizedBox(height: KodiraSpacing.s2),
+          SizedBox(
+            height: 40,
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              itemCount: classes.length,
+              separatorBuilder: (_, _) =>
+                  const SizedBox(width: KodiraSpacing.s2),
+              itemBuilder: (BuildContext context, int index) {
+                final TeacherClassEntry c = classes[index];
+                final bool isSelected = c.id == selected.id;
+                return ChoiceChip(
+                  label: Text(c.name),
+                  selected: isSelected,
+                  showCheckmark: false,
+                  onSelected: (_) {
+                    ref.read(selectedTeacherClassIdProvider.notifier).state =
+                        c.id;
+                  },
+                  selectedColor: KodiraColors.primary100,
+                  side: BorderSide(
+                    color: isSelected
+                        ? KodiraColors.primary700
+                        : KodiraColors.neutral200,
+                  ),
+                  labelStyle: KodiraTextStyles.caption.copyWith(
+                    fontFamily: 'Inter',
+                    fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
+                    color: isSelected
+                        ? KodiraColors.primary700
+                        : KodiraColors.neutral700,
+                  ),
+                );
+              },
+            ),
           ),
-        );
-      },
+        ],
+      ),
     );
   }
 }
