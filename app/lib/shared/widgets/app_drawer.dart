@@ -41,11 +41,12 @@ class AppDrawer extends ConsumerWidget {
                       label: 'Ganti Password',
                       onTap: () => _navigate(context, '/change-password'),
                     ),
-                    _DrawerItem(
-                      icon: Icons.school_outlined,
-                      label: 'Ganti Kelas',
-                      onTap: () => _navigate(context, '/join-class'),
-                    ),
+                    if (!isTeacher)
+                      _DrawerItem(
+                        icon: Icons.school_outlined,
+                        label: 'Ganti Kelas',
+                        onTap: () => _navigate(context, '/join-class'),
+                      ),
                     if (isTeacher)
                       _DrawerItem(
                         icon: Icons.add_box_outlined,

@@ -193,7 +193,7 @@ void main() {
     await _openDrawer(tester);
 
     expect(find.text('Buat Kelas'), findsOneWidget);
-    expect(find.text('Ganti Kelas'), findsOneWidget);
+    expect(find.text('Ganti Kelas'), findsNothing);
 
     await tester.tap(find.text('Buat Kelas'));
     await tester.pumpAndSettle();

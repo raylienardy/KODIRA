@@ -128,11 +128,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   ),
                   const SizedBox(height: 40),
 
-                  // NIM
+                  // NIM / NIDN
                   const Align(
                     alignment: Alignment.centerLeft,
                     child: Text(
-                      'NIM',
+                      'NIM / NIDN',
                       style: TextStyle(
                         fontFamily: 'Inter',
                         fontSize: 11,
@@ -149,7 +149,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     enableSuggestions: false,
                     style: const TextStyle(fontSize: 13, color: Colors.white),
                     decoration: InputDecoration(
-                      hintText: 'Masukkan NIM Anda',
+                      hintText: 'Masukkan NIM (mahasiswa) atau NIDN (dosen)',
                       hintStyle: TextStyle(
                         fontSize: 13,
                         color: Colors.white.withValues(alpha: 0.5),
