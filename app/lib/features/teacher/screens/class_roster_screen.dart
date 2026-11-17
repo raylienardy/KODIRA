@@ -73,39 +73,55 @@ class _ClassRosterScreenState extends ConsumerState<ClassRosterScreen> {
           ),
           data: (roster) {
             if (roster.isEmpty) {
-              return SingleChildScrollView(
-                physics: const AlwaysScrollableScrollPhysics(),
-                child: SizedBox(
-                  height: MediaQuery.of(context).size.height * 0.6,
-                  child: Container(
-                    margin: const EdgeInsets.all(KodiraSpacing.s4),
-                    padding: const EdgeInsets.all(KodiraSpacing.s6),
-                    decoration: BoxDecoration(
-                      color: KodiraColors.neutral0,
-                      borderRadius: BorderRadius.circular(KodiraRadius.md),
-                    ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          'Belum ada mahasiswa di kelas ini',
-                          textAlign: TextAlign.center,
-                          style: KodiraTextStyles.body.copyWith(
-                            color: KodiraColors.neutral500,
+              return LayoutBuilder(
+                builder: (context, constraints) {
+                  return SingleChildScrollView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(
+                        minHeight: constraints.maxHeight,
+                      ),
+                      child: Center(
+                        child: Padding(
+                          padding: const EdgeInsets.all(KodiraSpacing.s4),
+                          child: Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.symmetric(
+                              vertical: KodiraSpacing.s6,
+                              horizontal: KodiraSpacing.s4,
+                            ),
+                            decoration: BoxDecoration(
+                              color: KodiraColors.neutral0,
+                              borderRadius: BorderRadius.circular(
+                                KodiraRadius.md,
+                              ),
+                            ),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  'Belum ada mahasiswa di kelas ini',
+                                  textAlign: TextAlign.center,
+                                  style: KodiraTextStyles.body.copyWith(
+                                    color: KodiraColors.neutral500,
+                                  ),
+                                ),
+                                const SizedBox(height: KodiraSpacing.s2),
+                                Text(
+                                  'Tarik ke bawah untuk memuat ulang',
+                                  textAlign: TextAlign.center,
+                                  style: KodiraTextStyles.caption.copyWith(
+                                    color: KodiraColors.neutral300,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
-                        const SizedBox(height: KodiraSpacing.s2),
-                        Text(
-                          'Tarik ke bawah untuk memuat ulang',
-                          textAlign: TextAlign.center,
-                          style: KodiraTextStyles.caption.copyWith(
-                            color: KodiraColors.neutral300,
-                          ),
-                        ),
-                      ],
+                      ),
                     ),
-                  ),
-                ),
+                  );
+                },
               );
             }
 
