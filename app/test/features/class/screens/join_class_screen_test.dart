@@ -167,12 +167,18 @@ void main() {
 
     expect(find.text('PTIK B 2024'), findsOneWidget);
     expect(find.text('PTIK A 2024'), findsOneWidget);
-    expect(find.text('Primary'), findsOneWidget);
     expect(find.text('Kode: PTIK24'), findsOneWidget);
-    expect(find.text('Set Primary'), findsOneWidget);
+    // Peer review: primary/set-primary UI dihapus — cukup list kelas.
+    expect(find.text('Primary'), findsNothing);
+    expect(find.text('Set Primary'), findsNothing);
+    expect(find.byType(OutlinedButton), findsNothing);
+    expect(find.byIcon(Icons.star), findsNothing);
+    expect(find.byIcon(Icons.school_outlined), findsNWidgets(2));
   });
 
-  testWidgets('setPrimaryUpdatesClass', (tester) async {
+  testWidgets('classListShowsNoPrimaryUi', (tester) async {
+    // Peer review 17 Nov: UI "Set Primary" / badge "Primary" / bintang
+    // dihapus — daftar kelas cukup menampilkan nama + kode saja.
     await tester.pumpWidget(
       createTestWidget(
         classes: <MyClass>[
@@ -182,18 +188,28 @@ void main() {
             code: 'PTIK24',
             isPrimary: true,
           ),
-          _buildClass(id: 'c2', name: 'PTIK A 2024', code: 'PTIKA1'),
+          _buildClass(
+            id: 'c2',
+            name: 'PTIK A 2024',
+            code: 'PTIKA1',
+            isPrimary: false,
+          ),
         ],
       ),
     );
     await tester.pumpAndSettle();
 
-    await tester.tap(find.widgetWithText(OutlinedButton, 'Set Primary'));
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 400));
-
-    expect(fakeRepo.setPrimaryCalls, 1);
-    expect(fakeRepo.lastPrimaryClassId, 'c2');
-    expect(find.text('PTIK A 2024 dijadikan kelas utama'), findsOneWidget);
+    expect(find.text('PTIK B 2024'), findsOneWidget);
+    expect(find.text('PTIK A 2024'), findsOneWidget);
+    expect(find.text('Kode: PTIK24'), findsOneWidget);
+    expect(find.text('Kode: PTIKA1'), findsOneWidget);
+    // Tidak ada lagi elemen primary di kartu kelas mana pun.
+    expect(find.text('Primary'), findsNothing);
+    expect(find.text('Set Primary'), findsNothing);
+    expect(find.byIcon(Icons.star), findsNothing);
+    expect(find.byIcon(Icons.check_circle_outline), findsNothing);
+    expect(find.byType(OutlinedButton), findsNothing);
+    // Ikon seragam untuk semua kartu.
+    expect(find.byIcon(Icons.school_outlined), findsNWidgets(2));
   });
 }

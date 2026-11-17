@@ -83,24 +83,6 @@ class _JoinClassScreenState extends ConsumerState<JoinClassScreen> {
     }
   }
 
-  Future<void> _handleSetPrimary(String classId, String className) async {
-    try {
-      await ref.read(classRepositoryProvider).setPrimaryClass(classId);
-      ref.invalidate(myClassesProvider);
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('$className dijadikan kelas utama')),
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Gagal set primary: $e')));
-      }
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final myClassesAsync = ref.watch(myClassesProvider);
@@ -271,20 +253,12 @@ class _JoinClassScreenState extends ConsumerState<JoinClassScreen> {
                         color: KodiraColors.neutral0,
                         borderRadius: BorderRadius.circular(KodiraRadius.md),
                         boxShadow: KodiraShadows.elevation1,
-                        border: cls.isPrimary
-                            ? Border.all(
-                                color: KodiraColors.primary500,
-                                width: 1.5,
-                              )
-                            : null,
                       ),
                       child: Row(
                         children: [
-                          Icon(
-                            cls.isPrimary ? Icons.star : Icons.school_outlined,
-                            color: cls.isPrimary
-                                ? KodiraColors.reward500
-                                : KodiraColors.neutral500,
+                          const Icon(
+                            Icons.school_outlined,
+                            color: KodiraColors.neutral500,
                             size: 28,
                           ),
                           const SizedBox(width: KodiraSpacing.s3),
@@ -292,43 +266,14 @@ class _JoinClassScreenState extends ConsumerState<JoinClassScreen> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Row(
-                                  children: [
-                                    Flexible(
-                                      child: Text(
-                                        cls.name,
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                        style: KodiraTextStyles.body.copyWith(
-                                          fontWeight: FontWeight.w600,
-                                          color: KodiraColors.neutral900,
-                                        ),
-                                      ),
-                                    ),
-                                    if (cls.isPrimary) ...[
-                                      const SizedBox(width: KodiraSpacing.s2),
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: KodiraSpacing.s2,
-                                          vertical: 2,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          color: KodiraColors.primary100,
-                                          borderRadius: BorderRadius.circular(
-                                            KodiraRadius.full,
-                                          ),
-                                        ),
-                                        child: Text(
-                                          'Primary',
-                                          style: KodiraTextStyles.caption
-                                              .copyWith(
-                                                color: KodiraColors.primary700,
-                                                fontWeight: FontWeight.w700,
-                                              ),
-                                        ),
-                                      ),
-                                    ],
-                                  ],
+                                Text(
+                                  cls.name,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: KodiraTextStyles.body.copyWith(
+                                    fontWeight: FontWeight.w600,
+                                    color: KodiraColors.neutral900,
+                                  ),
                                 ),
                                 Text(
                                   'Kode: ${cls.code}',
@@ -339,34 +284,6 @@ class _JoinClassScreenState extends ConsumerState<JoinClassScreen> {
                               ],
                             ),
                           ),
-                          if (!cls.isPrimary)
-                            OutlinedButton(
-                              style: OutlinedButton.styleFrom(
-                                foregroundColor: KodiraColors.primary700,
-                                side: const BorderSide(
-                                  color: KodiraColors.primary500,
-                                ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(
-                                    KodiraRadius.sm,
-                                  ),
-                                ),
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: KodiraSpacing.s3,
-                                ),
-                                textStyle: KodiraTextStyles.caption.copyWith(
-                                  fontWeight: FontWeight.w700,
-                                ),
-                              ),
-                              onPressed: () =>
-                                  _handleSetPrimary(cls.id, cls.name),
-                              child: const Text('Set Primary'),
-                            )
-                          else
-                            const Icon(
-                              Icons.check_circle_outline,
-                              color: KodiraColors.primary700,
-                            ),
                         ],
                       ),
                     );

@@ -44,8 +44,6 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   bool _isLoading = false;
   String _role = 'student';
 
-  static const String _defaultClassName = 'PTIK B 2024';
-
   @override
   void dispose() {
     _nimController.dispose();
@@ -417,19 +415,17 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                   ),
                   // Info kelas default atau status dosen
                   const SizedBox(height: 12),
-                  Text(
-                    _role == 'teacher'
-                        ? 'Akun dosen bisa membuat kelas, memantau progress mahasiswa, dan melihat mastery per topik.'
-                        : (_classCodeController.text.trim().length == 6
-                              ? 'Kamu akan join ke kelas dengan kode ${_classCodeController.text.trim().toUpperCase()}. Tidak masuk PTIK B 2024.'
-                              : 'Kamu akan otomatis terdaftar di kelas $_defaultClassName.'),
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontFamily: 'Inter',
-                      fontSize: 12,
-                      color: Colors.white.withValues(alpha: 0.8),
+                  if (_role == 'teacher') ...[
+                    Text(
+                      'Akun dosen bisa membuat kelas, memantau progress mahasiswa, dan melihat mastery per topik.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontFamily: 'Inter',
+                        fontSize: 12,
+                        color: Colors.white.withValues(alpha: 0.8),
+                      ),
                     ),
-                  ),
+                  ],
                   const SizedBox(height: 16),
 
                   // Tombol Daftar
