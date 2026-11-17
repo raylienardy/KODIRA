@@ -21,6 +21,16 @@ class ClassRosterScreen extends ConsumerStatefulWidget {
 
 class _ClassRosterScreenState extends ConsumerState<ClassRosterScreen> {
   @override
+  void initState() {
+    super.initState();
+    // Auto-refresh saat screen dibuka agar data mahasiswa baru langsung
+    // muncul (FutureProvider di-cache; invalidate memaksa fetch ulang).
+    Future.microtask(() {
+      ref.invalidate(classRosterProvider(widget.classId));
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     final rosterAsync = ref.watch(classRosterProvider(widget.classId));
 
@@ -36,131 +46,158 @@ class _ClassRosterScreenState extends ConsumerState<ClassRosterScreen> {
           style: KodiraTextStyles.h2.copyWith(color: KodiraColors.neutral900),
         ),
       ),
-      body: rosterAsync.when(
-        loading: () => const Center(
-          child: Padding(
-            padding: EdgeInsets.all(KodiraSpacing.s6),
-            child: CircularProgressIndicator(color: KodiraColors.primary700),
+      body: RefreshIndicator(
+        onRefresh: () async {
+          ref.invalidate(classRosterProvider(widget.classId));
+          // Tunggu sampai provider selesai fetch
+          await ref.read(classRosterProvider(widget.classId).future);
+        },
+        child: rosterAsync.when(
+          loading: () => const Center(
+            child: Padding(
+              padding: EdgeInsets.all(KodiraSpacing.s6),
+              child: CircularProgressIndicator(color: KodiraColors.primary700),
+            ),
           ),
-        ),
-        error: (err, stack) => Center(
-          child: Padding(
-            padding: const EdgeInsets.all(KodiraSpacing.s4),
-            child: Text(
-              'Gagal memuat roster: $err',
-              textAlign: TextAlign.center,
-              style: KodiraTextStyles.body.copyWith(
-                color: KodiraColors.alert700,
+          error: (err, stack) => Center(
+            child: Padding(
+              padding: const EdgeInsets.all(KodiraSpacing.s4),
+              child: Text(
+                'Gagal memuat roster: $err',
+                textAlign: TextAlign.center,
+                style: KodiraTextStyles.body.copyWith(
+                  color: KodiraColors.alert700,
+                ),
               ),
             ),
           ),
-        ),
-        data: (roster) {
-          if (roster.isEmpty) {
-            return Container(
-              margin: const EdgeInsets.all(KodiraSpacing.s4),
-              padding: const EdgeInsets.all(KodiraSpacing.s6),
-              decoration: BoxDecoration(
-                color: KodiraColors.neutral0,
-                borderRadius: BorderRadius.circular(KodiraRadius.md),
-              ),
-              child: Text(
-                'Belum ada mahasiswa di kelas ini',
-                textAlign: TextAlign.center,
-                style: KodiraTextStyles.body.copyWith(
-                  color: KodiraColors.neutral500,
-                ),
-              ),
-            );
-          }
-
-          return ListView.separated(
-            padding: const EdgeInsets.all(KodiraSpacing.s4),
-            itemCount: roster.length,
-            separatorBuilder: (context, index) =>
-                const SizedBox(height: KodiraSpacing.s2),
-            itemBuilder: (context, index) {
-              final ClassRosterEntry r = roster[index];
-              final String initial = r.name.trim().isEmpty
-                  ? '?'
-                  : r.name.trim().substring(0, 1).toUpperCase();
-
-              return Material(
-                color: Colors.transparent,
-                child: InkWell(
-                  onTap: () => context.push(
-                    '/teacher-roster/${widget.classId}/student/${r.userId}',
-                  ),
-                  borderRadius: BorderRadius.circular(KodiraRadius.md),
+          data: (roster) {
+            if (roster.isEmpty) {
+              return SingleChildScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                child: SizedBox(
+                  height: MediaQuery.of(context).size.height * 0.6,
                   child: Container(
-                    padding: const EdgeInsets.all(KodiraSpacing.s3),
+                    margin: const EdgeInsets.all(KodiraSpacing.s4),
+                    padding: const EdgeInsets.all(KodiraSpacing.s6),
                     decoration: BoxDecoration(
                       color: KodiraColors.neutral0,
                       borderRadius: BorderRadius.circular(KodiraRadius.md),
-                      boxShadow: KodiraShadows.elevation1,
                     ),
-                    child: Row(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        CircleAvatar(
-                          radius: 20,
-                          backgroundColor: KodiraColors.primary100,
-                          child: Text(
-                            initial,
-                            style: KodiraTextStyles.body.copyWith(
-                              color: KodiraColors.primary700,
-                              fontWeight: FontWeight.w700,
-                            ),
+                        Text(
+                          'Belum ada mahasiswa di kelas ini',
+                          textAlign: TextAlign.center,
+                          style: KodiraTextStyles.body.copyWith(
+                            color: KodiraColors.neutral500,
                           ),
                         ),
-                        const SizedBox(width: KodiraSpacing.s3),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                r.name,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: KodiraTextStyles.body.copyWith(
-                                  fontWeight: FontWeight.w600,
-                                  color: KodiraColors.neutral900,
-                                ),
-                              ),
-                              Text(
-                                'NIM: ${r.nim}',
-                                style: KodiraTextStyles.caption.copyWith(
-                                  color: KodiraColors.neutral500,
-                                ),
-                              ),
-                            ],
+                        const SizedBox(height: KodiraSpacing.s2),
+                        Text(
+                          'Tarik ke bawah untuk memuat ulang',
+                          textAlign: TextAlign.center,
+                          style: KodiraTextStyles.caption.copyWith(
+                            color: KodiraColors.neutral300,
                           ),
-                        ),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            Text(
-                              '${r.totalXp}',
-                              style: KodiraTextStyles.body.copyWith(
-                                fontWeight: FontWeight.w700,
-                                color: KodiraColors.primary700,
-                              ),
-                            ),
-                            Text(
-                              'XP',
-                              style: KodiraTextStyles.caption.copyWith(
-                                color: KodiraColors.neutral500,
-                              ),
-                            ),
-                          ],
                         ),
                       ],
                     ),
                   ),
                 ),
               );
-            },
-          );
-        },
+            }
+
+            return ListView.separated(
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: const EdgeInsets.all(KodiraSpacing.s4),
+              itemCount: roster.length,
+              separatorBuilder: (context, index) =>
+                  const SizedBox(height: KodiraSpacing.s2),
+              itemBuilder: (context, index) {
+                final ClassRosterEntry r = roster[index];
+                final String initial = r.name.trim().isEmpty
+                    ? '?'
+                    : r.name.trim().substring(0, 1).toUpperCase();
+
+                return Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    onTap: () => context.push(
+                      '/teacher-roster/${widget.classId}/student/${r.userId}',
+                    ),
+                    borderRadius: BorderRadius.circular(KodiraRadius.md),
+                    child: Container(
+                      padding: const EdgeInsets.all(KodiraSpacing.s3),
+                      decoration: BoxDecoration(
+                        color: KodiraColors.neutral0,
+                        borderRadius: BorderRadius.circular(KodiraRadius.md),
+                        boxShadow: KodiraShadows.elevation1,
+                      ),
+                      child: Row(
+                        children: [
+                          CircleAvatar(
+                            radius: 20,
+                            backgroundColor: KodiraColors.primary100,
+                            child: Text(
+                              initial,
+                              style: KodiraTextStyles.body.copyWith(
+                                color: KodiraColors.primary700,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: KodiraSpacing.s3),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  r.name,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: KodiraTextStyles.body.copyWith(
+                                    fontWeight: FontWeight.w600,
+                                    color: KodiraColors.neutral900,
+                                  ),
+                                ),
+                                Text(
+                                  'NIM: ${r.nim}',
+                                  style: KodiraTextStyles.caption.copyWith(
+                                    color: KodiraColors.neutral500,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Text(
+                                '${r.totalXp}',
+                                style: KodiraTextStyles.body.copyWith(
+                                  fontWeight: FontWeight.w700,
+                                  color: KodiraColors.primary700,
+                                ),
+                              ),
+                              Text(
+                                'XP',
+                                style: KodiraTextStyles.caption.copyWith(
+                                  color: KodiraColors.neutral500,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              },
+            );
+          },
+        ),
       ),
     );
   }
