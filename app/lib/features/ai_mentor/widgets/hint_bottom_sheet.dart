@@ -6,6 +6,7 @@ import '../../../core/errors/error_type.dart';
 import '../../../shared/widgets/error_widget.dart';
 import '../../../shared/widgets/loading_widget.dart';
 import '../providers/ai_provider.dart';
+import 'ai_disclaimer_banner.dart';
 
 class HintBottomSheet extends ConsumerStatefulWidget {
   final int levelId;
@@ -143,6 +144,7 @@ class _HintBottomSheetState extends ConsumerState<HintBottomSheet> {
                   ),
                 ),
               ),
+              const AiDisclaimerBanner(),
               const SizedBox(height: 16),
             ],
             if (!isMaxed && !_isRequesting && !hintState.isLoading)

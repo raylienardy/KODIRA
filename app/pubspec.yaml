@@ -43,6 +43,7 @@ dependencies:
 
   # Markdown
   flutter_markdown: ^0.7.4
+  markdown: ^7.3.1
 
   # Code editor with syntax highlighting (C++/Java)
   flutter_code_editor: ^0.3.3

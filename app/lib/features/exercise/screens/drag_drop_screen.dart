@@ -619,16 +619,6 @@ class _InstructionCard extends StatelessWidget {
             prompt,
             style: KodiraTextStyles.h2.copyWith(color: KodiraColors.neutral900),
           ),
-          const SizedBox(height: 6),
-          Text(
-            'Susun token menjadi urutan kode yang benar. Ketuk token untuk '
-            'memindahkan, lalu tahan dan geser untuk mengubah urutan di area '
-            'susun.',
-            style: KodiraTextStyles.body.copyWith(
-              color: KodiraColors.neutral700,
-              height: 1.5,
-            ),
-          ),
         ],
       ),
     );
@@ -1113,19 +1103,6 @@ class _LoadingView extends StatelessWidget {
                 border: Border.all(color: KodiraColors.neutral200),
               ),
             ),
-            const SizedBox(height: 24),
-            const _SkeletonLine(width: 120, height: 12),
-            const SizedBox(height: 10),
-            const Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: [
-                _SkeletonChip(width: 120),
-                _SkeletonChip(width: 150),
-                _SkeletonChip(width: 96),
-                _SkeletonChip(width: 132),
-              ],
-            ),
           ],
         ),
       ),
@@ -1147,24 +1124,6 @@ class _SkeletonLine extends StatelessWidget {
       decoration: BoxDecoration(
         color: KodiraColors.neutral200,
         borderRadius: BorderRadius.circular(KodiraRadius.full),
-      ),
-    );
-  }
-}
-
-class _SkeletonChip extends StatelessWidget {
-  final double width;
-
-  const _SkeletonChip({required this.width});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: width,
-      height: 44,
-      decoration: BoxDecoration(
-        color: KodiraColors.neutral200,
-        borderRadius: BorderRadius.circular(KodiraRadius.sm),
       ),
     );
   }

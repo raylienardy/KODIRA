@@ -132,9 +132,18 @@ class AppDrawer extends ConsumerWidget {
     // saat router mengalihkan pengguna ke halaman login.
     Navigator.of(context).pop();
 
+    // Tunggu satu frame supaya drawer sepenuhnya tertutup sebelum auth state
+    // di-reset. Mencegah race condition di mana GoRouter trigger redirect
+    // saat animasi drawer masih berjalan, yang dapat memicu exception
+    // navigasi atau provider turunan yang mengakses user yang sudah null.
+    await Future.delayed(Duration.zero);
+
+    if (!context.mounted) return;
+
     try {
       await notifier.logout();
     } catch (_) {
+      if (!context.mounted) return;
       messenger.showSnackBar(
         const SnackBar(content: Text('Gagal logout. Coba lagi.')),
       );

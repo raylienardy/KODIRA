@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
 import '../../../app/theme.dart';
 import '../../../data/logic/title_logic.dart';
@@ -12,9 +11,83 @@ class ProfileHeader extends ConsumerWidget {
   const ProfileHeader({super.key, this.isTeacher = false});
   final bool isTeacher;
 
+  Future<void> _showChangeNimDialog(BuildContext context, WidgetRef ref) async {
+    final user = ref.read(authStateProvider).user;
+    final currentNim = user?.nim ?? '';
+    final controller = TextEditingController(text: currentNim);
+    final isTeacherUser = user?.role == 'teacher';
+
+    final result = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(isTeacherUser ? 'Ganti NIDN' : 'Ganti NIM'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: controller,
+              decoration: InputDecoration(
+                labelText: isTeacherUser ? 'NIDN Baru' : 'NIM Baru',
+                hintText: isTeacherUser ? '10 digit' : '12-13 digit',
+                counterText: '',
+              ),
+              keyboardType: TextInputType.number,
+              maxLength: 13,
+              style: const TextStyle(color: KodiraColors.neutral900),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Perubahan NIM akan merubah email login Anda.',
+              style: KodiraTextStyles.caption.copyWith(
+                color: KodiraColors.neutral500,
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: const Text('Batal'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: KodiraColors.primary700,
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Simpan'),
+          ),
+        ],
+      ),
+    );
+
+    if (result == true) {
+      final newNim = controller.text.trim();
+      if (newNim.isEmpty) return;
+
+      try {
+        await ref.read(authRepositoryProvider).updateNim(newNim: newNim);
+        await ref.read(authStateProvider.notifier).refreshUser();
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('NIM berhasil diupdate')),
+          );
+        }
+      } catch (e) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text('Gagal update NIM: $e')));
+        }
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final user = ref.watch(authStateProvider).user;
+    final authState = ref.watch(authStateProvider);
+    final user = authState.user;
     final badgeCount = ref
         .watch(badgeCountProvider)
         .maybeWhen(data: (value) => value, orElse: () => 0);
@@ -25,90 +98,70 @@ class ProfileHeader extends ConsumerWidget {
     );
     final UserTitle title = TitleLogic.fromTotalXp(totalXp);
 
-    final String rawName = user?.name.trim() ?? '';
-    final String name = rawName.isEmpty ? 'Mahasiswa' : rawName;
-    final String nim = (user?.nim.trim().isNotEmpty ?? false)
-        ? user!.nim.trim()
-        : 'NIM belum tersedia';
-    final String initial = name.substring(0, 1).toUpperCase();
+    final String rawName = user?.name.trim() ?? 'User';
+    final String initial = rawName.isNotEmpty ? rawName[0].toUpperCase() : '?';
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
-      decoration: BoxDecoration(
-        color: KodiraColors.neutral100,
-        borderRadius: BorderRadius.circular(KodiraRadius.lg),
+      padding: const EdgeInsets.fromLTRB(24, 32, 24, 24),
+      decoration: const BoxDecoration(
+        color: KodiraColors.neutral0,
+        border: Border(bottom: BorderSide(color: KodiraColors.neutral200)),
       ),
       child: Column(
         children: [
-          Semantics(
-            label: 'Avatar $name',
-            image: true,
-            child: ExcludeSemantics(
-              child: Container(
-                width: 80,
-                height: 80,
-                decoration: const BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [KodiraColors.primary700, KodiraColors.success500],
-                  ),
-                ),
-                alignment: Alignment.center,
-                child: Text(
-                  initial,
-                  style: KodiraTextStyles.display.copyWith(
-                    color: Colors.white,
-                    fontSize: 32,
-                  ),
-                ),
+          // Avatar dengan inisial nama.
+          CircleAvatar(
+            radius: 40,
+            backgroundColor: KodiraColors.primary100,
+            child: Text(
+              initial,
+              style: KodiraTextStyles.h1.copyWith(
+                color: KodiraColors.primary700,
+                fontSize: 32,
               ),
             ),
           ),
-          const SizedBox(height: 12),
-          Semantics(
-            label: '$name, NIM $nim',
-            child: ExcludeSemantics(
-              child: Column(
-                children: [
-                  InkWell(
-                    onTap: () => context.push('/edit-profile'),
-                    borderRadius: BorderRadius.circular(KodiraRadius.md),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 4,
-                      ),
-                      child: Text(
-                        name,
-                        textAlign: TextAlign.center,
-                        style: KodiraTextStyles.h2.copyWith(
-                          color: KodiraColors.neutral900,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    nim,
-                    textAlign: TextAlign.center,
-                    style: KodiraTextStyles.body.copyWith(
-                      color: KodiraColors.neutral500,
-                    ),
-                  ),
-                ],
-              ),
-            ),
+          const SizedBox(height: 16),
+          // Nama User
+          Text(
+            rawName,
+            style: KodiraTextStyles.h2.copyWith(color: KodiraColors.neutral900),
+            textAlign: TextAlign.center,
           ),
+          const SizedBox(height: 4),
+          // NIM User & Aksi Ganti
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                user?.nim ?? '-',
+                style: KodiraTextStyles.body.copyWith(
+                  color: KodiraColors.neutral500,
+                ),
+              ),
+              if (!isTeacher) ...[
+                const SizedBox(width: 4),
+                IconButton(
+                  onPressed: () => _showChangeNimDialog(context, ref),
+                  icon: const Icon(Icons.edit, size: 16),
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
+                  color: KodiraColors.primary700,
+                  tooltip: 'Ganti NIM',
+                ),
+              ],
+            ],
+          ),
+          const SizedBox(height: 16),
+          // Badge Count & Title
           if (!isTeacher) ...[
-            const SizedBox(height: 12),
-            Semantics(
-              label: 'Badge terkumpul: $badgeCount',
-              child: ExcludeSemantics(
-                child: Container(
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              alignment: WrapAlignment.center,
+              children: [
+                Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 12,
                     vertical: 6,
@@ -121,17 +174,11 @@ class ProfileHeader extends ConsumerWidget {
                     '🎖️ $badgeCount Badge',
                     style: KodiraTextStyles.caption.copyWith(
                       color: KodiraColors.primary900,
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
                 ),
-              ),
-            ),
-            const SizedBox(height: 8),
-            // Gelar (title) user dari total XP, tampil sebagai chip.
-            Semantics(
-              label: 'Gelar: ${TitleLogic.label(title)}',
-              child: ExcludeSemantics(
-                child: Container(
+                Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 12,
                     vertical: 6,
@@ -159,7 +206,7 @@ class ProfileHeader extends ConsumerWidget {
                     ],
                   ),
                 ),
-              ),
+              ],
             ),
           ],
         ],

@@ -26,8 +26,57 @@ class DragToken extends StatelessWidget {
     super.key,
   });
 
+  /// Mendeteksi kategori warna syntax highlighting untuk token kode.
+  Color _syntaxColorFor(String text) {
+    final lower = text.toLowerCase();
+
+    // Keywords/tipe data
+    final List<String> keywords = [
+      'int',
+      'void',
+      'if',
+      'for',
+      'return',
+      'class',
+      'public',
+      'double',
+      'boolean',
+      'float',
+      'string',
+      'char',
+    ];
+    if (keywords.any((kw) => lower == kw)) {
+      return const Color(0xFF569CD6); // biru kode
+    }
+
+    // Komentar // atau /* */
+    if (lower.startsWith('//') || lower.startsWith('/*')) {
+      return const Color(0xFF6A9955); // hijau redup
+    }
+
+    // String (di dalam kutip ganda atau single)
+    if ((text.startsWith('"') && text.endsWith('"')) ||
+        (text.startsWith("'") && text.endsWith("'"))) {
+      return const Color(0xFFC3E88D); // hijau muda
+    }
+
+    // Number/digit saja
+    if (RegExp(r'^\d+(\.\d+)?$').hasMatch(text)) {
+      return const Color(0xFFF78C6C); // oranye
+    }
+
+    // Operator/simbol tunggal
+    if (text.length == 1 && '+-*/=%;,().{}[]<>!|&'.contains(text)) {
+      return const Color(0xFFB5B5C9); // netral
+    }
+
+    return KodiraColors.neutral900;
+  }
+
   @override
   Widget build(BuildContext context) {
+    final color = _syntaxColorFor(token.text);
+
     return Semantics(
       button: true,
       label: 'Token ${token.text}. Ketuk untuk menambahkan ke area susun.',
@@ -67,9 +116,7 @@ class DragToken extends StatelessWidget {
                           token.text,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: KodiraTextStyles.code.copyWith(
-                            color: KodiraColors.neutral900,
-                          ),
+                          style: KodiraTextStyles.code.copyWith(color: color),
                         ),
                       ),
                       const SizedBox(width: 6),

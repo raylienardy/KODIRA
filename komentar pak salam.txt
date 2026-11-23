@@ -1,0 +1,4 @@
+komentar pak salam
+halaman dosen, harus refresh untuk kelihatan 
+bagaimana ganti nim? buat sistem nya
+di latihan, posisi komentar nya buat flexibel, jangan masuk. komentar kan tidak mempengaruhi code, tapi kenapa

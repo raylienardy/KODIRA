@@ -1,0 +1,27 @@
+komentar bu Rani
+di bagian materi, tata letaknya manfaatkan ruang kosong
+pemilihan warna bagus
+buat UI nya lebih menarik, jangan kosong banget
+Sesuaikan ukuran fontnya
+dan code nya buat lebih kelihatan
+
+kasih disklaimer kalau jawaban AI
+tidak selamanya benar2 AI nya
+pastikan timer nya itu setara tidak untuk 60 detik atau tidak, apakah semua tingkat kesulitannya durasi waktu nya sama untuk setiap level. jangan sampai ada soal yang perlu lama menjawab atau cepat sekali jawabnya
+
+button di kuis, ganti posisinya, dan reset beri warna merah
+
+title julukan diubah, jangan "title", buat namanya lebih "gaming"
+di home bar, ada yang kosong dibagian kanan, itu bagusnya bagian kosong disitu bisa level sekarang, manfaatkan ruang kosong. highlight level, badge dan achievement, di highlight. apa peran2 badge2 di homebar itu apa saja
+berikan sistem leaderboard, agar mahasiswa saling adu2, untuk mahasiswa bisa saling mengadu
+tidak ke highlight peringkat nya, di homebar berikan peringkatnya
+meningkat keinginan untuk berlomba
+selama pure dari AI, berikan disclaimer kalau jawaban ini dari AI
+
+berikan beberapa perbedaan warna kalau highlight di latihan
+berikan teks warna code seperti di vscode (ketika menampilkan code pemrograman)
+
+ada error saat logout, perhatikan itu
+
+fill the blank, tambahkan fitur ini
+drag and drop

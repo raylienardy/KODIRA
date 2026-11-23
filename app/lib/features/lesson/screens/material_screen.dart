@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:markdown/markdown.dart' as md;
 
 import '../../../app/theme.dart';
 import '../../exercise/providers/exercise_provider.dart';
-import '../../exercise/screens/drag_drop_screen.dart';
+import '../../exercise/screens/exercise_screen.dart';
 import '../../exercise/screens/code_editor_screen.dart';
 import '../providers/material_provider.dart';
 import '../../../data/models/material_model.dart';
@@ -11,6 +13,7 @@ import '../../../core/errors/error_type.dart';
 import '../../../shared/widgets/empty_widget.dart';
 import '../../../shared/widgets/error_widget.dart';
 import '../../../shared/widgets/loading_widget.dart';
+import '../../../shared/widgets/vs_code_code_block.dart';
 import '../../ai_mentor/widgets/hint_bottom_sheet.dart';
 
 class MaterialScreen extends ConsumerStatefulWidget {
@@ -37,7 +40,7 @@ class _MaterialScreenState extends ConsumerState<MaterialScreen> {
     setState(() => _isOpeningExercise = true);
     try {
       final exercises = await ref.read(
-        dragDropExercisesProvider(widget.levelId).future,
+        exercisesByLevelProvider(widget.levelId).future,
       );
       if (!mounted) return;
 
@@ -52,7 +55,7 @@ class _MaterialScreenState extends ConsumerState<MaterialScreen> {
 
       await Navigator.of(context).push(
         MaterialPageRoute(
-          builder: (_) => DragDropScreen(levelId: widget.levelId),
+          builder: (_) => ExerciseScreen(levelId: widget.levelId),
         ),
       );
     } catch (_) {
@@ -231,6 +234,66 @@ class _HeaderWidget extends StatelessWidget {
 }
 
 // -------------------------------------------------------------------
+class _CodeElementBuilder extends MarkdownElementBuilder {
+  @override
+  Widget visitElementAfter(md.Element element, TextStyle? preferredStyle) {
+    final language = element.attributes['class']?.replaceAll('language-', '');
+    final code = element.textContent;
+    return VsCodeCodeBlock(code: code, language: language ?? 'text');
+  }
+}
+
+// -------------------------------------------------------------------
+class _IntiMateriHighlight extends StatelessWidget {
+  final MaterialModel material;
+
+  const _IntiMateriHighlight({required this.material});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: KodiraColors.neutral100,
+        borderRadius: BorderRadius.circular(KodiraRadius.md),
+        border: Border.all(color: KodiraColors.neutral200),
+      ),
+      child: Row(
+        children: [
+          const Icon(
+            Icons.lightbulb_outline,
+            color: KodiraColors.neutral500,
+            size: 20,
+          ),
+          const SizedBox(width: 6),
+          const Text(
+            'Inti Materi: ',
+            style: TextStyle(
+              fontWeight: FontWeight.w600,
+              fontSize: 12,
+              color: KodiraColors.neutral700,
+            ),
+          ),
+          Expanded(
+            child: Text(
+              material.title != null
+                  ? 'Pahami ${material.title}: konsep pokok level ini'
+                  : 'Konsep pokok materi ini',
+              style: const TextStyle(
+                fontSize: 11,
+                color: KodiraColors.neutral500,
+              ),
+              overflow: TextOverflow.ellipsis,
+              maxLines: 1,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// -------------------------------------------------------------------
 class _MaterialCard extends StatelessWidget {
   final MaterialModel material;
 
@@ -258,45 +321,34 @@ class _MaterialCard extends StatelessWidget {
                 ),
               ),
             ),
+          _IntiMateriHighlight(material: material),
+          const SizedBox(height: 12),
           if (material.content != null)
-            Text(
-              material.content!,
-              style: KodiraTextStyles.body.copyWith(
-                color: KodiraColors.neutral700,
-                height: 1.6,
-              ),
+            MarkdownBody(
+              data: material.content!,
+              styleSheet: MarkdownStyleSheet.fromTheme(Theme.of(context))
+                  .copyWith(
+                    p: const TextStyle(
+                      fontSize: 15,
+                      height: 1.6,
+                      color: KodiraColors.neutral700,
+                    ),
+                    h1: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: KodiraColors.neutral900,
+                    ),
+                    h2: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: KodiraColors.neutral900,
+                    ),
+                  ),
+              builders: {'code': _CodeElementBuilder()},
             ),
-          if (material.codeSnippet != null)
-            _CodeBlock(code: material.codeSnippet!),
+          if (material.codeSnippet != null && material.content == null)
+            VsCodeCodeBlock(code: material.codeSnippet!, language: 'cpp'),
         ],
-      ),
-    );
-  }
-}
-
-// -------------------------------------------------------------------
-class _CodeBlock extends StatelessWidget {
-  final String code;
-
-  const _CodeBlock({required this.code});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(top: 12),
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: KodiraColors.codeBg,
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Text(
-        code,
-        style: const TextStyle(
-          fontFamily: 'JetBrains Mono',
-          fontSize: 11,
-          height: 1.7,
-          color: Colors.white,
-        ),
       ),
     );
   }

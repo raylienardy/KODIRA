@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../app/theme.dart';
 import '../../../shared/widgets/loading_widget.dart';
 import '../providers/ai_provider.dart';
+import 'ai_disclaimer_banner.dart';
 
 class FeedbackBottomSheet extends ConsumerWidget {
   final int levelId;
@@ -101,6 +102,7 @@ class FeedbackBottomSheet extends ConsumerWidget {
                   ),
                 ),
               ),
+            const AiDisclaimerBanner(),
             const SizedBox(height: 12),
             SizedBox(
               width: double.infinity,

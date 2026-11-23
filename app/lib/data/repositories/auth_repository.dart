@@ -136,6 +136,15 @@ class AuthRepository implements IAuthRepository {
   }
 
   @override
+  Future<void> updateNim({required String newNim}) async {
+    final userId = _client.auth.currentUser?.id;
+    if (userId == null) throw const supa.AuthException('Tidak terautentikasi');
+
+    // Panggil Edge Function update-nim
+    await _client.functions.invoke('update-nim', body: {'new_nim': newNim});
+  }
+
+  @override
   Future<UserModel> signUpWithNim({
     required String nim,
     required String name,

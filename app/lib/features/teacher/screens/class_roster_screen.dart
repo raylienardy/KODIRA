@@ -19,15 +19,38 @@ class ClassRosterScreen extends ConsumerStatefulWidget {
   ConsumerState<ClassRosterScreen> createState() => _ClassRosterScreenState();
 }
 
-class _ClassRosterScreenState extends ConsumerState<ClassRosterScreen> {
+class _ClassRosterScreenState extends ConsumerState<ClassRosterScreen>
+    with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     // Auto-refresh saat screen dibuka agar data mahasiswa baru langsung
     // muncul (FutureProvider di-cache; invalidate memaksa fetch ulang).
     Future.microtask(() {
       ref.invalidate(classRosterProvider(widget.classId));
     });
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    // Saat app kembali dari background, reload data roster terbaru.
+    if (state == AppLifecycleState.resumed) {
+      ref.invalidate(classRosterProvider(widget.classId));
+    }
+  }
+
+  /// Muat ulang data roster.
+  ///
+  /// Dipanggil dari tombol refresh di AppBar dan dari [didChangeAppLifecycleState].
+  void _refreshRoster() {
+    ref.invalidate(classRosterProvider(widget.classId));
   }
 
   @override
@@ -45,6 +68,13 @@ class _ClassRosterScreenState extends ConsumerState<ClassRosterScreen> {
           'Daftar Mahasiswa',
           style: KodiraTextStyles.h2.copyWith(color: KodiraColors.neutral900),
         ),
+        actions: [
+          IconButton(
+            onPressed: _refreshRoster,
+            tooltip: 'Muat ulang data',
+            icon: const Icon(Icons.refresh, color: KodiraColors.neutral900),
+          ),
+        ],
       ),
       body: RefreshIndicator(
         onRefresh: () async {

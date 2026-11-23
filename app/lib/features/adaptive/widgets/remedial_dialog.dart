@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/theme.dart';
 import '../../ai_mentor/providers/ai_provider.dart';
+import '../../ai_mentor/widgets/ai_disclaimer_banner.dart';
 import '../../quiz/screens/quiz_screen.dart';
 
 /// Dialog remedial ketika mastery kuis berada di bawah ambang 40%.
@@ -145,6 +146,7 @@ class _RemedialDialogState extends ConsumerState<RemedialDialog> {
             color: KodiraColors.neutral700,
           ),
         ),
+        const AiDisclaimerBanner(),
       ],
     );
   }
@@ -269,6 +271,7 @@ class _RemedialDialogState extends ConsumerState<RemedialDialog> {
             height: 1.4,
           ),
         ),
+        const AiDisclaimerBanner(),
         const SizedBox(height: 24),
         SizedBox(
           width: double.infinity,

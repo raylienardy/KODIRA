@@ -73,6 +73,9 @@ class _FakeAuthRepository implements IAuthRepository {
   Future<void> updateProfile({required String name}) async {
     throw UnimplementedError();
   }
+
+  @override
+  Future<void> updateNim({required String newNim}) async {}
 }
 
 class _FakeClassRepository implements ClassRepository {

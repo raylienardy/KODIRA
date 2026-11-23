@@ -30,8 +30,21 @@ enum QuizResult {
   backToMaterial,
 }
 
-/// Duration of a single question in seconds.
+/// Durasi default per soal (tier mudah) sebelum tier level diketahui.
 const int kQuizSecondsPerQuestion = 60;
+
+/// Durasi per soal berdasarkan tingkat kesulitan level.
+///
+/// - Mudah (1–15): 60 detik
+/// - Sedang (16–35): 90 detik
+/// - Tinggi (36–50): 120 detik
+int secondsPerQuestionForTier(LevelTier tier) {
+  return switch (tier) {
+    LevelTier.mudah => 60,
+    LevelTier.sedang => 90,
+    LevelTier.tinggi => 120,
+  };
+}
 
 /// Quiz screen: shows one question at a time with a countdown timer.
 class QuizScreen extends ConsumerStatefulWidget {
@@ -61,6 +74,7 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
   int _secondsRemaining = kQuizSecondsPerQuestion;
   int _correctCount = 0;
   int _totalSecondsUsed = 0;
+  int _secondsPerQuestion = kQuizSecondsPerQuestion;
   bool _isLoading = true;
   bool _isFinished = false;
   String? _error;
@@ -76,8 +90,13 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
   @override
   void initState() {
     super.initState();
-    _loadQuestions();
-    unawaited(_initTier());
+    unawaited(_initTierAndLoad());
+  }
+
+  /// Muat tier dulu supaya durasi timer sudah tepat sebelum soal ditampilkan.
+  Future<void> _initTierAndLoad() async {
+    await _initTier();
+    await _loadQuestions();
   }
 
   /// Muat nomor level lalu cache tier-nya untuk perhitungan XP.
@@ -91,7 +110,10 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
         if (level.id == widget.levelId) {
           final LevelTier tier = LevelTier.fromLevelNumber(level.levelNumber);
           if (!mounted) return;
-          setState(() => _cachedTier = tier);
+          setState(() {
+            _cachedTier = tier;
+            _secondsPerQuestion = secondsPerQuestionForTier(tier);
+          });
           return;
         }
       }
@@ -131,7 +153,7 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
         _selectedOptionId = null;
         _isSubmitted = false;
         _isTimedOut = false;
-        _secondsRemaining = kQuizSecondsPerQuestion;
+        _secondsRemaining = _secondsPerQuestion;
       });
       _startTimer();
       return;
@@ -165,7 +187,7 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
         _selectedOptionId = null;
         _isSubmitted = false;
         _isTimedOut = false;
-        _secondsRemaining = kQuizSecondsPerQuestion;
+        _secondsRemaining = _secondsPerQuestion;
       });
 
       if (questions.isEmpty) {
@@ -224,8 +246,10 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
 
     final question = _questions[_currentIndex];
     final isCorrect = !timedOut && _selectedOptionId == question.answerId;
-    final int secondsSpent = (kQuizSecondsPerQuestion - _secondsRemaining)
-        .clamp(0, kQuizSecondsPerQuestion);
+    final int secondsSpent = (_secondsPerQuestion - _secondsRemaining).clamp(
+      0,
+      _secondsPerQuestion,
+    );
 
     setState(() {
       _isSubmitted = true;
@@ -242,7 +266,7 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
         _selectedOptionId = null;
         _isSubmitted = false;
         _isTimedOut = false;
-        _secondsRemaining = kQuizSecondsPerQuestion;
+        _secondsRemaining = _secondsPerQuestion;
       });
       _startTimer();
       if (_scrollController.hasClients) {
@@ -321,7 +345,7 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
         correct: score,
         total: total,
         secondsUsed: _totalSecondsUsed,
-        timeLimitPerQuestion: kQuizSecondsPerQuestion,
+        timeLimitPerQuestion: _secondsPerQuestion,
         previousMastery: previousMastery,
       );
       final double adaptiveMastery = breakdown.total;
@@ -623,8 +647,11 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
               isSubmitted: _isSubmitted,
               canSubmit: _selectedOptionId != null,
               isLastQuestion: _currentIndex == _questions.length - 1,
+              levelId: widget.levelId,
+              levelTitle: widget.levelTitle ?? 'Kuis',
               onSubmit: _submitAnswer,
               onNext: _goToNextQuestion,
+              onReset: _restartQuiz,
             )
           : null,
     );
@@ -671,7 +698,7 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
         children: [
           _TimerHeader(
             secondsRemaining: _secondsRemaining,
-            totalSeconds: kQuizSecondsPerQuestion,
+            totalSeconds: _secondsPerQuestion,
           ),
           const SizedBox(height: 20),
           _QuestionCard(prompt: question.prompt, language: question.language),
@@ -1293,18 +1320,26 @@ class _QuizBottomBar extends StatelessWidget {
   final bool isLastQuestion;
   final VoidCallback onSubmit;
   final VoidCallback onNext;
+  final VoidCallback onReset;
+
+  final int levelId;
+  final String levelTitle;
 
   const _QuizBottomBar({
     required this.isSubmitted,
     required this.canSubmit,
     required this.isLastQuestion,
+    required this.levelId,
+    required this.levelTitle,
     required this.onSubmit,
     required this.onNext,
+    required this.onReset,
   });
 
   @override
   Widget build(BuildContext context) {
-    final label = isSubmitted
+    final resetLabel = 'Reset';
+    final submitLabel = isSubmitted
         ? (isLastQuestion ? 'Lihat Hasil' : 'Lanjut')
         : 'Kirim Jawaban';
 
@@ -1317,30 +1352,110 @@ class _QuizBottomBar extends StatelessWidget {
         top: false,
         child: Padding(
           padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
-          child: SizedBox(
-            width: double.infinity,
-            height: 52,
-            child: ElevatedButton(
-              onPressed: isSubmitted ? onNext : (canSubmit ? onSubmit : null),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: KodiraColors.primary700,
-                foregroundColor: Colors.white,
-                disabledBackgroundColor: KodiraColors.neutral200,
-                disabledForegroundColor: KodiraColors.neutral500,
-                elevation: 0,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(KodiraRadius.md),
-                ),
-                textStyle: const TextStyle(
-                  fontFamily: 'Inter',
-                  fontSize: 14,
-                  fontWeight: FontWeight.w700,
+          child: Row(
+            children: [
+              // Reset button kiri (merah)
+              Expanded(
+                flex: 1,
+                child: ElevatedButton(
+                  onPressed: () {
+                    _showResetDialog(context);
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: KodiraColors.alert700,
+                    foregroundColor: Colors.white,
+                    disabledBackgroundColor: KodiraColors.alert100,
+                    disabledForegroundColor: Colors.white,
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(KodiraRadius.md),
+                    ),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 12,
+                    ),
+                  ),
+                  child: Text(
+                    resetLabel,
+                    style: const TextStyle(
+                      fontFamily: 'Inter',
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
                 ),
               ),
-              child: Text(label),
-            ),
+              const SizedBox(width: 12),
+              // Main action button kanan
+              Expanded(
+                flex: 2,
+                child: ElevatedButton(
+                  onPressed: isSubmitted
+                      ? onNext
+                      : (canSubmit ? onSubmit : null),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: KodiraColors.primary700,
+                    foregroundColor: Colors.white,
+                    disabledBackgroundColor: KodiraColors.neutral200,
+                    disabledForegroundColor: Colors.white,
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(KodiraRadius.md),
+                    ),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 24,
+                      vertical: 12,
+                    ),
+                  ),
+                  child: Text(
+                    submitLabel,
+                    style: const TextStyle(
+                      fontFamily: 'Inter',
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
+      ),
+    );
+  }
+
+  void _showResetDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Ulangi Kuis'),
+        content: const Text(
+          'Apakah Anda yakin ingin mengulang kuis dari awal? Semua jawaban dan progres akan direset.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: const Text('Batal'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.of(dialogContext).pop();
+              // Reset by restarting the quiz screen
+              Navigator.of(context).pushReplacement(
+                MaterialPageRoute(
+                  builder: (_) =>
+                      QuizScreen(levelId: levelId, levelTitle: levelTitle),
+                ),
+              );
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: KodiraColors.primary700,
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Ulangi'),
+          ),
+        ],
       ),
     );
   }

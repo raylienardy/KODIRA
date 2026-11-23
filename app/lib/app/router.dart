@@ -63,7 +63,16 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         return '/home';
       }
 
-      // 4) Tidak ada session → ke login. Register tetap boleh diakses
+      // 4) User sudah null (mis. segera setelah logout) → ke login,
+      //    meski session status belum berubah ke unauthenticated.
+      if (user == null &&
+          path != '/login' &&
+          path != '/register' &&
+          path != '/splash') {
+        return '/login';
+      }
+
+      // 5) Tidak ada session → ke login. Register tetap boleh diakses
       //    supaya user baru bisa mendaftar tanpa session.
       if (sessionStatus == SessionStatus.unauthenticated &&
           path != '/login' &&

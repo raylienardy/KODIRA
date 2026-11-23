@@ -58,6 +58,9 @@ class FakeAuthRepository implements IAuthRepository {
       throw const supa.AuthException('Gagal menyimpan ke server');
     }
   }
+
+  @override
+  Future<void> updateNim({required String newNim}) async {}
 }
 
 void main() {

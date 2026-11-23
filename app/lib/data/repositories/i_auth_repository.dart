@@ -42,4 +42,12 @@ abstract class IAuthRepository {
   /// Update nama profil user yang sedang login.
   /// Throw `AuthException` jika gagal.
   Future<void> updateProfile({required String name});
+
+  /// Update NIM user yang sedang login.
+  /// Memanggil Supabase Edge Function `update-nim`.
+  /// Mencari validasi di sisi server, lalu update `auth.users` dan `public.users`.
+  /// Throw `AuthException` jika NIM invalid atau sudah digunakan.
+  Future<void> updateNim({required String newNim}) async {
+    throw UnimplementedError();
+  }
 }
