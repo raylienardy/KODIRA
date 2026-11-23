@@ -1,7 +1,9 @@
 import { Suspense } from 'react'
 import AdminShell from '@/components/AdminShell'
 import { createServerClient } from '@/lib/supabase/server'
-import { LayoutDashboard, Users, BookOpenText, Layers } from 'lucide-react'
+import { LayoutDashboard, Users, BookOpenText, Layers, ArrowRight } from 'lucide-react'
+import { connection } from 'next/server'
+import Link from 'next/link'
 
 export default function DashboardPage() {
   return (
@@ -14,44 +16,68 @@ export default function DashboardPage() {
 }
 
 async function DashboardContent() {
+  // connection() harus dipanggil paling awal sebelum query apa pun agar
+  // komponen dinamis Next.js 16 (cacheComponents: true) tidak gagal
+  // prerender saat proses build (misal karena Date.now() di library).
+  await connection()
   const supabase = await createServerClient()
-  
-  // Fetch KPI Data
-  const { count: totalClasses } = await supabase.from('classes').select('*', { count: 'exact' })
-  const { count: totalStudents } = await supabase.from('users').select('*', { count: 'exact' }).eq('role', 'student')
-  const { count: totalLevels } = await supabase.from('levels').select('*', { count: 'exact' })
-  
-  // Fetch classes
-  const { data: classes } = await supabase
-    .from('classes')
-    .select('id, name, code, description')
-    .order('name')
-  
-  // Calculate average XP (Simplified approach: fetch all student progress)
-  const { data: progress } = await supabase.from('user_progress').select('xp_earned')
-  const avgXp = progress && progress.length > 0 
-    ? (progress.reduce((acc, curr) => acc + (curr.xp_earned || 0), 0) / progress.length).toFixed(0)
-    : 0
+
+  const [
+    { count: totalClasses },
+    { count: totalStudents },
+    { count: totalLevels },
+    { data: classes },
+    { data: progress },
+  ] = await Promise.all([
+    supabase.from('classes').select('*', { count: 'exact', head: true }),
+    supabase.from('users').select('*', { count: 'exact', head: true }).eq('role', 'student'),
+    supabase.from('levels').select('*', { count: 'exact', head: true }),
+    supabase.from('classes').select('id, name, code, description').order('name'),
+    supabase.from('user_progress').select('user_id, xp_earned'),
+  ])
+
+  let avgXp: number | string = 0
+  if (progress && progress.length > 0) {
+    const studentXpMap: Record<string, number> = {}
+    progress.forEach((p) => {
+      studentXpMap[p.user_id] = (studentXpMap[p.user_id] || 0) + (p.xp_earned || 0)
+    })
+    const uniqueStudentsWithProgress = Object.keys(studentXpMap).length
+    const totalXp = Object.values(studentXpMap).reduce((a, b) => a + b, 0)
+    avgXp = uniqueStudentsWithProgress > 0 ? Math.round(totalXp / uniqueStudentsWithProgress) : 0
+  }
 
   const kpi = [
-    { name: 'Total Kelas', value: totalClasses || 0, icon: BookOpenText },
-    { name: 'Total Mahasiswa', value: totalStudents || 0, icon: Users },
-    { name: 'Rata-rata XP', value: avgXp, icon: LayoutDashboard },
-    { name: 'Total Level', value: totalLevels || 0, icon: Layers },
+    { name: 'Total Kelas', value: totalClasses || 0, icon: BookOpenText, href: '/classes' },
+    { name: 'Total Mahasiswa', value: totalStudents || 0, icon: Users, href: '/students' },
+    { name: 'Rata-rata XP', value: avgXp, icon: LayoutDashboard, href: '/students' },
+    { name: 'Total Level', value: totalLevels || 0, icon: Layers, href: '/levels' },
   ]
 
   return (
     <div className="space-y-8">
-      <h1 className="text-2xl font-bold text-white">Dashboard Monitoring</h1>
-      
-      {/* KPI Cards */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <h1 className="text-2xl font-bold text-white">Dashboard Monitoring</h1>
+        <div className="flex flex-wrap gap-3">
+          <Link href="/classes" className="flex items-center gap-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-sm font-medium transition-colors border border-slate-700">
+            Kelas <ArrowRight className="w-4 h-4" />
+          </Link>
+          <Link href="/students" className="flex items-center gap-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-sm font-medium transition-colors border border-slate-700">
+            Mahasiswa <ArrowRight className="w-4 h-4" />
+          </Link>
+          <Link href="/levels" className="flex items-center gap-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-sm font-medium transition-colors border border-slate-700">
+            Level <ArrowRight className="w-4 h-4" />
+          </Link>
+        </div>
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {kpi.map((item) => {
           const Icon = item.icon
           return (
-            <div key={item.name} className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl">
+            <Link href={item.href} key={item.name} className="bg-slate-900 border border-slate-800 hover:border-blue-500/50 rounded-2xl p-6 shadow-xl transition-all group">
               <div className="flex items-center gap-4">
-                <div className="p-3 bg-blue-600/20 rounded-xl text-blue-400">
+                <div className="p-3 bg-blue-600/20 group-hover:bg-blue-600/30 rounded-xl text-blue-400 transition-colors">
                   <Icon className="w-6 h-6" />
                 </div>
                 <div>
@@ -59,12 +85,11 @@ async function DashboardContent() {
                   <p className="text-2xl font-bold text-white">{item.value}</p>
                 </div>
               </div>
-            </div>
+            </Link>
           )
         })}
       </div>
-      
-      {/* Class List */}
+
       <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl">
         <h2 className="text-lg font-bold text-white mb-6">Kelas Aktif</h2>
         <div className="overflow-x-auto">
@@ -77,13 +102,18 @@ async function DashboardContent() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-800">
-              {classes?.map(cls => (
-                <tr key={cls.id}>
+              {classes?.map((cls) => (
+                <tr key={cls.id} className="hover:bg-slate-800/50 transition-colors">
                   <td className="px-4 py-4 font-medium text-white">{cls.name}</td>
                   <td className="px-4 py-4 font-mono text-blue-400">{cls.code}</td>
                   <td className="px-4 py-4 text-slate-400">{cls.description || '-'}</td>
                 </tr>
               ))}
+              {(!classes || classes.length === 0) && (
+                <tr>
+                  <td colSpan={3} className="px-4 py-8 text-center text-slate-500 italic">Belum ada kelas yang dibuat</td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>

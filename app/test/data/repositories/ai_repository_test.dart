@@ -215,6 +215,7 @@ class _FakeAiSource extends AiSource {
     required String userCode,
     required String expectedAnswer,
     required bool isCorrect,
+    String? classId,
   }) async {
     lastFeedbackCorrect = isCorrect;
     if (error != null) throw error!;
@@ -228,6 +229,10 @@ class _FakeAiSource extends AiSource {
     required String language,
     required int questionCount,
     String? context,
+    String? mode,
+    String? classId,
+    String? userId,
+    String? sessionNonce,
   }) async {
     if (error != null) throw error!;
     return quizResponse;

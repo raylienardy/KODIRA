@@ -74,6 +74,10 @@ class _FakeLevelRepository implements ILevelRepository {
   Future<List<LevelModel>> getAllLevels() async => <LevelModel>[];
 
   @override
+  Future<List<LevelModel>> getLevelsByClass(String? classId) async =>
+      <LevelModel>[];
+
+  @override
   Future<LevelModel?> getLevelById(int id) async => null;
 
   @override

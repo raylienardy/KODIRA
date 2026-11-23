@@ -4,8 +4,12 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/theme.dart';
+import '../../../core/utils/string_normalizer.dart';
 import '../../../data/models/exercise_model.dart';
+import '../../ai_mentor/providers/ai_provider.dart';
 import '../../ai_mentor/widgets/feedback_bottom_sheet.dart';
+import '../../home/providers/level_provider.dart';
+import '../../leaderboard/providers/leaderboard_provider.dart';
 import '../../quiz/screens/quiz_screen.dart';
 import '../providers/exercise_provider.dart';
 import '../widgets/drag_token.dart';
@@ -47,9 +51,14 @@ class _ExerciseScreenState extends ConsumerState<ExerciseScreen> {
   String? _payloadError;
   String _currentExerciseType = 'drag_drop';
 
+  String? _classId;
+  String? _userId;
+  String _sessionNonce = '';
+
   @override
   void initState() {
     super.initState();
+    _sessionNonce = DateTime.now().millisecondsSinceEpoch.toString();
     _loadExercises();
   }
 
@@ -65,9 +74,61 @@ class _ExerciseScreenState extends ConsumerState<ExerciseScreen> {
     }
 
     try {
-      final exercises = await ref.read(
-        exercisesByLevelProvider(widget.levelId).future,
-      );
+      final classId = await ref.read(currentUserClassIdProvider.future);
+      _classId = classId;
+
+      List<ExerciseModel> exercises = [];
+
+      try {
+        final aiRepo = ref.read(aiRepositoryProvider);
+        // Fallback mengambil level dari repository untuk konteks topik & bahasa
+        final allLevels = await ref.read(allLevelsProvider.future);
+        final level = allLevels.firstWhere(
+          (l) => l.id == widget.levelId,
+          orElse: () => allLevels.isNotEmpty
+              ? allLevels.first
+              : throw Exception('Level not found'),
+        );
+
+        final rawList = await aiRepo.generateQuiz(
+          levelId: widget.levelId,
+          topic: level.topic ?? level.title,
+          language: level.levelNumber > 15 ? 'java' : 'cpp',
+          questionCount: 5,
+          mode: 'exercise',
+          classId: classId,
+          userId: _userId,
+          sessionNonce: _sessionNonce,
+        );
+
+        exercises = rawList
+            .map(
+              (item) => ExerciseModel(
+                id: 0, // AI generated ID
+                levelId: widget.levelId,
+                type: item['type'] ?? 'drag_drop',
+                prompt: item['prompt'] ?? '',
+                payload: item['payload'] as Map<String, dynamic>?,
+                difficulty: item['difficulty'] as int? ?? 1,
+                alternativeAnswers:
+                    (item['alternative_answers'] as List<dynamic>?)
+                        ?.map((e) => e as String)
+                        .toList() ??
+                    [],
+                createdAt: DateTime.now(),
+              ),
+            )
+            .toList();
+      } catch (e) {
+        if (kDebugMode) {
+          debugPrint('AI Quiz Generation failed, falling back to DB: $e');
+        }
+        // Fallback ke DB
+        exercises = await ref.read(
+          exercisesByLevelProvider(widget.levelId).future,
+        );
+      }
+
       if (!mounted) return;
 
       setState(() {
@@ -209,18 +270,32 @@ class _ExerciseScreenState extends ConsumerState<ExerciseScreen> {
 
   Future<void> _checkDragDropAnswer() async {
     final data = _dragData;
+    final exercise = _exercises[_currentIndex];
     if (data == null || _dropZoneIds.isEmpty) return;
 
     // Abaikan komentar saat cek jawaban
-    final userOrdered = _dropZoneIds
+    final userOrderedIds = _dropZoneIds
         .map((id) => data.tokenById[id]!)
         .where((token) => !_isCommentToken(token))
         .map((token) => token.id)
         .toList();
 
-    final expectedOrdered = data.answer;
+    final userOrderedText = userOrderedIds
+        .map((id) => data.tokenById[id]!.text)
+        .join(' ');
 
-    final isCorrect = listEquals(userOrdered, expectedOrdered);
+    final expectedOrderedText = data.answer
+        .map((id) => data.tokenById[id]!.text)
+        .join(' ');
+
+    final isCorrect =
+        listEquals(userOrderedIds, data.answer) ||
+        StringNormalizer.matches(
+          userOrderedText,
+          expectedOrderedText,
+          exercise.alternativeAnswers,
+        );
+
     if (isCorrect) {
       await _handleCorrect();
     } else {
@@ -237,6 +312,7 @@ class _ExerciseScreenState extends ConsumerState<ExerciseScreen> {
 
   Future<void> _checkFillBlankAnswer() async {
     final data = _fillBlankData;
+    final exercise = _exercises[_currentIndex];
     if (data == null) return;
 
     // Pastikan semua slot terisi
@@ -261,9 +337,36 @@ class _ExerciseScreenState extends ConsumerState<ExerciseScreen> {
     bool allCorrect = true;
     for (final slot in data.blanks) {
       final userAns = _fillBlankAnswers[slot.id]?.trim();
-      if (userAns != slot.answer) {
+      final isSlotCorrect = StringNormalizer.equals(userAns, slot.answer);
+
+      if (!isSlotCorrect) {
         allCorrect = false;
         break;
+      }
+    }
+
+    // Jika tidak semua slot cocok secara langsung, cek alternative_answers (untuk gabungan seluruh kode)
+    if (!allCorrect && exercise.alternativeAnswers.isNotEmpty) {
+      // Rekonstruksi kode lengkap user
+      String userFullCode = data.codeTemplate;
+      for (final slot in data.blanks) {
+        userFullCode = userFullCode.replaceFirst(
+          '___',
+          _fillBlankAnswers[slot.id] ?? '',
+        );
+      }
+
+      String expectedFullCode = data.codeTemplate;
+      for (final slot in data.blanks) {
+        expectedFullCode = expectedFullCode.replaceFirst('___', slot.answer);
+      }
+
+      if (StringNormalizer.matches(
+        userFullCode,
+        expectedFullCode,
+        exercise.alternativeAnswers,
+      )) {
+        allCorrect = true;
       }
     }
 
@@ -379,6 +482,7 @@ class _ExerciseScreenState extends ConsumerState<ExerciseScreen> {
           title: 'Belum tepat',
           message: message,
           levelId: widget.levelId,
+          classId: _classId,
           userCode: _dragData == null
               ? ''
               : _dropZoneIds
@@ -1019,6 +1123,7 @@ class _BottomBar extends StatelessWidget {
 // -------------------------------------------------------------------
 class _FeedbackSheet extends StatelessWidget {
   final int? levelId;
+  final String? classId;
   final String userCode;
   final String expectedAnswer;
   final IconData icon;
@@ -1033,6 +1138,7 @@ class _FeedbackSheet extends StatelessWidget {
 
   const _FeedbackSheet({
     this.levelId,
+    this.classId,
     this.userCode = '',
     this.expectedAnswer = '',
     required this.icon,
@@ -1129,6 +1235,7 @@ class _FeedbackSheet extends StatelessWidget {
                             userCode: userCode,
                             expectedAnswer: expectedAnswer,
                             isCorrect: false,
+                            classId: classId,
                           ),
                         );
                       },

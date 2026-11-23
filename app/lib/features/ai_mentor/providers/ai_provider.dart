@@ -40,6 +40,7 @@ class FeedbackRequest {
   final String userCode;
   final String expectedAnswer;
   final bool isCorrect;
+  final String? classId;
 
   const FeedbackRequest({
     required this.levelId,
@@ -47,6 +48,7 @@ class FeedbackRequest {
     required this.userCode,
     required this.expectedAnswer,
     required this.isCorrect,
+    this.classId,
   });
 
   @override
@@ -56,11 +58,12 @@ class FeedbackRequest {
       other.topic == topic &&
       other.userCode == userCode &&
       other.expectedAnswer == expectedAnswer &&
-      other.isCorrect == isCorrect;
+      other.isCorrect == isCorrect &&
+      other.classId == classId;
 
   @override
   int get hashCode =>
-      Object.hash(levelId, topic, userCode, expectedAnswer, isCorrect);
+      Object.hash(levelId, topic, userCode, expectedAnswer, isCorrect, classId);
 }
 
 class HintNotifier extends StateNotifier<AsyncValue<String?>> {
@@ -107,6 +110,7 @@ class FeedbackNotifier extends StateNotifier<AsyncValue<String?>> {
         userCode: request.userCode,
         expectedAnswer: request.expectedAnswer,
         isCorrect: request.isCorrect,
+        classId: request.classId,
       );
       state = AsyncValue.data(feedback);
     } catch (error, stackTrace) {

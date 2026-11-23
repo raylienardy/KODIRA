@@ -12,6 +12,7 @@ class FeedbackBottomSheet extends ConsumerWidget {
   final String userCode;
   final String expectedAnswer;
   final bool isCorrect;
+  final String? classId;
 
   const FeedbackBottomSheet({
     super.key,
@@ -20,6 +21,7 @@ class FeedbackBottomSheet extends ConsumerWidget {
     required this.userCode,
     required this.expectedAnswer,
     required this.isCorrect,
+    this.classId,
   });
 
   @override
@@ -30,6 +32,7 @@ class FeedbackBottomSheet extends ConsumerWidget {
       userCode: userCode,
       expectedAnswer: expectedAnswer,
       isCorrect: isCorrect,
+      classId: classId,
     );
     final feedbackState = ref.watch(feedbackProvider(request));
 

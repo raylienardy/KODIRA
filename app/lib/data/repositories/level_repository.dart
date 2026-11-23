@@ -28,6 +28,48 @@ class LevelRepository implements ILevelRepository {
     }
   }
 
+  /// Ambil level berdasarkan classId (atau null untuk template global).
+  /// Jika classId diberikan, ambil level milik kelas tersebut.
+  /// Jika hasilnya kosong (kelas belum punya kurikulum salinan), fallback
+  /// ke template global (class_id IS NULL).
+  @override
+  Future<List<LevelModel>> getLevelsByClass(String? classId) async {
+    try {
+      if (classId != null && classId.isNotEmpty) {
+        final classResponse = await _client
+            .from('levels')
+            .select()
+            .eq('class_id', classId)
+            .order('level_number', ascending: true);
+
+        final classList = classResponse as List<dynamic>;
+        if (classList.isNotEmpty) {
+          return classList
+              .map(
+                (item) => LevelModel.fromSupabase(item as Map<String, dynamic>),
+              )
+              .toList();
+        }
+      }
+
+      // Fallback ke template global (class_id IS NULL)
+      final globalResponse = await _client
+          .from('levels')
+          .select()
+          .isFilter('class_id', null)
+          .order('level_number', ascending: true);
+
+      final list = globalResponse as List<dynamic>;
+      return list
+          .map((item) => LevelModel.fromSupabase(item as Map<String, dynamic>))
+          .toList();
+    } on supa.PostgrestException catch (e) {
+      throw Exception('Gagal memuat daftar level: ${e.message}');
+    } catch (e) {
+      throw Exception('Terjadi kesalahan saat memuat level: $e');
+    }
+  }
+
   /// Ambil satu level berdasarkan ID.
   @override
   Future<LevelModel?> getLevelById(int id) async {
@@ -43,7 +85,7 @@ class LevelRepository implements ILevelRepository {
     } on supa.PostgrestException catch (e) {
       throw Exception('Gagal memuat detail level: ${e.message}');
     } catch (e) {
-      throw Exception('Terjadi kesalahan saat memuat detail level: $e');
+      throw Exception('Terjadi kesalahan saat memuat level: $e');
     }
   }
 
@@ -66,7 +108,7 @@ class LevelRepository implements ILevelRepository {
     } on supa.PostgrestException catch (e) {
       throw Exception('Gagal memuat progress belajar: ${e.message}');
     } catch (e) {
-      throw Exception('Terjadi kesalahan saat memuat progress: $e');
+      throw Exception('Terjadi kesalahan saat memuat level: $e');
     }
   }
 
@@ -89,7 +131,7 @@ class LevelRepository implements ILevelRepository {
     } on supa.PostgrestException catch (e) {
       throw Exception('Gagal memuat progress level: ${e.message}');
     } catch (e) {
-      throw Exception('Terjadi kesalahan saat memuat progress level: $e');
+      throw Exception('Terjadi kesalahan saat memuat level: $e');
     }
   }
 }

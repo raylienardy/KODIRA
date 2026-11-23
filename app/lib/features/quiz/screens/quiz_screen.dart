@@ -16,10 +16,12 @@ import '../../../shared/widgets/loading_widget.dart';
 import '../../adaptive/models/mastery_breakdown.dart';
 import '../../adaptive/services/adaptive_engine.dart';
 import '../../adaptive/widgets/remedial_dialog.dart';
+import '../../ai_mentor/providers/ai_provider.dart';
 import '../../ai_mentor/widgets/feedback_bottom_sheet.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../../exercise/providers/exercise_provider.dart';
 import '../../home/providers/level_provider.dart';
+import '../../leaderboard/providers/leaderboard_provider.dart';
 import '../../lesson/screens/material_screen.dart';
 import '../widgets/result_dialog.dart';
 import '../widgets/result_logic.dart';
@@ -79,6 +81,10 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
   bool _isFinished = false;
   String? _error;
 
+  String? _classId;
+  String? _userId;
+  String _sessionNonce = '';
+
   /// Tier level yang di-cache saat layar dibuka.
   ///
   /// Null berarti tier belum berhasil dimuat; `_saveProgress` memakai
@@ -90,6 +96,7 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
   @override
   void initState() {
     super.initState();
+    _sessionNonce = DateTime.now().millisecondsSinceEpoch.toString();
     unawaited(_initTierAndLoad());
   }
 
@@ -164,18 +171,59 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
     }
 
     try {
-      final exercises = await ref.read(
-        quizExercisesProvider(widget.levelId).future,
-      );
-      if (!mounted) return;
+      final classId = await ref.read(currentUserClassIdProvider.future);
+      _classId = classId;
 
-      final questions = <QuizQuestion>[];
-      for (final exercise in exercises) {
-        final question = QuizQuestion.tryParse(exercise);
-        if (question != null) {
-          questions.add(question);
+      final List<QuizQuestion> questions = [];
+
+      try {
+        final aiRepo = ref.read(aiRepositoryProvider);
+        final allLevels = await ref.read(allLevelsProvider.future);
+        final level = allLevels.firstWhere(
+          (l) => l.id == widget.levelId,
+          orElse: () => allLevels.isNotEmpty
+              ? allLevels.first
+              : throw Exception('Level not found'),
+        );
+
+        final rawList = await aiRepo.generateQuiz(
+          levelId: widget.levelId,
+          topic: level.topic ?? level.title,
+          language: level.levelNumber > 15 ? 'java' : 'cpp',
+          questionCount: 3,
+          mode: 'quiz',
+          classId: classId,
+          userId: _userId,
+          sessionNonce: _sessionNonce,
+        );
+
+        for (final item in rawList) {
+          final q = QuizQuestion.fromAiMap(
+            item,
+            language: level.levelNumber > 15 ? 'java' : 'cpp',
+          );
+          if (q != null) questions.add(q);
+        }
+
+        if (questions.isEmpty) {
+          throw Exception('AI quiz empty');
+        }
+      } catch (e) {
+        if (kDebugMode) {
+          debugPrint('AI Quiz Generation failed, falling back to DB: $e');
+        }
+        final exercises = await ref.read(
+          quizExercisesProvider(widget.levelId).future,
+        );
+        for (final exercise in exercises) {
+          final question = QuizQuestion.tryParse(exercise);
+          if (question != null) {
+            questions.add(question);
+          }
         }
       }
+
+      if (!mounted) return;
 
       setState(() {
         _questions = questions;
@@ -740,6 +788,7 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
                     userCode: '',
                     expectedAnswer: question.explanation,
                     isCorrect: false,
+                    classId: _classId,
                   ),
                 );
               },

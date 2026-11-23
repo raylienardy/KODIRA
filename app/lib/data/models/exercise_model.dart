@@ -14,6 +14,7 @@ class ExerciseModel with _$ExerciseModel {
     required String prompt,
     Map<String, dynamic>? payload,
     int? difficulty,
+    @Default([]) List<String> alternativeAnswers,
     required DateTime createdAt,
   }) = _ExerciseModel;
 
@@ -28,6 +29,11 @@ class ExerciseModel with _$ExerciseModel {
       prompt: map['prompt'] as String,
       payload: map['payload'] as Map<String, dynamic>?,
       difficulty: map['difficulty'] as int?,
+      alternativeAnswers:
+          (map['alternative_answers'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toList() ??
+          [],
       createdAt: DateTime.parse(map['created_at'] as String),
     );
   }

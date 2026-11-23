@@ -8,6 +8,9 @@ abstract class ILevelRepository {
   /// Ambil semua level, urut berdasarkan level number.
   Future<List<LevelModel>> getAllLevels();
 
+  /// Ambil level berdasarkan classId (atau null untuk template global).
+  Future<List<LevelModel>> getLevelsByClass(String? classId);
+
   /// Ambil satu level berdasarkan ID.
   Future<LevelModel?> getLevelById(int id);
 

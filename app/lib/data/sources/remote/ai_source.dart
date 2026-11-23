@@ -25,6 +25,7 @@ class AiSource {
     required String userCode,
     required String expectedAnswer,
     required bool isCorrect,
+    String? classId,
   }) async {
     return _invokeMap('ai-feedback', {
       'levelId': levelId,
@@ -32,6 +33,7 @@ class AiSource {
       'userCode': userCode,
       'expectedAnswer': expectedAnswer,
       'isCorrect': isCorrect,
+      if (classId != null && classId.isNotEmpty) 'class_id': classId,
     }, fallbackMessage: 'Gagal memuat feedback');
   }
 
@@ -41,23 +43,36 @@ class AiSource {
     required String language,
     required int questionCount,
     String? context,
+    String? mode,
+    String? classId,
+    String? userId,
+    String? sessionNonce,
   }) async {
     final response = await _invokeFunction('ai-generate-quiz', {
       'levelId': levelId,
       'topic': topic,
       'language': language,
       'questionCount': questionCount,
-      'context': ?context,
+      if (context != null && context.isNotEmpty) 'context': context,
+      if (mode != null && mode.isNotEmpty) 'mode': mode,
+      if (classId != null && classId.isNotEmpty) 'class_id': classId,
+      if (userId != null && userId.isNotEmpty) 'user_id': userId,
+      if (sessionNonce != null && sessionNonce.isNotEmpty)
+        'session_nonce': sessionNonce,
     });
     final data = _validatedData(response, 'Gagal generate soal');
     if (data is! Map) {
       throw AiException(response.status, 'Format soal AI tidak valid.');
     }
     final questions = data['questions'];
-    if (questions is! List) {
+    final exercises = data['exercises'];
+    final source = questions is List
+        ? questions
+        : (exercises is List ? exercises : null);
+    if (source is! List) {
       throw AiException(response.status, 'Format soal AI tidak valid.');
     }
-    return questions
+    return source
         .whereType<Map>()
         .map((question) => Map<String, dynamic>.from(question))
         .toList(growable: false);

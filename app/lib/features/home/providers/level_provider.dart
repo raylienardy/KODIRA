@@ -11,6 +11,7 @@ import '../../../data/repositories/level_repository.dart';
 import '../../../data/repositories/streak_repository.dart';
 import '../../../data/repositories/user_progress_repository.dart';
 import '../../auth/providers/auth_provider.dart';
+import '../../leaderboard/providers/leaderboard_provider.dart';
 
 final levelRepositoryProvider = Provider<ILevelRepository>((ref) {
   final client = ref.watch(supabaseClientProvider);
@@ -24,7 +25,8 @@ final userProgressRepositoryProvider = Provider<IUserProgressRepository>((ref) {
 
 final allLevelsProvider = FutureProvider<List<LevelModel>>((ref) async {
   final repo = ref.watch(levelRepositoryProvider);
-  return repo.getAllLevels();
+  final classId = await ref.watch(currentUserClassIdProvider.future);
+  return repo.getLevelsByClass(classId);
 });
 
 /// Seluruh progress belajar milik user yang sedang login.

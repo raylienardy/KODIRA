@@ -130,6 +130,7 @@ class _FeedbackRepository extends AiRepository {
     required String userCode,
     required String expectedAnswer,
     required bool isCorrect,
+    String? classId,
   }) async {
     if (failure != null) throw failure!;
     final pending = response;

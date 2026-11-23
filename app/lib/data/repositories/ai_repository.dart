@@ -26,6 +26,7 @@ class AiRepository {
     required String userCode,
     required String expectedAnswer,
     required bool isCorrect,
+    String? classId,
   }) async {
     final data = await _source.requestFeedback(
       levelId: levelId,
@@ -33,6 +34,7 @@ class AiRepository {
       userCode: userCode,
       expectedAnswer: expectedAnswer,
       isCorrect: isCorrect,
+      classId: classId,
     );
     return data['feedback'] is String ? data['feedback'] as String : '';
   }
@@ -43,6 +45,10 @@ class AiRepository {
     required String language,
     required int questionCount,
     String? context,
+    String? mode,
+    String? classId,
+    String? userId,
+    String? sessionNonce,
   }) {
     return _source.requestQuiz(
       levelId: levelId,
@@ -50,6 +56,10 @@ class AiRepository {
       language: language,
       questionCount: questionCount,
       context: context,
+      mode: mode,
+      classId: classId,
+      userId: userId,
+      sessionNonce: sessionNonce,
     );
   }
 }

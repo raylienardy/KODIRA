@@ -3,68 +3,125 @@
 import { useState, useEffect } from 'react'
 import AdminShell from '@/components/AdminShell'
 import { createBrowserClient } from '@/lib/supabase/client'
-import { Download, Filter } from 'lucide-react'
+import { Download, Search } from 'lucide-react'
 
 interface StudentRow {
-  nim?: string
-  name?: string
-  className?: string
+  student_id: string
+  nim: string
+  name: string
+  className: string
   xp: number
   rank: string
   streak: number
 }
 
-interface SupabaseResponseItem {
+interface ClassInfo {
+  id: string
+  name: string
+}
+
+interface UserInfo {
+  id: string
+  nim: string
+  name: string
+}
+
+interface ProgressRow {
+  user_id: string
+  xp_earned: number
+}
+
+interface StreakRow {
+  user_id: string
+  current_streak: number
+}
+
+interface ClassStudentRow {
   student_id: string
-  classes?: { name?: string } | Array<{ name?: string }>
-  users?: { nim?: string; name?: string } | Array<{ nim?: string; name?: string }>
-  user_progress?: Array<{ xp_earned?: number }>
-  user_streaks?: { current_streak?: number } | Array<{ current_streak?: number }>
+  class_id: string
 }
 
 export default function StudentsPage() {
   const [students, setStudents] = useState<StudentRow[]>([])
+  const [search, setSearch] = useState('')
+  const [selectedClass, setSelectedClass] = useState('')
+  const [classList, setClassList] = useState<string[]>([])
   const supabase = createBrowserClient()
 
   useEffect(() => {
     let active = true
     const load = async () => {
-      const { data } = await supabase
+      // Query terpisah (tanpa nested join) agar tidak memicu HTTP 400 Bad Request.
+      const { data: csData } = await supabase
         .from('class_students')
-        .select(`
-          student_id,
-          classes(name),
-          users(nim, name),
-          user_progress(xp_earned),
-          user_streaks(current_streak)
-        `)
-      
-      if (data && active) {
-        const typedData = data as unknown as SupabaseResponseItem[]
-        const processed = typedData.map((item) => {
-          const xp = Array.isArray(item.user_progress)
-            ? item.user_progress.reduce((acc: number, curr: { xp_earned?: number }) => acc + (curr.xp_earned || 0), 0)
-            : 0
-          let rank = 'Rookie Coder'
-          if (xp >= 2000) rank = 'Tech Grandmaster'
-          else if (xp >= 1000) rank = 'Logic Master'
-          else if (xp >= 500) rank = 'Code Explorer'
-          else if (xp >= 200) rank = 'Junior Dev'
+        .select('student_id, class_id')
 
-          const userObj = Array.isArray(item.users) ? item.users[0] : item.users
-          const classObj = Array.isArray(item.classes) ? item.classes[0] : item.classes
-          const streakObj = Array.isArray(item.user_streaks) ? item.user_streaks[0] : item.user_streaks
-          
-          return {
-            nim: userObj?.nim || '-',
-            name: userObj?.name || '-',
-            className: classObj?.name || '-',
-            xp,
-            rank,
-            streak: streakObj?.current_streak || 0
-          }
-        })
+      if (!csData || csData.length === 0) {
+        if (active) {
+          setStudents([])
+          setClassList([])
+        }
+        return
+      }
+
+      const csRows = csData as unknown as ClassStudentRow[]
+      const studentIds = Array.from(new Set(csRows.map((r) => r.student_id)))
+
+      const [usersRes, progressRes, streakRes, classRes] = await Promise.all([
+        supabase.from('users').select('id, nim, name').in('id', studentIds),
+        supabase.from('user_progress').select('user_id, xp_earned').in('user_id', studentIds),
+        supabase.from('user_streaks').select('user_id, current_streak').in('user_id', studentIds),
+        supabase.from('classes').select('id, name'),
+      ])
+
+      if (!active) return
+
+      const usersMap = new Map<string, UserInfo>()
+      ;(usersRes.data as unknown as UserInfo[] | null)?.forEach((u) => {
+        usersMap.set(u.id, u)
+      })
+
+      const classMap = new Map<string, string>()
+      const classNames: string[] = []
+      ;(classRes.data as unknown as ClassInfo[] | null)?.forEach((c) => {
+        classMap.set(c.id, c.name)
+        classNames.push(c.name)
+      })
+
+      const xpMap: Record<string, number> = {}
+      ;(progressRes.data as unknown as ProgressRow[] | null)?.forEach((p) => {
+        xpMap[p.user_id] = (xpMap[p.user_id] || 0) + (p.xp_earned || 0)
+      })
+
+      const streakMap: Record<string, number> = {}
+      ;(streakRes.data as unknown as StreakRow[] | null)?.forEach((s) => {
+        streakMap[s.user_id] = s.current_streak || 0
+      })
+
+      const processed: StudentRow[] = csRows.map((row) => {
+        const user = usersMap.get(row.student_id)
+        const xp = xpMap[row.student_id] || 0
+
+        let rank = 'Rookie Coder'
+        if (xp >= 2000) rank = 'Tech Grandmaster'
+        else if (xp >= 1000) rank = 'Logic Master'
+        else if (xp >= 500) rank = 'Code Explorer'
+        else if (xp >= 200) rank = 'Junior Dev'
+
+        return {
+          student_id: row.student_id,
+          nim: user?.nim || '-',
+          name: user?.name || '-',
+          className: classMap.get(row.class_id) || '-',
+          xp,
+          rank,
+          streak: streakMap[row.student_id] || 0,
+        }
+      })
+
+      if (active) {
         setStudents(processed)
+        setClassList(classNames)
       }
     }
     load()
@@ -73,14 +130,19 @@ export default function StudentsPage() {
     }
   }, [supabase])
 
+  const filteredStudents = students.filter((s) => {
+    const matchSearch =
+      s.name.toLowerCase().includes(search.toLowerCase()) ||
+      s.nim.toLowerCase().includes(search.toLowerCase())
+    const matchClass = selectedClass ? s.className === selectedClass : true
+    return matchSearch && matchClass
+  })
+
   const exportCSV = () => {
     const headers = ['NIM', 'Nama', 'Kelas', 'Rank', 'Total XP', 'Streak']
-    const rows = students.map(s => [s.nim, s.name, s.className, s.rank, s.xp, s.streak])
-    const csvContent = [
-      headers.join(','),
-      ...rows.map(r => r.join(','))
-    ].join('\n')
-    
+    const rows = filteredStudents.map((s) => [s.nim, s.name, s.className, s.rank, s.xp, s.streak])
+    const csvContent = [headers.join(','), ...rows.map((r) => r.join(','))].join('\n')
+
     const blob = new Blob([csvContent], { type: 'text/csv' })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
@@ -93,16 +155,45 @@ export default function StudentsPage() {
     <AdminShell>
       <div className="space-y-6">
         <h1 className="text-2xl font-bold text-white">Data Mahasiswa</h1>
-        
-        <div className="flex gap-4">
-          <input type="text" placeholder="Cari NIM/Nama..." className="px-4 py-2 bg-slate-900 border border-slate-800 rounded-xl text-white flex-1" />
-          <button className="flex items-center gap-2 px-4 py-2 bg-slate-800 text-white rounded-xl"><Filter className="w-4 h-4"/> Filter Kelas</button>
-          <button onClick={exportCSV} className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-xl"><Download className="w-4 h-4"/> Export CSV</button>
+
+        <div className="flex flex-col sm:flex-row gap-4">
+          <div className="relative flex-1">
+            <Search className="absolute left-4 top-3.5 w-4 h-4 text-slate-500" />
+            <input
+              type="text"
+              placeholder="Cari NIM/Nama..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full pl-11 pr-4 py-3 bg-slate-900 border border-slate-800 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"
+            />
+          </div>
+
+          <div className="flex items-center gap-3">
+            <select
+              value={selectedClass}
+              onChange={(e) => setSelectedClass(e.target.value)}
+              className="px-4 py-3 bg-slate-900 border border-slate-800 rounded-xl text-white focus:outline-none focus:border-blue-500"
+            >
+              <option value="">Semua Kelas</option>
+              {classList.map((c) => (
+                <option key={c} value={c}>
+                  {c}
+                </option>
+              ))}
+            </select>
+
+            <button
+              onClick={exportCSV}
+              className="flex items-center gap-2 px-5 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-medium transition-colors shadow-lg shadow-blue-600/20"
+            >
+              <Download className="w-4 h-4" /> Export CSV
+            </button>
+          </div>
         </div>
 
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl">
+        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl overflow-x-auto">
           <table className="w-full text-left text-sm text-slate-300">
-            <thead className="text-slate-500 uppercase text-xs">
+            <thead className="text-slate-500 uppercase text-xs border-b border-slate-800">
               <tr>
                 <th className="px-4 py-3">NIM</th>
                 <th className="px-4 py-3">Nama</th>
@@ -113,16 +204,23 @@ export default function StudentsPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-800">
-              {students.map((s, i) => (
-                <tr key={i}>
-                  <td className="px-4 py-4">{s.nim}</td>
+              {filteredStudents.map((s) => (
+                <tr key={s.student_id} className="hover:bg-slate-800/50 transition-colors">
+                  <td className="px-4 py-4 font-mono text-slate-400">{s.nim}</td>
                   <td className="px-4 py-4 font-medium text-white">{s.name}</td>
-                  <td className="px-4 py-4">{s.className}</td>
-                  <td className="px-4 py-4 text-blue-400">{s.rank}</td>
-                  <td className="px-4 py-4">{s.xp}</td>
-                  <td className="px-4 py-4">{s.streak}</td>
+                  <td className="px-4 py-4 text-slate-400">{s.className}</td>
+                  <td className="px-4 py-4 font-semibold text-blue-400">{s.rank}</td>
+                  <td className="px-4 py-4 text-emerald-400">{s.xp}</td>
+                  <td className="px-4 py-4 text-amber-400">{s.streak} hari</td>
                 </tr>
               ))}
+              {filteredStudents.length === 0 && (
+                <tr>
+                  <td colSpan={6} className="px-4 py-8 text-center text-slate-500 italic">
+                    Tidak ada mahasiswa yang ditemukan
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>

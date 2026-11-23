@@ -48,6 +48,7 @@ class _FakeAiRepository extends AiRepository {
     required String userCode,
     required String expectedAnswer,
     required bool isCorrect,
+    String? classId,
   }) async {
     feedbackCalls++;
     if (failure != null) throw failure!;
@@ -61,6 +62,10 @@ class _FakeAiRepository extends AiRepository {
     required String language,
     required int questionCount,
     String? context,
+    String? mode,
+    String? classId,
+    String? userId,
+    String? sessionNonce,
   }) async {
     quizCalls++;
     if (failure != null) throw failure!;
